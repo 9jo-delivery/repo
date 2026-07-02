@@ -1,0 +1,41 @@
+package com.sparta.delivery.review;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import com.sparta.delivery.common.entity.BaseEntity;
+import com.sparta.delivery.order.Order;
+import com.sparta.delivery.restaurant.Restaurant;
+import com.sparta.delivery.user.User;
+
+@Entity
+@Table(name = "reviews")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE reviews SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLRestriction("is_deleted = false")
+public class Review extends BaseEntity {
+
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "order_id", nullable = false, unique = true)
+	private Order order;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "restaurant_id", nullable = false)
+	private Restaurant restaurant;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "customer_id", nullable = false)
+	private User customer;
+
+	@Column(nullable = false)
+	private Integer rating;
+
+	@Column(columnDefinition = "TEXT")
+	private String content;
+}
