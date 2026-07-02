@@ -1,14 +1,14 @@
-package com.sparta.delivery.review;
+package com.sparta.delivery.domain.review;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import com.sparta.delivery.common.entity.BaseEntity;
-import com.sparta.delivery.order.Order;
-import com.sparta.delivery.restaurant.Restaurant;
-import com.sparta.delivery.user.User;
+import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.global.common.BaseEntity;
+import com.sparta.delivery.domain.order.Order;
+import com.sparta.delivery.domain.restaurant.Restaurant;
 
 @Entity
 @Table(name = "reviews")

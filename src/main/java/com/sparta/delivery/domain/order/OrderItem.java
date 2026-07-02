@@ -1,11 +1,11 @@
-package com.sparta.delivery.order;
+package com.sparta.delivery.domain.order;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
-import com.sparta.delivery.menu.Menu;
+import com.sparta.delivery.domain.menu.Menu;
 
 @Entity
 @Table(name = "order_items")

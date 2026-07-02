@@ -1,11 +1,11 @@
-package com.sparta.delivery.restaurant;
+package com.sparta.delivery.domain.restaurant;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import com.sparta.delivery.common.entity.BaseEntity;
+import com.sparta.delivery.global.common.BaseEntity;
 
 @Entity
 @Table(name = "restaurant_categories")

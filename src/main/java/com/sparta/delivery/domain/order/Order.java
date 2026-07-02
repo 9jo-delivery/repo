@@ -1,4 +1,4 @@
-package com.sparta.delivery.order;
+package com.sparta.delivery.domain.order;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sparta.delivery.common.entity.BaseEntity;
-import com.sparta.delivery.enums.Enums;
-import com.sparta.delivery.restaurant.Restaurant;
-import com.sparta.delivery.user.User;
+import com.sparta.delivery.domain.restaurant.Restaurant;
+import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.global.common.BaseEntity;
+import com.sparta.delivery.global.common.Enums;
 
 @Entity
 @Table(name = "orders")

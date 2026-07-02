@@ -1,4 +1,4 @@
-package com.sparta.delivery.restaurant;
+package com.sparta.delivery.domain.restaurant;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,9 +7,9 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 
-import com.sparta.delivery.common.entity.BaseEntity;
-import com.sparta.delivery.region.Region;
-import com.sparta.delivery.user.User;
+import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.global.common.BaseEntity;
+import com.sparta.delivery.domain.region.Region;
 
 @Entity
 @Table(name = "restaurants")

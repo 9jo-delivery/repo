@@ -1,4 +1,4 @@
-package com.sparta.delivery.payment;
+package com.sparta.delivery.domain.payment;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,10 +7,10 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
-import com.sparta.delivery.enums.Enums;
-import com.sparta.delivery.common.entity.BaseEntity;
-import com.sparta.delivery.order.Order;
-import com.sparta.delivery.user.User;
+import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.global.common.BaseEntity;
+import com.sparta.delivery.global.common.Enums;
+import com.sparta.delivery.domain.order.Order;
 
 @Entity
 @Table(name = "payments")

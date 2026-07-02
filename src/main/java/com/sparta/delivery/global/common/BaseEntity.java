@@ -1,4 +1,4 @@
-package com.sparta.delivery.common.entity;
+package com.sparta.delivery.global.common;
 
 import jakarta.persistence.*;
 import lombok.Getter;

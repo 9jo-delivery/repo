@@ -1,4 +1,4 @@
-package com.sparta.delivery.enums;
+package com.sparta.delivery.global.common;
 
 public class Enums {
 	public enum UserRole { CUSTOMER, OWNER, MANAGER, MASTER }

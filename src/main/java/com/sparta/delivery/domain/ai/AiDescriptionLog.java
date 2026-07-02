@@ -1,13 +1,13 @@
-package com.sparta.delivery.ai;
+package com.sparta.delivery.domain.ai;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
-import com.sparta.delivery.menu.Menu;
-import com.sparta.delivery.restaurant.Restaurant;
-import com.sparta.delivery.user.User;
+import com.sparta.delivery.domain.menu.Menu;
+import com.sparta.delivery.domain.restaurant.Restaurant;
+import com.sparta.delivery.domain.user.enitiy.User;
 
 @Entity
 @Table(name = "ai_description_logs")

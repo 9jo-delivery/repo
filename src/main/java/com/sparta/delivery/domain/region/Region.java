@@ -1,12 +1,12 @@
-package com.sparta.delivery.region;
+package com.sparta.delivery.domain.region;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import com.sparta.delivery.enums.Enums;
-import com.sparta.delivery.common.entity.BaseEntity;
+import com.sparta.delivery.global.common.BaseEntity;
+import com.sparta.delivery.global.common.Enums;
 
 @Entity
 @Table(name = "regions")
