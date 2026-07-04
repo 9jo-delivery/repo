@@ -14,6 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE p_regions SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
+@AllArgsConstructor
+@Builder
 public class Region extends BaseEntity {
 
 	@Id @GeneratedValue(strategy = GenerationType.UUID)
