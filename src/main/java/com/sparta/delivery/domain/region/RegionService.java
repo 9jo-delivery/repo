@@ -13,6 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class RegionService {
@@ -86,5 +88,46 @@ public class RegionService {
                 .isServiceAvailable(region.isServiceAvailable())
                 .parentRegionId(region.getParentRegion() != null ? region.getParentRegion().getId() : null)
                 .build());
+    }
+
+    @Transactional(readOnly = true)
+    public RegionSummaryResponseDto findRegionById(UUID regionId) {
+        Region region = regionRepository.findById(regionId).orElseThrow(
+                ()-> new IllegalArgumentException("해당 지역이 존재하지 않습니다."));
+
+        return RegionSummaryResponseDto.builder()
+                .id(region.getId())
+                .parentRegionId(region.getParentRegion() != null ? region.getParentRegion().getId() : null)
+                .name(region.getName())
+                .regionType(region.getRegionType())
+                .isServiceAvailable(region.isServiceAvailable())
+                .build();
+    }
+
+    @Transactional
+    public RegionSummaryResponseDto updateRegion(UUID regionId, RegionRequestDto regionRequestDto) {
+        Region region = regionRepository.findById(regionId).orElseThrow(
+                ()-> new IllegalArgumentException("해당 지역이 존재하지 않습니다."));
+
+        region.updateRegion(regionRequestDto.getName(), regionRequestDto.isServiceAvailable());
+
+        return RegionSummaryResponseDto.builder()
+                .id(region.getId())
+                .parentRegionId(region.getParentRegion() != null ? region.getParentRegion().getId() : null)
+                .name(region.getName())
+                .regionType(region.getRegionType())
+                .isServiceAvailable(region.isServiceAvailable())
+                .build();
+    }
+    @Transactional
+    public void deleteRegion(UUID regionId) {
+        Region region = regionRepository.findById(regionId).orElseThrow(
+                ()-> new IllegalArgumentException("해당 지역이 존재하지 않습니다."));
+
+        if(regionRepository.existsByParentRegionIdAndIsDeletedFalse(regionId)){
+            throw new IllegalArgumentException("하위 지역이 존재하여 삭제할 수 없습니다.");
+        }
+
+        region.markAsDeleted(1L); // user 연결되면 처리
     }
 }

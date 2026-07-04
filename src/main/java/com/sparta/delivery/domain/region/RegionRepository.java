@@ -23,4 +23,6 @@ public interface RegionRepository extends JpaRepository<Region, UUID> {
             @Param("isServiceAvailable") Boolean isServiceAvailable,
             Pageable pageable
     );
+
+    boolean existsByParentRegionIdAndIsDeletedFalse(UUID regionId);
 }

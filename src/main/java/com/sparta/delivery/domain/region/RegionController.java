@@ -6,7 +6,11 @@ import com.sparta.delivery.domain.region.dto.RegionSearchDto;
 import com.sparta.delivery.domain.region.dto.RegionSummaryResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,6 +28,19 @@ public class RegionController {
         return regionService.findAllRegions(regionSearchDto);
     }
 
+    @GetMapping("/{regionId}")
+    public RegionSummaryResponseDto findRegionById(@PathVariable UUID regionId){
+        return regionService.findRegionById(regionId);
+    }
 
+    @PatchMapping("/{regionId}")
+    public RegionSummaryResponseDto updateRegion(@PathVariable UUID regionId, @RequestBody RegionRequestDto regionRequestDto) {
+        return regionService.updateRegion(regionId, regionRequestDto);
+    }
 
+    @DeleteMapping("/{regionId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // 204 No Content 강제
+    public void deleteRegion(@PathVariable UUID regionId) {
+        regionService.deleteRegion(regionId);
+    }
 }
