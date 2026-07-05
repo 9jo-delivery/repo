@@ -3,9 +3,7 @@ package com.sparta.delivery.domain.menu.entity;
 import com.sparta.delivery.domain.restaurant.Restaurant;
 import com.sparta.delivery.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -14,6 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "p_menus")
 @Getter
+@AllArgsConstructor
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE p_menus SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false") // WHERE is deleted_ai = false
