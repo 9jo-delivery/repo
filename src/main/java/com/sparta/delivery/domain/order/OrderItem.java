@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-import com.sparta.delivery.domain.menu.Menu;
+import com.sparta.delivery.domain.menu.entity.Menu;
 
 @Entity
 @Table(name = "order_items")
