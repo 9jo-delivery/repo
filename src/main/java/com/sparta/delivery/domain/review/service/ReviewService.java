@@ -1,10 +1,14 @@
 package com.sparta.delivery.domain.review.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Sort;
 import com.sparta.delivery.domain.order.Order;
 import com.sparta.delivery.domain.restaurant.Restaurant;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
@@ -71,5 +75,14 @@ public class ReviewService {
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
 		-> new IllegalArgumentException("해당리뷰 없음"));
 		return ReviewResponseDto.from(review);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, Pageable pageable) {
+		if (!restaurantRepository.existsById(restaurantId)) {
+			throw new IllegalArgumentException("해당 레스토랑없음");
+		}
+		Page<Review> reviewPage = reviewRepository.findAllByRestaurantId(restaurantId, pageable);
+		return reviewPage.map(ReviewResponseDto::from);
 	}
 }
