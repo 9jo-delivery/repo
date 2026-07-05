@@ -61,8 +61,15 @@ public class ReviewService {
 			.build();
 
 		reviewRepository.save(review);
-
+		// 식당의 평균 별점과 리뷰 개수 갱신(미완)
 		return null;
 
+	}
+
+	@Transactional(readOnly = true)
+	public ReviewResponseDto getReview(UUID reviewId) {
+		Review review = reviewRepository.findById(reviewId).orElseThrow(()
+		-> new IllegalArgumentException("해당리뷰 없음"));
+		return ReviewResponseDto.from(review);
 	}
 }
