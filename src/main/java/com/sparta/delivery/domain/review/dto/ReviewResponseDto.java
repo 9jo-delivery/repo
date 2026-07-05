@@ -16,7 +16,7 @@ public class ReviewResponseDto {
 	private String content;
 	private LocalDateTime createdAt;
 
-	// Entity를 DTO로 변환하는 펙토리 메서드(Clean Code)
+	// Entity를 DTO로 변환하는 펙토리 메서드
 	public static ReviewResponseDto from(Review review) {
 		return ReviewResponseDto.builder()
 			.reviewid(review.getId())

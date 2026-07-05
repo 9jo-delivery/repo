@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.review.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class ReviewService {
 	private final TempOrderRepository orderRepository;
 	private final TempRestaurantRepository restaurantRepository;
 
-	@Transactional //데이터가 변경(저장) 되므로 트랜잭션!
+	@Transactional
 	public ReviewResponseDto createReview(UUID orderId, ReviewRequestDto request, Long customerId) {
 
 		// 주문 검증
@@ -85,4 +86,26 @@ public class ReviewService {
 		Page<Review> reviewPage = reviewRepository.findAllByRestaurantId(restaurantId, pageable);
 		return reviewPage.map(ReviewResponseDto::from);
 	}
+
+	@Transactional
+	public ReviewResponseDto updateReview(UUID reviewId, ReviewRequestDto request, Long customerId) {
+		// 검증 (리뷰 유뮤, 작성자 확인)
+		Review review = reviewRepository.findById(reviewId).orElseThrow(()
+		-> new IllegalArgumentException("작성한 리뷰내역 없음"));
+
+
+		if(!review.getCustomer().getId().equals(customerId)) {
+			throw new IllegalArgumentException("자신의 리뷰만 업데이트 가능");
+		}
+
+		// 값 수정(Dirty Check)
+		// 엔티티 내부의 값을 변경하면, 이 메서드가 끝날 때 JPA가 알아서 UPDATE 쿼리 날림
+		// updatedAt 역시 BaseEntity가 알아서 현재 시간으로 업데이트함..
+		review.updateContentAndRating(request.getContent(),request.getRating());
+
+		return ReviewResponseDto.from(review);
+
+	}
+
+
 }

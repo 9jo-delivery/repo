@@ -53,7 +53,7 @@ public class ReviewController {
 
 	// 가게 별 리뷰 목록 조회  (GET /api/restaurants/{restaurantId}/reviews)
 	@GetMapping("/restaurants/{restaurantId}/reviews")
-	public  ResponseEntity<Page<ReviewResponseDto>> getReviews(@PathVariable("restaurantId") UUID restaurantId,
+	public ResponseEntity<Page<ReviewResponseDto>> getReviews(@PathVariable("restaurantId") UUID restaurantId,
 		@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -62,11 +62,20 @@ public class ReviewController {
 		return ResponseEntity.ok(response);
 	}
 
-	// // 리뷰 수정
-	// @PatchMapping("/reviews/{reviewId}")
-	//
-	//
+	// 리뷰 수정
+	@PatchMapping("/reviews/{reviewId}")
+	public ResponseEntity<ReviewResponseDto> updateReview(@PathVariable("reviewId") UUID reviewId, @RequestBody ReviewRequestDto request) {
+		// 원래 이 메서드 파라미터에서도 유저값 받아서 해야하는데 일단 유저 아이디 임의로 정함
+		Long customerId = 1L;
+		ReviewResponseDto response = reviewService.updateReview(reviewId, request, customerId);
+		return ResponseEntity.ok(response);
+	}
+
+	// 리뷰 삭제
 	// @DeleteMapping("/reviews/{reviewId}")
+	// public ResponseEntity<ReviewResponseDto> deleteReview(@PathVariable("reviewId") UUID reviewId) {
+	//
+	// }
 
 
 
