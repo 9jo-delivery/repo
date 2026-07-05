@@ -107,5 +107,14 @@ public class ReviewService {
 
 	}
 
+	public UUID deleteReview(UUID reviewId, Long customerId) {
+		Review review = reviewRepository.findById(reviewId).orElseThrow(()
+		-> new IllegalArgumentException("삭제 가능한 리뷰 없음"));
 
+		if (!review.getCustomer().getId().equals(customerId)) {
+			throw new IllegalArgumentException("자신의 리뷰만 삭제 가능");
+		}
+		reviewRepository.delete(review);
+		return reviewId;
+	}
 }

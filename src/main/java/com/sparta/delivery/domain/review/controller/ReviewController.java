@@ -72,10 +72,11 @@ public class ReviewController {
 	}
 
 	// 리뷰 삭제
-	// @DeleteMapping("/reviews/{reviewId}")
-	// public ResponseEntity<ReviewResponseDto> deleteReview(@PathVariable("reviewId") UUID reviewId) {
-	//
-	// }
+	@DeleteMapping("/reviews/{reviewId}")
+	public UUID deleteReview(@PathVariable("reviewId") UUID reviewId) {
+		Long customerId = 1L;
+		return reviewService.deleteReview(reviewId, customerId);
+	}
 
 
 
