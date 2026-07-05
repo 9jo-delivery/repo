@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.menu.service;
 
 import com.sparta.delivery.domain.menu.dto.MenuCreateRequest;
+import com.sparta.delivery.domain.menu.dto.MenuResponse;
 import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.domain.menu.repository.RestaurantRepository; // menu 패키지에 만든 껍대기 repository
@@ -19,6 +20,7 @@ public class MenuService {
     private final MenuRepository menuRepository;
     private final RestaurantRepository restaurantRepository; // 추후 import 수정할 것
 
+    // 메뉴 생성
     @Transactional
     public UUID createMenu(MenuCreateRequest request) {
 
@@ -38,4 +40,17 @@ public class MenuService {
         Menu savedMenu = menuRepository.save(menu);
         return savedMenu.getId();
     }
+
+    // 단일 메뉴 조회
+    // 클래스 상단에 @Transactional(readOnly = true)가 이미 붙어있음
+    public MenuResponse getMenuDetails(UUID menuId) {
+
+        // DB에서 UUID 기반으로 메뉴를 찾고, 없으면 예외 처리
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
+
+        // static 정적 메서드(from)를 사용해 가방에 실제 값을 채워서 반환!
+        return MenuResponse.from(menu);
+    }
+
 }
