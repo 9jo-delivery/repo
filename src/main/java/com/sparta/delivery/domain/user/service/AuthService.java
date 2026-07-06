@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.user.service;
 
 import com.sparta.delivery.domain.user.dto.request.SignupReqDto;
+import com.sparta.delivery.domain.user.dto.response.SignupResDto;
 import com.sparta.delivery.domain.user.enitiy.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signup(SignupReqDto reqDto) {
+    public SignupResDto signup(SignupReqDto reqDto) {
 
         // 중복 유저 검증
         Optional<User> checkUsername = userRepository.findByUsername(reqDto.getUsername());
@@ -30,12 +31,15 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(reqDto.getPassword());
 
         // 유저 DB에 등록
-        userRepository.save(new User(
-                reqDto.getUsername(),
-                encodedPassword,
-                reqDto.getName(),
-                reqDto.getPhone(),
-                reqDto.getRole()
-        ));
+        User user = userRepository.save(
+                User.builder()
+                        .username(reqDto.getUsername())
+                        .password(encodedPassword)
+                        .name(reqDto.getName())
+                        .phone(reqDto.getPhone())
+                        .role(reqDto.getRole())
+                        .build());
+
+        return new SignupResDto(user);
     }
 }

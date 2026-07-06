@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.user.controller;
 
 import com.sparta.delivery.domain.user.dto.request.SignupReqDto;
+import com.sparta.delivery.domain.user.dto.response.SignupResDto;
 import com.sparta.delivery.domain.user.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,9 @@ public class AuthController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@Valid @RequestBody SignupReqDto reqDto) {
-        authService.signup(reqDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<SignupResDto> signup(@Valid @RequestBody SignupReqDto reqDto) {
+
+        return new ResponseEntity<>(authService.signup(reqDto), HttpStatus.CREATED);
     }
 
     // 로그인
