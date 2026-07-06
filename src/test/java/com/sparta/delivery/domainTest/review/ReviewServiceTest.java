@@ -1,5 +1,11 @@
 package com.sparta.delivery.domainTest.review;
 
+import static org.awaitility.Awaitility.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -12,11 +18,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sparta.delivery.domain.order.Order;
 import com.sparta.delivery.domain.restaurant.Restaurant;
+import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
+import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
 import com.sparta.delivery.domain.review.repository.TempRestaurantRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
 import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.global.common.Enums;
 
 @ExtendWith(MockitoExtension.class)
 public class ReviewServiceTest {
@@ -39,12 +48,17 @@ public class ReviewServiceTest {
 		Long customerId = 1L;
 		UUID restaurantId = UUID.randomUUID();
 		UUID orderId = UUID.randomUUID();
+		User customer = createFakeUser(customerId);
 
-		createFakeUser(customerId);
+		Restaurant restaurant = createFakeRestaurant(restaurantId);
+		Order order = createFakeOrder(orderId,customer,restaurant);
+		ReviewRequestDto  requestDto = new ReviewRequestDto(5, "Good");
 
+		given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
+		given(reviewRepository.existsByOrderId(orderId)).willReturn(false);
+		ReviewResponseDto response = reviewService.createReview(orderId, requestDto, customerId);
 
-
-
+		assertEquals(5, response.getRating());
 
 	}
 
@@ -55,7 +69,7 @@ public class ReviewServiceTest {
 		User user = User.builder()
 			.username("test")
 			.build();
-		ReflectionTestUtils.setField(user, "userId", userId);
+		ReflectionTestUtils.setField(user, "id", userId);
 		return user;
 	}
 
@@ -63,17 +77,18 @@ public class ReviewServiceTest {
 		Restaurant restaurant = Restaurant.builder()
 			.name("testRestaurant")
 			.build();
-		ReflectionTestUtils.setField(restaurant, "restaurantId", restaurantId);
+		ReflectionTestUtils.setField(restaurant, "id", restaurantId);
 		return restaurant;
 	}
 
-	private Order createFakeOrder(UUID orderId, Restaurant restaurant, User user) {
+	private Order createFakeOrder(UUID orderId, User user, Restaurant restaurant) {
 		Order order = Order.builder()
 			.customer(user)
 			.restaurant(restaurant)
+			.orderStatus(Enums.OrderStatus.COMPLETED)
 			.build();
 
-		ReflectionTestUtils.setField(order, "orderId", orderId);
+		ReflectionTestUtils.setField(order, "id", orderId);
 		return order;
 	}
 

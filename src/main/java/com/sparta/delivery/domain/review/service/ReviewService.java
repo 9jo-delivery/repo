@@ -66,8 +66,8 @@ public class ReviewService {
 			.build();
 
 		reviewRepository.save(review);
-		// 식당의 평균 별점과 리뷰 개수 갱신(미완)
-		return null;
+
+		return ReviewResponseDto.from(review);
 
 	}
 
