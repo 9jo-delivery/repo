@@ -20,10 +20,10 @@ public class MenuOptionService {
     private final MenuOptionGroupRepository menuOptionGroupRepository;
 
     @Transactional
-    public UUID createMenuOption(MenuOptionCreateRequest request) {
+    public UUID createMenuOption(UUID optionGroupId, MenuOptionCreateRequest request) {
 
         // 메뉴 옵션 그룹 조회
-        MenuOptionGroup menuOptionGroup = menuOptionGroupRepository.findById(request.optionGroupId())
+        MenuOptionGroup menuOptionGroup = menuOptionGroupRepository.findById(optionGroupId)
                 .orElseThrow(() -> new IllegalArgumentException("메뉴 옵션 그룹을 찾을 수 없습니다."));
 
         // request에서 데이터를 꺼내고, 메뉴 옵션 그룹을 엮어서 MenuOption 엔티티를 빌드

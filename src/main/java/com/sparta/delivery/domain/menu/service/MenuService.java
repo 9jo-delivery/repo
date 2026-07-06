@@ -7,10 +7,11 @@ import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.domain.menu.repository.RestaurantRepository; // menu 패키지에 만든 껍대기 repository
 import com.sparta.delivery.domain.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,20 +22,28 @@ public class MenuService {
     private final MenuRepository menuRepository;
     private final RestaurantRepository restaurantRepository; // 추후 import 수정할 것
 
-    // 메뉴 생성
+    // 메뉴 등록
     @Transactional
-    public UUID createMenu(MenuCreateRequest request) {
+    public UUID createMenu(UUID restaurantId, MenuCreateRequest request) {
 
         // RestaurantRepository를 통해 가게 조회
-        Restaurant restaurant = restaurantRepository.findById(request.restaurantId())
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
+
+        // aiGenerateDescription=true일때
+        String finalDescription = request.description();
+//        if (request.aiGenerateDescription != null && request.aiGenerateDescription) {
+//            finalDescription = geminiService.generate(request.aiPrompt());
+//        }
 
         // request에서 데이터를 꺼내고, 가게 객체를 엮어서 Menu 엔티티를 빌드
         Menu menu = Menu.builder()
                 .restaurant(restaurant)
                 .name(request.name())
-                .description(request.description())
+                .description(finalDescription)
                 .price(request.price())
+                .isHidden(false)
+                .isSoldOut(false)
                 .build();
 
         //DB 저장 후 만들어진 메뉴 ID 반환
@@ -42,7 +51,7 @@ public class MenuService {
         return savedMenu.getId();
     }
 
-    // 단일 메뉴 조회
+    // 메뉴 상세 조회 (단일 메뉴 조회)
     // 클래스 상단에 @Transactional(readOnly = true)가 이미 붙어있음
     public MenuResponse getMenuDetails(UUID menuId) {
 
@@ -54,16 +63,16 @@ public class MenuService {
         return MenuResponse.from(menu);
     }
 
-    // 가게 메뉴 전체 조회
-    public List<MenuResponse> getMenusByRestaurant(UUID restaurantId) {
+    // 메뉴 목록 검색 (가게 메뉴 전체 조회)
+    public Page<MenuResponse> getMenusByRestaurant(UUID restaurantId, Pageable pageable) {
 
         if(!restaurantRepository.existsById(restaurantId)){
-            throw new IllegalArgumentException("존재하지 않는 가게입니댜.");
+            throw new IllegalArgumentException("존재하지 않는 가게입니다.");
         }
 
-        List<Menu> menus = menuRepository.findAllByRestaurantId(restaurantId);
+        Page<Menu> menus = menuRepository.findAllByRestaurantIdAndIsHiddenFalse(restaurantId, pageable);
 
-        return menus.stream().map(MenuResponse::from).toList();
+        return menus.map(MenuResponse::from);
     }
 
 }

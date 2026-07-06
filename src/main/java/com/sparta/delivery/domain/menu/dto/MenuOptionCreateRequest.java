@@ -5,12 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.UUID;
-
 public record MenuOptionCreateRequest(
-
-        @NotNull(message = "옵션 그룹 ID는 필수입니다.")
-        UUID optionGroupId,
 
         @NotBlank(message = "옵션명은 필수입니다.")
         @Size(max = 100, message = "옵션명은 100자 이하로 입력해주세요")
