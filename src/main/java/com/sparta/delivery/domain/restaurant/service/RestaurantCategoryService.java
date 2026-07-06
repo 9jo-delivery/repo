@@ -1,11 +1,9 @@
 package com.sparta.delivery.domain.restaurant.service;
 
-import com.sparta.delivery.domain.restaurant.dto.CategorySummaryResDto;
-import com.sparta.delivery.domain.restaurant.dto.CategorySearchReqDto;
-import com.sparta.delivery.domain.restaurant.dto.CategoryReqDto;
-import com.sparta.delivery.domain.restaurant.dto.CategoryCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.*;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,20 +23,20 @@ public class RestaurantCategoryService {
     }
 
     @Transactional
-    public CategoryCreateResDto createCategory(CategoryReqDto categoryReqDto) { //TODO: 권한 관련 부분 추후 추가 예정
+    public CategoryCreateResDto createCategory(CategoryCreateReqDto categoryCreateReqDto) {
         // 중복 카테고리 여부 검증
-        Optional<RestaurantCategory> category = rcRepository.findByName(categoryReqDto.getName());
+        Optional<RestaurantCategory> category = rcRepository.findByName(categoryCreateReqDto.getName());
         if (category.isPresent()) {
             throw new IllegalArgumentException("이미 등록되어 있는 카테고리입니다.");
         }
 
         // 값 체크
-        Integer sortOrder = categoryReqDto.getSortOrder() == null ? 0 : categoryReqDto.getSortOrder();
+        Integer sortOrder = categoryCreateReqDto.getSortOrder() == null ? 0 : categoryCreateReqDto.getSortOrder();
 
         // 객체 생성
         RestaurantCategory restaurantCategory = RestaurantCategory.builder()
-                .name(categoryReqDto.getName())
-                .description(categoryReqDto.getDescription())
+                .name(categoryCreateReqDto.getName())
+                .description(categoryCreateReqDto.getDescription())
                 .sortOrder(sortOrder)
                 .isActive(true)
                 .build();
@@ -76,6 +74,29 @@ public class RestaurantCategoryService {
     public CategorySummaryResDto getCategoryInfo(UUID id) {
         RestaurantCategory category = rcRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+
+        return new CategorySummaryResDto(category);
+    }
+
+    @Transactional
+    public CategorySummaryResDto updateCategory(UUID id, CategoryUpdateReqDto categoryUpdateReqDto) {
+        RestaurantCategory category = rcRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+
+        // 수정하려는 카테고리명이 이미 있는지 존재 여부 검증 (카테고리명은 고유값이어야 함)
+        if (categoryUpdateReqDto.getName() != null &&
+                rcRepository.findByName(categoryUpdateReqDto.getName()).isPresent() &&
+                !category.getName().equals(categoryUpdateReqDto.getName())
+        ) {
+            throw new IllegalArgumentException("수정하려는 카테고리명이 이미 목록에 존재합니다.");
+        }
+
+        category.update(
+                categoryUpdateReqDto.getName(),
+                categoryUpdateReqDto.getDescription(),
+                categoryUpdateReqDto.getSortOrder(),
+                categoryUpdateReqDto.getIsActive()
+        );
 
         return new CategorySummaryResDto(category);
     }

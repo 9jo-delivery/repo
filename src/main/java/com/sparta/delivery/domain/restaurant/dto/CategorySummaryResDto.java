@@ -11,13 +11,13 @@ public class CategorySummaryResDto {
     private String name;
     private String description;
     private Integer sortOrder;
-    private boolean isActive;
+    private Boolean isActive;
 
     public CategorySummaryResDto(RestaurantCategory category) {
         this.id = category.getId();
         this.name = category.getName();
         this.description = category.getDescription();
         this.sortOrder = category.getSortOrder();
-        this.isActive = category.isActive();
+        this.isActive = category.getIsActive();
     }
 }

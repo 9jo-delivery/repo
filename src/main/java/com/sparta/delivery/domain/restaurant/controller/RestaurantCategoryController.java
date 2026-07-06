@@ -1,9 +1,6 @@
 package com.sparta.delivery.domain.restaurant.controller;
 
-import com.sparta.delivery.domain.restaurant.dto.CategorySummaryResDto;
-import com.sparta.delivery.domain.restaurant.dto.CategorySearchReqDto;
-import com.sparta.delivery.domain.restaurant.dto.CategoryReqDto;
-import com.sparta.delivery.domain.restaurant.dto.CategoryCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.*;
 import com.sparta.delivery.domain.restaurant.service.RestaurantCategoryService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -21,9 +18,9 @@ public class RestaurantCategoryController {
         this.rcService = rcService;
     }
 
-    @PostMapping("/restaurant-categories")
-    public ResponseEntity<CategoryCreateResDto> createCategory(@Valid @RequestBody CategoryReqDto categoryReqDto) {
-        return ResponseEntity.ok(rcService.createCategory(categoryReqDto));
+    @PostMapping("/restaurant-categories") // TODO: 유저/권한 관련 부분 추후 추가 예정
+    public ResponseEntity<CategoryCreateResDto> createCategory(@Valid @RequestBody CategoryCreateReqDto categoryCreateReqDto) {
+        return ResponseEntity.ok(rcService.createCategory(categoryCreateReqDto));
     }
 
     @GetMapping("/restaurant-categories")
@@ -35,4 +32,11 @@ public class RestaurantCategoryController {
     public ResponseEntity<CategorySummaryResDto> getCategoryInfo(@PathVariable UUID id) {
        return ResponseEntity.ok(rcService.getCategoryInfo(id));
     }
+
+    @PatchMapping("/restaurant-categories/{id}") // TODO: 유저/권한 관련 부분 추후 추가 예정
+    public ResponseEntity<CategorySummaryResDto> updateCategory(@PathVariable UUID id, @Valid @RequestBody CategoryUpdateReqDto categoryUpdateReqDto) {
+        return ResponseEntity.ok(rcService.updateCategory(id, categoryUpdateReqDto));
+    }
+
+
 }

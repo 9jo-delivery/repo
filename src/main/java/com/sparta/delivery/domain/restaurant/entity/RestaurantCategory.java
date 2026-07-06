@@ -39,5 +39,14 @@ public class RestaurantCategory extends BaseEntity {
 		this.isActive = isActive;
 	}
 
-
+	public void update(String name, String description, Integer sortOrder, Boolean isActive) {
+		if (name != null)
+			this.name = name;
+		if (description != null)
+			this.description = description;
+		if (sortOrder != null)
+			this.sortOrder = sortOrder;
+		if (isActive != null)
+			this.isActive = isActive;
+	}
 }
