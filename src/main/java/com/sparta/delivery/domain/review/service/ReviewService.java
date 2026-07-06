@@ -47,7 +47,7 @@ public class ReviewService {
 
 		// 권한 검증 (이 주문을 한 고객과 현재 리뷰를 쓰려는 고객이 일치하는가?)
 
-		if (order.getCustomer().getId().equals(customerId)) {
+		if (!order.getCustomer().getId().equals(customerId)) {
 			throw new IllegalArgumentException("자신의 주문에서만 리뷰 작성 가능");
 		}
 
