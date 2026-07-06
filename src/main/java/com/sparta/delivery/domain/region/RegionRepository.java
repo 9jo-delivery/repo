@@ -10,12 +10,13 @@ import org.springframework.data.repository.query.Param;
 import java.util.UUID;
 
 public interface RegionRepository extends JpaRepository<Region, UUID> {
-    // 🔍 명세서 맞춤형 동적 검색 쿼리 (부분일치 포함)
+    // 전체 지역 조회 쿼리
     @Query("SELECT r FROM Region r " +
             "WHERE (:parentRegionId IS NULL OR r.parentRegion.id = :parentRegionId) " +
             "AND (:name IS NULL OR r.name LIKE %:name%) " +
             "AND (:regionType IS NULL OR r.regionType = :regionType) " +
-            "AND (:isServiceAvailable IS NULL OR r.isServiceAvailable = :isServiceAvailable)")
+            "AND (:isServiceAvailable IS NULL OR r.isServiceAvailable = :isServiceAvailable) " +
+            "AND r.isDeleted = false")
     Page<Region> searchRegions(
             @Param("parentRegionId") UUID parentRegionId,
             @Param("name") String name,

@@ -35,8 +35,8 @@ public class Region extends BaseEntity {
 	@Column(nullable = false)
 	private boolean isServiceAvailable = false;
 
-	public void updateRegion(String name, boolean serviceAvailable) {
+	public void updateRegion(String name, boolean isServiceAvailable) {
 		this.name = name;
-		this.isServiceAvailable = serviceAvailable;
+		this.isServiceAvailable = isServiceAvailable;
 	}
 }
