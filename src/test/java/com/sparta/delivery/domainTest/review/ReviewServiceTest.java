@@ -54,12 +54,34 @@ public class ReviewServiceTest {
 		Order order = createFakeOrder(orderId,customer,restaurant);
 		ReviewRequestDto  requestDto = new ReviewRequestDto(5, "Good");
 
+		// When
 		given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
 		given(reviewRepository.existsByOrderId(orderId)).willReturn(false);
 		ReviewResponseDto response = reviewService.createReview(orderId, requestDto, customerId);
 
+		// Then
 		assertEquals(5, response.getRating());
+	}
 
+	@Test
+	@DisplayName("리뷰 생성 실패 테스트- 본인이 아닐경우")
+	void createReview_Fail() {
+		Long orderOwnerId = 1L;
+		Long falseOwnerId = 2L;
+		UUID restaurantId = UUID.randomUUID();
+		UUID orderId = UUID.randomUUID();
+
+		User customer = createFakeUser(orderOwnerId);
+		Restaurant restaurant = createFakeRestaurant(restaurantId);
+		Order order = createFakeOrder(orderId,customer,restaurant);
+		ReviewRequestDto  requestDto = new ReviewRequestDto(5, "Good");
+
+
+		given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
+
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> reviewService.createReview(orderId, requestDto, falseOwnerId))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("자신의 주문에서만 리뷰 가능");
 	}
 
 
@@ -91,7 +113,5 @@ public class ReviewServiceTest {
 		ReflectionTestUtils.setField(order, "id", orderId);
 		return order;
 	}
-
-
 
 }
