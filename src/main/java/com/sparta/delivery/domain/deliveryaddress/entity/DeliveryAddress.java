@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.deliveryaddress;
+package com.sparta.delivery.domain.deliveryaddress.entity;
 
 import com.sparta.delivery.domain.user.enitiy.User;
 import jakarta.persistence.*;
@@ -14,6 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE p_delivery_addresses SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
+@AllArgsConstructor
+@Builder
 public class DeliveryAddress extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,4 +38,8 @@ public class DeliveryAddress extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean isDefault = false;
+
+    public void updateDefault(boolean b) {
+        this.isDefault = b;
+    }
 }
