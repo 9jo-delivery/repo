@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sparta.delivery.domain.order.Order;
@@ -27,6 +33,8 @@ import com.sparta.delivery.domain.review.repository.TempRestaurantRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
 import com.sparta.delivery.domain.user.enitiy.User;
 import com.sparta.delivery.global.common.Enums;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class ReviewServiceTest {
@@ -133,6 +141,46 @@ public class ReviewServiceTest {
 		assertEquals(5, newResponse.getRating());
 		assertEquals("Good", newResponse.getContent());
 	}
+
+	@Test
+	@DisplayName("식당 리뷰 목록 조회 성공 - 페이징 처리")
+	void getRestaurantReviews_Success() {
+		// Given
+		Long customerId = 1L;
+		UUID orderId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		User customer = createFakeUser(customerId);
+		Restaurant restaurant = createFakeRestaurant(restaurantId);
+		Order order = createFakeOrder(orderId,customer,restaurant);
+
+		Pageable pageable = PageRequest.of(0, 10,
+			Sort.by(Sort.Direction.DESC, "createdAt"));
+
+		// 2. 리뷰 리스트를 담은 PageImpl 객체 생성
+		List<Review> reviews = List.of(Review.create(order, 3, "so so"), Review.create(order, 4, "not bad"));
+		Page<Review> page = new PageImpl<>(reviews, pageable, reviews.size());
+
+		// 1. restaurantRepository.existsById(restaurantId) 가 true 반환
+		given(restaurantRepository.existsById(restaurantId)).willReturn(true);
+		// 3. reviewRepository.findAllByRestaurantId(...) 가 page를 반환하도록 설정
+		given(reviewRepository.findAllByRestaurantId(restaurantId, pageable)).willReturn(page);
+
+
+		// When
+		Page<ReviewResponseDto> result = reviewService.getRestaurantReviews(restaurantId, pageable);
+
+		// Then
+		// result 의 전체 요소 개수가 2개인지 확인
+		// result.getContent().get(0)의 내용이 맞게 매핑되었는지 확인
+
+		assertThat(result).isNotNull();
+		assertThat(result.getContent()).hasSize(2);
+
+		assertThat(result.getContent().get(0))
+			.returns("so so", ReviewResponseDto::getContent)
+			.returns(3, ReviewResponseDto::getRating);
+	}
+
 
 
 
