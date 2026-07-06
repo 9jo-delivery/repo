@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class RestaurantCategoryService {
@@ -70,5 +71,12 @@ public class RestaurantCategoryService {
             return size;
         }
         return 10;
+    }
+
+    public CategorySummaryResDto getCategoryInfo(UUID id) {
+        RestaurantCategory category = rcRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+
+        return new CategorySummaryResDto(category);
     }
 }

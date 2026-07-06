@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api")
 public class RestaurantCategoryController {
@@ -27,5 +29,10 @@ public class RestaurantCategoryController {
     @GetMapping("/restaurant-categories")
     public ResponseEntity<Page<CategorySummaryResDto>> getAllCategories(@ModelAttribute CategorySearchReqDto cond) {
         return ResponseEntity.ok(rcService.getAllCategories(cond));
+    }
+
+    @GetMapping("/restaurant-categories/{id}")
+    public ResponseEntity<CategorySummaryResDto> getCategoryInfo(@PathVariable UUID id) {
+       return ResponseEntity.ok(rcService.getCategoryInfo(id));
     }
 }
