@@ -1,5 +1,7 @@
 package com.sparta.delivery.domain.menu;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -9,7 +11,7 @@ import com.sparta.delivery.domain.restaurant.Restaurant;
 import com.sparta.delivery.global.common.BaseEntity;
 
 @Entity
-@Table(name = "menus")
+@Table(name = "p_menus")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE menus SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
@@ -17,7 +19,7 @@ import com.sparta.delivery.global.common.BaseEntity;
 public class Menu extends BaseEntity {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "restaurant_id", nullable = false)
