@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import com.sparta.delivery.domain.restaurant.Restaurant;
+import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.global.common.BaseEntity;
 
 @Entity

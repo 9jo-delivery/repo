@@ -6,8 +6,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 import com.sparta.delivery.domain.menu.Menu;
-import com.sparta.delivery.domain.restaurant.Restaurant;
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.restaurant.entity.Restaurant;
+import com.sparta.delivery.domain.user.entity.User;
 
 @Entity
 @Table(name = "ai_description_logs")

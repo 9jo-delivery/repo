@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.restaurant;
+package com.sparta.delivery.domain.restaurant.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,16 +7,18 @@ import org.hibernate.annotations.SQLRestriction;
 
 import com.sparta.delivery.global.common.BaseEntity;
 
+import java.util.UUID;
+
 @Entity
-@Table(name = "restaurant_categories")
+@Table(name = "p_restaurant_categories")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE restaurant_categories SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE p_restaurant_categories SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class RestaurantCategory extends BaseEntity {
 
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@Id @GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
 	@Column(nullable = false, unique = true, length = 50)
 	private String name;
@@ -28,4 +30,12 @@ public class RestaurantCategory extends BaseEntity {
 
 	@Column(nullable = false)
 	private boolean isActive = true;
+
+	public RestaurantCategory(UUID id, String name, String description, Integer sortOrder, boolean isActive) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.sortOrder = sortOrder;
+		this.isActive = isActive;
+	}
 }
