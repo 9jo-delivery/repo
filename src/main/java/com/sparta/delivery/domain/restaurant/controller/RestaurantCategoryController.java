@@ -18,7 +18,7 @@ public class RestaurantCategoryController {
         this.rcService = rcService;
     }
 
-    @PostMapping("/restaurant-categories") // TODO: 유저/권한 관련 부분 추후 추가 예정
+    @PostMapping("/restaurant-categories") // TODO: 유저/권한 관련 부분 추후 추가 예정: Manager, Master
     public ResponseEntity<CategoryCreateResDto> createCategory(@Valid @RequestBody CategoryCreateReqDto categoryCreateReqDto) {
         return ResponseEntity.ok(rcService.createCategory(categoryCreateReqDto));
     }
@@ -33,10 +33,14 @@ public class RestaurantCategoryController {
        return ResponseEntity.ok(rcService.getCategoryInfo(id));
     }
 
-    @PatchMapping("/restaurant-categories/{id}") // TODO: 유저/권한 관련 부분 추후 추가 예정
+    @PatchMapping("/restaurant-categories/{id}") // TODO: 유저/권한 관련 부분 추후 추가 예정: Manager, Master
     public ResponseEntity<CategorySummaryResDto> updateCategory(@PathVariable UUID id, @Valid @RequestBody CategoryUpdateReqDto categoryUpdateReqDto) {
         return ResponseEntity.ok(rcService.updateCategory(id, categoryUpdateReqDto));
     }
 
-
+    @DeleteMapping("/restaurant-categories/{id}") // TODO: 유저/권한 관련 부분 추후 추가 예정: Master
+    public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
+        rcService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
 }

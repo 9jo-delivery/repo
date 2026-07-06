@@ -100,4 +100,12 @@ public class RestaurantCategoryService {
 
         return new CategorySummaryResDto(category);
     }
+
+    @Transactional
+    public void deleteCategory(UUID id) {
+        RestaurantCategory category = rcRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+
+        rcRepository.delete(category);
+    }
 }
