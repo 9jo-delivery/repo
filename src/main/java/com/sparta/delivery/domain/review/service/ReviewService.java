@@ -57,13 +57,7 @@ public class ReviewService {
 		}
 
 		// 리뷰 엔티티 생성
-		Review review = Review.builder()
-			.order(order)
-			.restaurant(order.getRestaurant())
-			.customer(order.getCustomer())
-			.rating(request.getRating())
-			.content(request.getContent())
-			.build();
+		Review review = Review.create(order, request.getRating(), request.getContent());
 
 		reviewRepository.save(review);
 

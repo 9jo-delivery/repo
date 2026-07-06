@@ -50,6 +50,17 @@ public class Review extends BaseEntity {
 		this.content = content;
 	}
 
+	// 코드 리펙토링 (엔티티 객체 생성 하나하나 설정값 넣어서 하기 귀찮음때 사용)
+	public static Review create(Order order, Integer rating, String content) {
+		return Review.builder()
+			.order(order)
+			.restaurant(order.getRestaurant())
+			.customer(order.getCustomer())
+			.rating(rating)
+			.content(content).
+			build();
+	}
+
 	public void updateContentAndRating(String content, Integer rating) {
 		this.content = content;
 		this.rating = rating;
