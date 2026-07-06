@@ -2,6 +2,7 @@ package com.sparta.delivery.domain.menu.service;
 
 import com.sparta.delivery.domain.menu.dto.MenuCreateRequest;
 import com.sparta.delivery.domain.menu.dto.MenuResponse;
+import com.sparta.delivery.domain.menu.dto.MenuUpdateRequest;
 import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.domain.menu.repository.RestaurantRepository; // menu 패키지에 만든 껍대기 repository
@@ -51,6 +52,18 @@ public class MenuService {
         return savedMenu.getId();
     }
 
+    // 메뉴 목록 검색 (가게 메뉴 전체 조회)
+    public Page<MenuResponse> getMenusByRestaurant(UUID restaurantId, Pageable pageable) {
+
+        if(!restaurantRepository.existsById(restaurantId)){
+            throw new IllegalArgumentException("존재하지 않는 가게입니다.");
+        }
+
+        Page<Menu> menus = menuRepository.findAllByRestaurantIdAndIsHiddenFalse(restaurantId, pageable);
+
+        return menus.map(MenuResponse::from);
+    }
+
     // 메뉴 상세 조회 (단일 메뉴 조회)
     // 클래스 상단에 @Transactional(readOnly = true)가 이미 붙어있음
     public MenuResponse getMenuDetails(UUID menuId) {
@@ -63,16 +76,37 @@ public class MenuService {
         return MenuResponse.from(menu);
     }
 
-    // 메뉴 목록 검색 (가게 메뉴 전체 조회)
-    public Page<MenuResponse> getMenusByRestaurant(UUID restaurantId, Pageable pageable) {
+    // 메뉴 수정
+    @Transactional
+    public MenuResponse updateMenu(UUID menuId, MenuUpdateRequest request) {
+        // 존재하는 메뉴인지 검증
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
 
-        if(!restaurantRepository.existsById(restaurantId)){
-            throw new IllegalArgumentException("존재하지 않는 가게입니다.");
-        }
+        String finalDescription = request.description();
+//        if (request.aiGenerateDescription != null && request.aiGenerateDescription) {
+//            finalDescription = geminiService.generate(request.aiPrompt());
+//        }
 
-        Page<Menu> menus = menuRepository.findAllByRestaurantIdAndIsHiddenFalse(restaurantId, pageable);
+        menu.update(
+                request.name(),
+                finalDescription,
+                request.price(),
+                request.isHidden(),
+                request.isSoldOut()
+        );
 
-        return menus.map(MenuResponse::from);
+        return MenuResponse.from(menu);
+    }
+
+    // 메뉴 삭제
+    @Transactional
+    public void deleteMenu(UUID menuId, Long userId) {
+
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
+
+        menu.markAsDeleted(userId);
     }
 
 }
