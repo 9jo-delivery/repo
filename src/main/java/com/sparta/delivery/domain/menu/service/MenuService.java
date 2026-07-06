@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -51,6 +52,18 @@ public class MenuService {
 
         // static 정적 메서드(from)를 사용해 가방에 실제 값을 채워서 반환!
         return MenuResponse.from(menu);
+    }
+
+    // 가게 메뉴 전체 조회
+    public List<MenuResponse> getMenusByRestaurant(UUID restaurantId) {
+
+        if(!restaurantRepository.existsById(restaurantId)){
+            throw new IllegalArgumentException("존재하지 않는 가게입니댜.");
+        }
+
+        List<Menu> menus = menuRepository.findAllByRestaurantId(restaurantId);
+
+        return menus.stream().map(MenuResponse::from).toList();
     }
 
 }
