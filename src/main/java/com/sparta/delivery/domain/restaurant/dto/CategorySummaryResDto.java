@@ -7,11 +7,11 @@ import java.util.UUID;
 
 @Getter
 public class CategorySummaryResDto {
-    private UUID id;
-    private String name;
-    private String description;
-    private Integer sortOrder;
-    private Boolean isActive;
+    private final UUID id;
+    private final String name;
+    private final String description;
+    private final Integer sortOrder;
+    private final Boolean isActive;
 
     public CategorySummaryResDto(RestaurantCategory category) {
         this.id = category.getId();

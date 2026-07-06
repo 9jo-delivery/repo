@@ -3,7 +3,6 @@ package com.sparta.delivery.domain.restaurant.service;
 import com.sparta.delivery.domain.restaurant.dto.*;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
