@@ -20,6 +20,7 @@ import com.sparta.delivery.domain.order.Order;
 import com.sparta.delivery.domain.restaurant.Restaurant;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
+import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
 import com.sparta.delivery.domain.review.repository.TempRestaurantRepository;
@@ -81,7 +82,7 @@ public class ReviewServiceTest {
 
 		org.assertj.core.api.Assertions.assertThatThrownBy(() -> reviewService.createReview(orderId, requestDto, falseOwnerId))
 			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("자신의 주문에서만 리뷰 가능");
+			.hasMessage("자신의 주문에서만 리뷰 작성 가능");
 	}
 
 	@Test
@@ -105,6 +106,38 @@ public class ReviewServiceTest {
 			reviewService.createReview(orderId, requestDto, customerId)
 			).isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("해당 주문에 이미 작성한 리뷰 존재"); // 테스트에선 반드시 서비스 코드에서 던지는 예외 메시지 일치시켜야함
+	}
+
+	@Test
+	@DisplayName("리뷰 수정 - 내용과 별점이 작성이 실제 반영됨-> dirtyCheck")
+	void updateReview_Success() {
+		Long customerId = 1L;
+		UUID orderId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		UUID reviewId = UUID.randomUUID();
+
+		User customer = createFakeUser(customerId);
+		Restaurant restaurant = createFakeRestaurant(restaurantId);
+		Order order = createFakeOrder(orderId,customer,restaurant);
+
+		Review existReview = Review.builder()
+			.order(order)
+			.restaurant(restaurant)
+			.customer(customer)
+			.rating(3)
+			.content("so so")
+			.build();
+		ReflectionTestUtils.setField(existReview, "id", reviewId);
+		ReviewRequestDto newRequest = new ReviewRequestDto(5, "Good");
+		given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existReview));
+
+
+		// when
+		ReviewResponseDto newResponse = reviewService.updateReview(reviewId, newRequest, customerId);
+
+		// then
+		assertEquals(5, newResponse.getRating());
+		assertEquals("Good", newResponse.getContent());
 	}
 
 
