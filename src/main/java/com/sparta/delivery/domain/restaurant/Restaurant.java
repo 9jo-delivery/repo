@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 import com.sparta.delivery.domain.user.enitiy.User;
 import com.sparta.delivery.global.common.BaseEntity;
-import com.sparta.delivery.domain.region.Region;
+import com.sparta.delivery.domain.region.entity.Region;
 
 @Entity
 @Table(name = "restaurants")
