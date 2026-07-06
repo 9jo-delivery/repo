@@ -120,13 +120,7 @@ public class ReviewServiceTest {
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
 		Order order = createFakeOrder(orderId,customer,restaurant);
 
-		Review existReview = Review.builder()
-			.order(order)
-			.restaurant(restaurant)
-			.customer(customer)
-			.rating(3)
-			.content("so so")
-			.build();
+		Review existReview = Review.create(order, 3, "so so");
 		ReflectionTestUtils.setField(existReview, "id", reviewId);
 		ReviewRequestDto newRequest = new ReviewRequestDto(5, "Good");
 		given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existReview));
