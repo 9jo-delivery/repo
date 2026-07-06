@@ -8,15 +8,15 @@ import org.hibernate.annotations.SQLRestriction;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.domain.region.Region;
 
 @Entity
-@Table(name = "restaurants")
+@Table(name = "p_restaurants")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE restaurants SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE p_restaurants SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class Restaurant extends BaseEntity {
 

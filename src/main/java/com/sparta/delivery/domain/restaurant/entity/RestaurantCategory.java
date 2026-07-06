@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.restaurant.entity;
 
+import com.sparta.delivery.domain.restaurant.dto.RCRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -31,8 +32,8 @@ public class RestaurantCategory extends BaseEntity {
 	@Column(nullable = false)
 	private boolean isActive = true;
 
-	public RestaurantCategory(UUID id, String name, String description, Integer sortOrder, boolean isActive) {
-		this.id = id;
+	@Builder
+	public RestaurantCategory(String name, String description, Integer sortOrder, boolean isActive) {
 		this.name = name;
 		this.description = description;
 		this.sortOrder = sortOrder;
