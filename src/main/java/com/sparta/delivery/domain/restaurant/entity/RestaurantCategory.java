@@ -29,13 +29,15 @@ public class RestaurantCategory extends BaseEntity {
 	private Integer sortOrder = 0;
 
 	@Column(nullable = false)
-	private boolean isActive = true;
+	private Boolean isActive = true;
 
 	@Builder
-	public RestaurantCategory(String name, String description, Integer sortOrder, boolean isActive) {
+	public RestaurantCategory(String name, String description, Integer sortOrder, Boolean isActive) {
 		this.name = name;
 		this.description = description;
 		this.sortOrder = sortOrder;
 		this.isActive = isActive;
 	}
+
+
 }
