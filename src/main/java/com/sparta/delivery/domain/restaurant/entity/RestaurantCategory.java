@@ -1,6 +1,5 @@
 package com.sparta.delivery.domain.restaurant.entity;
 
-import com.sparta.delivery.domain.restaurant.dto.RCRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;

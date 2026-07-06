@@ -6,11 +6,11 @@ import lombok.Getter;
 import java.util.UUID;
 
 @Getter
-public class RCCreateResponseDto {
+public class CategoryCreateResDto {
     private UUID id;
     private String name;
 
-    public RCCreateResponseDto(RestaurantCategory savedCategory) {
+    public CategoryCreateResDto(RestaurantCategory savedCategory) {
         this.id = savedCategory.getId();
         this.name = savedCategory.getName();
     }

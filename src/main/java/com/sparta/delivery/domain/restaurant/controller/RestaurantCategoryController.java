@@ -1,10 +1,12 @@
 package com.sparta.delivery.domain.restaurant.controller;
 
-import com.sparta.delivery.domain.restaurant.dto.RCGetResponseDto;
-import com.sparta.delivery.domain.restaurant.dto.RCRequestDto;
-import com.sparta.delivery.domain.restaurant.dto.RCCreateResponseDto;
+import com.sparta.delivery.domain.restaurant.dto.CategorySummaryResDto;
+import com.sparta.delivery.domain.restaurant.dto.CategorySearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.CategoryReqDto;
+import com.sparta.delivery.domain.restaurant.dto.CategoryCreateResDto;
 import com.sparta.delivery.domain.restaurant.service.RestaurantCategoryService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +20,12 @@ public class RestaurantCategoryController {
     }
 
     @PostMapping("/restaurant-categories")
-    public ResponseEntity<RCCreateResponseDto> createCategory(@Valid @RequestBody RCRequestDto rcRequestDto) {
-        return ResponseEntity.ok(rcService.createCategory(rcRequestDto));
+    public ResponseEntity<CategoryCreateResDto> createCategory(@Valid @RequestBody CategoryReqDto categoryReqDto) {
+        return ResponseEntity.ok(rcService.createCategory(categoryReqDto));
     }
 
-
+    @GetMapping("/restaurant-categories")
+    public ResponseEntity<Page<CategorySummaryResDto>> getAllCategories(@ModelAttribute CategorySearchReqDto cond) {
+        return ResponseEntity.ok(rcService.getAllCategories(cond));
+    }
 }

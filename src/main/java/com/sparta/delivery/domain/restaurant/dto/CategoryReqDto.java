@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class RCRequestDto {
+public class CategoryReqDto {
     @NotBlank
     private String name;
 
@@ -12,7 +12,7 @@ public class RCRequestDto {
     private Integer sortOrder;
     private boolean isActive;
 
-    public RCRequestDto(String name, String description, Integer sortOrder, boolean isActive) {
+    public CategoryReqDto(String name, String description, Integer sortOrder, boolean isActive) {
         this.name = name;
         this.description = description;
         this.sortOrder = sortOrder;
