@@ -84,6 +84,28 @@ public class ReviewServiceTest {
 			.hasMessage("자신의 주문에서만 리뷰 가능");
 	}
 
+	@Test
+	@DisplayName("리뷰 생성 실패 - 작성한 리뷰가 존재하는 경우(도배방지)")
+	void createReview_Fail_ReviewExist() {
+		Long customerId = 1L;
+		UUID orderId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+
+		User customer = createFakeUser(customerId);
+		Restaurant restaurant = createFakeRestaurant(restaurantId);
+		Order order = createFakeOrder(orderId,customer,restaurant);
+		ReviewRequestDto  requestDto = new ReviewRequestDto(5, "Good");
+
+		given(orderRepository.findById(orderId)).willReturn(Optional.of(order)); // optional로 감싼 객체(Order)가 반환
+		given(orderRepository.existsById(orderId)).willReturn(true); //  당연히 order에는 Id가 있을테니깐 true 반환됨
+		// 그러면 given -> when -> then 여기서 내가 예상하는 결과값은 넌 이미 리뷰 작성했으니 못써 임마 이건데?
+
+		org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+			reviewService.createReview(orderId, requestDto, customerId)
+			).isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("이미 리뷰하셧음다"); // 근데 assertionError가 나옴 내가 예상한 값이 아니라는데?
+	}
+
 
 
 	// 테스트 코드 의존성 분리 User, Restaurant, Order
