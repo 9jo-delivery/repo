@@ -6,10 +6,12 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.restaurant.Restaurant;
+import com.sparta.delivery.domain.order.Order;
+import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 
 @Entity
 @Table(name = "p_reviews")
