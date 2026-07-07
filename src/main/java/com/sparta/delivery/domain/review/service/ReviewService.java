@@ -7,11 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.delivery.domain.order.Order;
+import com.sparta.delivery.domain.order.entity.Order;
 
+import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
+import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
@@ -71,12 +73,12 @@ public class ReviewService {
 		return ReviewResponseDto.from(review);
 	}
 
-	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, Pageable pageable) {
+	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, ReviewSearchCondition condition, Pageable pageable) {
 		if (!restaurantRepository.existsById(restaurantId)) {
 			throw new IllegalArgumentException("해당 레스토랑없음");
 		}
-
-		Page<Review> reviewPage = reviewRepository.findAllByRestaurantId(restaurantId, pageable);
+		// QureryDsl 메서드
+		Page<Review> reviewPage = reviewRepository.searchRestaurantReviews(restaurantId, condition, pageable);
 		return reviewPage.map(ReviewResponseDto::from);
 	}
 
@@ -126,7 +128,7 @@ public class ReviewService {
 		Long reviewCount = reviewRepository.countByRestaurantIdAndIsDeleteFalse(restaurant.getId());
 
 		// 찾아온 식당의 리뷰둘의 평균 평점 계산식
-		// QueryDSL
+		// JQPL
 		double averageRating = reviewRepository.calculateAverageRatingByRestaurantId(restaurant.getId());
 		restaurant.updateRatingAndCount(averageRating, reviewCount);
 	}
