@@ -74,7 +74,7 @@ public class ReviewService {
 		return ReviewResponseDto.from(review);
 	}
 
-	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, Pageable pageable) {
+	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, Pageable pageable, Integer rating) {
 		if (!restaurantRepository.existsById(restaurantId)) {
 			throw new IllegalArgumentException("해당 레스토랑없음");
 		}
