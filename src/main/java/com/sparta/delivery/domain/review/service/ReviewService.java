@@ -1,28 +1,20 @@
 package com.sparta.delivery.domain.review.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Sort;
-import com.sparta.delivery.domain.order.Order;
-import com.sparta.delivery.domain.restaurant.Restaurant;
+import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
 import com.sparta.delivery.domain.review.repository.TempRestaurantRepository;
-import com.sparta.delivery.domain.user.enitiy.User;
 import com.sparta.delivery.global.common.Enums;
-
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j(topic = "Review API")
 @Service

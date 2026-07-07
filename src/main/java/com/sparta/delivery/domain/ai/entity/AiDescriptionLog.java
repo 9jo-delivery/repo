@@ -1,11 +1,11 @@
 package com.sparta.delivery.domain.ai;
 
+import com.sparta.delivery.domain.menu.entity.Menu;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
-import com.sparta.delivery.domain.menu.Menu;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.user.entity.User;
 
