@@ -1,6 +1,6 @@
 package com.sparta.delivery.domain.user.dto.response;
 
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.Enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -23,15 +23,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sparta.delivery.domain.order.Order;
-import com.sparta.delivery.domain.restaurant.Restaurant;
+
+import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
-import com.sparta.delivery.domain.review.repository.TempRestaurantRepository;
+import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
-import com.sparta.delivery.domain.user.enitiy.User;
+
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.Enums;
 
 import static org.assertj.core.api.Assertions.assertThat;

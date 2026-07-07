@@ -2,7 +2,7 @@ package com.sparta.delivery.domain.user.service;
 
 import com.sparta.delivery.domain.user.dto.request.SignupReqDto;
 import com.sparta.delivery.domain.user.dto.response.SignupResDto;
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

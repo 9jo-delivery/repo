@@ -1,24 +1,21 @@
 package com.sparta.delivery.domain.review.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Sort;
+
 import com.sparta.delivery.domain.order.Order;
-import com.sparta.delivery.domain.restaurant.Restaurant;
+
+import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
-import com.sparta.delivery.domain.review.repository.TempRestaurantRepository;
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository;
 import com.sparta.delivery.global.common.Enums;
 
 import lombok.RequiredArgsConstructor;
@@ -74,10 +71,11 @@ public class ReviewService {
 		return ReviewResponseDto.from(review);
 	}
 
-	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, Pageable pageable, Integer rating) {
+	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, Pageable pageable) {
 		if (!restaurantRepository.existsById(restaurantId)) {
 			throw new IllegalArgumentException("해당 레스토랑없음");
 		}
+
 		Page<Review> reviewPage = reviewRepository.findAllByRestaurantId(restaurantId, pageable);
 		return reviewPage.map(ReviewResponseDto::from);
 	}
