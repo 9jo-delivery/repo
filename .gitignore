@@ -39,4 +39,3 @@ out/
 ### Custom Excludes ###
 .DS_Store
 .env
-
