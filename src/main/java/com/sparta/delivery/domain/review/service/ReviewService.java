@@ -68,14 +68,12 @@ public class ReviewService {
 
 	}
 
-	@Transactional(readOnly = true)
 	public ReviewResponseDto getReview(UUID reviewId) {
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
 		-> new IllegalArgumentException("해당리뷰 없음"));
 		return ReviewResponseDto.from(review);
 	}
 
-	@Transactional(readOnly = true)
 	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, Pageable pageable) {
 		if (!restaurantRepository.existsById(restaurantId)) {
 			throw new IllegalArgumentException("해당 레스토랑없음");
@@ -114,7 +112,14 @@ public class ReviewService {
 		if (!review.getCustomer().getId().equals(customerId)) {
 			throw new IllegalArgumentException("자신의 리뷰만 삭제 가능");
 		}
+		Enums.UserRole isOwner = review.getCustomer().getRole();
+
+		if (isOwner == Enums.UserRole.OWNER || isOwner == Enums.UserRole.MASTER) {
+			throw new IllegalArgumentException("삭제 권한 없음");
+		}
+
 		reviewRepository.delete(review);
+		updateRestaurantRatingAndCount(review.getRestaurant());
 		return reviewId;
 	}
 
