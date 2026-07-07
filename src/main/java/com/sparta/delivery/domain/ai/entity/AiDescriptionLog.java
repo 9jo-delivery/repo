@@ -1,23 +1,22 @@
-package com.sparta.delivery.domain.ai.entity;
+package com.sparta.delivery.domain.ai;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
 import jakarta.persistence.*;
 import lombok.*;
 
-import com.sparta.delivery.domain.menu.entity.Menu;
-import com.sparta.delivery.domain.restaurant.Restaurant;
-import com.sparta.delivery.domain.user.enitiy.User;
+import java.time.LocalDateTime;
+
+import com.sparta.delivery.domain.menu.Menu;
+import com.sparta.delivery.domain.restaurant.entity.Restaurant;
+import com.sparta.delivery.domain.user.entity.User;
 
 @Entity
-@Table(name = "p_ai_description_logs") // 수정: p_ 접두사 추가
+@Table(name = "ai_description_logs")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AiDescriptionLog {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID) // 수정: UUID 생성 전략 적용
-	private UUID id; // 수정: Long -> UUID (명세서 UUID 타입 반영)
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "owner_id", nullable = false)

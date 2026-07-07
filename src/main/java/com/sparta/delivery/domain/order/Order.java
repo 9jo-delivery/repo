@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sparta.delivery.domain.restaurant.Restaurant;
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.restaurant.entity.Restaurant;
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
 

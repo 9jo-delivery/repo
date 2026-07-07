@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.user.enitiy;
+package com.sparta.delivery.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
