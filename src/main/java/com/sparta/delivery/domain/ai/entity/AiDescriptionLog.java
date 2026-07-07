@@ -5,7 +5,7 @@ import java.util.UUID;
 import jakarta.persistence.*;
 import lombok.*;
 
-import com.sparta.delivery.domain.menu.Menu;
+import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.restaurant.Restaurant;
 import com.sparta.delivery.domain.user.enitiy.User;
 
