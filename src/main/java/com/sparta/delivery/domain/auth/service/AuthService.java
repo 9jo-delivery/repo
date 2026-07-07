@@ -4,11 +4,13 @@ import com.sparta.delivery.domain.auth.dto.request.SignupReqDto;
 import com.sparta.delivery.domain.auth.dto.response.SignupResDto;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
-import java.util.Optional;
+import com.sparta.delivery.global.common.Enums;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class AuthService {
                         .password(encodedPassword)
                         .name(reqDto.getName())
                         .phone(reqDto.getPhone())
-                        .role(reqDto.getRole())
+                        .role(Enums.UserRole.CUSTOMER)
                         .build());
 
         return new SignupResDto(user);

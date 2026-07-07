@@ -1,8 +1,6 @@
 package com.sparta.delivery.domain.auth.dto.request;
 
-import com.sparta.delivery.global.common.Enums;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -30,8 +28,4 @@ public class SignupReqDto {
     @NotBlank(message = "전화번호는 필수입니다.")
     @Pattern(regexp = "^010-\\d{3,4}-\\d{4}$", message = "유효한 휴대폰 번호 형식이 아닙니다.")
     private final String phone;
-
-    @NotNull(message = "권한은 필수입니다.")
-    private final Enums.UserRole role;
-
 }
