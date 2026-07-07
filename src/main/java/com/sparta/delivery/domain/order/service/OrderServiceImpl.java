@@ -1,6 +1,8 @@
 package com.sparta.delivery.domain.order.service;
 
 import com.sparta.delivery.domain.menu.entity.Menu;
+import com.sparta.delivery.domain.menu.entity.MenuOption;
+import com.sparta.delivery.domain.menu.repository.MenuOptionRepository;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.domain.menu.repository.RestaurantRepository;
 import com.sparta.delivery.domain.order.dto.CreatedOrderRequestDto;
@@ -8,6 +10,7 @@ import com.sparta.delivery.domain.order.dto.OrderItemRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.entity.OrderItem;
+import com.sparta.delivery.domain.order.entity.OrderItemOption;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.user.entity.User;
@@ -29,18 +32,16 @@ public class OrderServiceImpl implements OrderService{
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final MenuRepository menuRepository;
+    private final MenuOptionRepository menuOptionRepository;
+
 
     @Transactional
     public OrderResponseDto createOrder(Long customerId, CreatedOrderRequestDto request) {
         User customer = userRepository.findById(customerId)
-                .orElseThrow(
-                        () -> new IllegalArgumentException("존재하지 않는 사용자입니다.")
-                );
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
-                .orElseThrow(
-                        () -> new IllegalArgumentException("존재하지 않는 가게입니다.")
-                );
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 가게입니다."));
 
         Order order = Order.create(
                 customer,
@@ -58,8 +59,27 @@ public class OrderServiceImpl implements OrderService{
             OrderItem orderItem = OrderItem.create(menu, itemRequest.getQuantity());
 
             List<UUID> optionIds = itemRequest.getSelectedOptionIds();
+            if (optionIds != null){
+                for (UUID optionId : optionIds){
+                    MenuOption menuOption = menuOptionRepository.findById(optionId)
+                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴 옵션입니다."));
 
+                    OrderItemOption orderItemOption = OrderItemOption.create(
+                            menuOption.getId(),
+                            menuOption.getMenuOptionGroup().getName(),
+                            menuOption.getName(),
+                            menuOption.getExtraPrice()
+                    );
+
+                    orderItem.addOption(orderItemOption);;
+                }
+            }
+
+            order.addItem(orderItem);
         }
+
+        Order saveOrder = orderRepository.save(order);
+        return OrderResponseDto.from(saveOrder);
     }
 
     //OrderNumber 고유값 자동생성
