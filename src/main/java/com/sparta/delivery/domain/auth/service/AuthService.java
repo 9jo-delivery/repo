@@ -1,7 +1,7 @@
-package com.sparta.delivery.domain.user.service;
+package com.sparta.delivery.domain.auth.service;
 
-import com.sparta.delivery.domain.user.dto.request.SignupReqDto;
-import com.sparta.delivery.domain.user.dto.response.SignupResDto;
+import com.sparta.delivery.domain.auth.dto.request.SignupReqDto;
+import com.sparta.delivery.domain.auth.dto.response.SignupResDto;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import java.util.Optional;

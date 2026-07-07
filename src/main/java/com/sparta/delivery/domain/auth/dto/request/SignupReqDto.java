@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.user.dto.request;
+package com.sparta.delivery.domain.auth.dto.request;
 
 import com.sparta.delivery.global.common.Enums;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
 
 @Getter
 @RequiredArgsConstructor
