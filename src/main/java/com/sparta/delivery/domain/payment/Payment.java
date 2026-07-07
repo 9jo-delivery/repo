@@ -7,10 +7,10 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
-import com.sparta.delivery.domain.order.Order;
+import com.sparta.delivery.domain.order.entity.Order;
 
 @Entity
 @Table(name = "payments")

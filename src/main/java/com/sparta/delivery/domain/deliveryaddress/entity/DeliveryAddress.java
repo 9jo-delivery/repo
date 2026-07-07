@@ -1,6 +1,6 @@
 package com.sparta.delivery.domain.deliveryaddress.entity;
 
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
