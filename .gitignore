@@ -36,4 +36,11 @@ out/
 ### VS Code ###
 .vscode/
 
+<<<<<<< HEAD
 **/application.yml
+=======
+### Custom Excludes ###
+.DS_Store
+.env
+**/application.yml
+>>>>>>> e408aff87f67976272e46ab04362a510d9861799
