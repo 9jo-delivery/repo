@@ -8,6 +8,7 @@ import org.hibernate.annotations.SQLRestriction;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.sparta.delivery.domain.restaurant.Restaurant;
 import com.sparta.delivery.domain.user.enitiy.User;
@@ -15,15 +16,15 @@ import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "p_orders")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE orders SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE p_orders SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class Order extends BaseEntity {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "customer_id", nullable = false)
@@ -74,4 +75,14 @@ public class Order extends BaseEntity {
 		this.orderStatus = status;
 		// 상태별 시간 업데이트 로직 추가 가능
 	}
+
+	// testCode 때문에 필요한 필드 생성자로 땡겨왔습니다.
+	@Builder
+	public Order(User customer, Restaurant restaurant,  Enums.OrderStatus orderStatus) {
+		this.customer = customer;
+		this.restaurant = restaurant;
+		this.orderStatus = orderStatus;
+	}
+
+
 }

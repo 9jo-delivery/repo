@@ -6,21 +6,22 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import com.sparta.delivery.domain.user.enitiy.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.domain.region.Region;
 
 @Entity
-@Table(name = "restaurants")
+@Table(name = "p_restaurants")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE restaurants SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE p_restaurants SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class Restaurant extends BaseEntity {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "owner_id", nullable = false)
@@ -65,4 +66,10 @@ public class Restaurant extends BaseEntity {
 
 	@Column(nullable = false)
 	private Integer reviewCount = 0;
+
+	// review testcode땜에 땡겨왔어요
+	@Builder
+	Restaurant(String name){
+		this.name = name;
+	}
 }
