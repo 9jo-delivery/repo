@@ -15,4 +15,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
 	Page<Review> findAllByRestaurantId(UUID restaurantId, Pageable pageable);
 
+	Long countByRestaurantIdAndIsDeleteFalse(UUID id);
+
+	double calculateAverageRatingByRestaurantId(UUID id);
 }

@@ -61,6 +61,9 @@ public class ReviewService {
 
 		reviewRepository.save(review);
 
+		// dirty Check
+		updateRestaurantRatingAndCount(order.getRestaurant());
+
 		return ReviewResponseDto.from(review);
 
 	}
@@ -97,10 +100,13 @@ public class ReviewService {
 		// updatedAt 역시 BaseEntity가 알아서 현재 시간으로 업데이트함..
 		review.updateContentAndRating(request.getContent(),request.getRating());
 
+		updateRestaurantRatingAndCount(review.getRestaurant());
+
 		return ReviewResponseDto.from(review);
 
 	}
 
+	@Transactional
 	public UUID deleteReview(UUID reviewId, Long customerId) {
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
 		-> new IllegalArgumentException("삭제 가능한 리뷰 없음"));
@@ -111,4 +117,15 @@ public class ReviewService {
 		reviewRepository.delete(review);
 		return reviewId;
 	}
+
+	private void updateRestaurantRatingAndCount(Restaurant restaurant) {
+		// softDelete 상태?가 아닌 리뷰들의 총갯수 가져옴
+		Long reviewCount = reviewRepository.countByRestaurantIdAndIsDeleteFalse(restaurant.getId());
+
+		// 찾아온 식당의 리뷰둘의 평균 평점 계산식
+		// QueryDSL
+		double averageRating = reviewRepository.calculateAverageRatingByRestaurantId(restaurant.getId());
+		restaurant.updateRatingAndCount(averageRating, reviewCount);
+	}
+
 }

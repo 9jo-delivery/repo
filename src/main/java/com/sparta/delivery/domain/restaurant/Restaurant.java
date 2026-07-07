@@ -65,11 +65,16 @@ public class Restaurant extends BaseEntity {
 	private BigDecimal averageRating = BigDecimal.ZERO;
 
 	@Column(nullable = false)
-	private Integer reviewCount = 0;
+	private Long reviewCount = 0L;
 
-	// review testcode땜에 땡겨왔어요
+
 	@Builder
 	Restaurant(String name){
 		this.name = name;
+	}
+
+	public void updateRatingAndCount(double averageRating, Long reviewCount) {
+		this.averageRating = BigDecimal.valueOf(averageRating);
+		this.reviewCount = reviewCount;
 	}
 }
