@@ -22,11 +22,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.sparta.delivery.domain.order.Order;
+import com.sparta.delivery.domain.order.entity.Order;
 
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
+import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
@@ -35,6 +36,11 @@ import com.sparta.delivery.domain.review.service.ReviewService;
 
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.Enums;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -145,7 +151,7 @@ public class ReviewServiceTest {
 	}
 
 	@Test
-	@DisplayName("식당 리뷰 목록 조회 성공 - 페이징 처리")
+	@DisplayName("식당 리뷰 목록 조회 성공 - 검색 조건 및 페이징 처리")
 	void getRestaurantReviews_Success() {
 		// Given
 		Long customerId = 1L;
@@ -153,28 +159,33 @@ public class ReviewServiceTest {
 		UUID restaurantId = UUID.randomUUID();
 		User customer = createFakeUser(customerId);
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
-		Order order = createFakeOrder(orderId,customer,restaurant);
+		Order order = createFakeOrder(orderId, customer, restaurant);
+
+		// 💡 1. 검색 조건을 담을 DTO (주문서) 생성
+		// (조건이 없는 전체 조회 상황을 가정 생성자 파라미터에 null
+		ReviewSearchCondition condition = new ReviewSearchCondition(null);
 
 		Pageable pageable = PageRequest.of(0, 10,
 			Sort.by(Sort.Direction.DESC, "createdAt"));
 
-		// 2. 리뷰 리스트를 담은 PageImpl 객체 생성
-		List<Review> reviews = List.of(Review.create(order, 3, "so so"), Review.create(order, 4, "not bad"));
+		List<Review> reviews = List.of(
+			Review.create(order, 3, "so so"),
+			Review.create(order, 4, "not bad")
+		);
 		Page<Review> page = new PageImpl<>(reviews, pageable, reviews.size());
 
-		// 1. restaurantRepository.existsById(restaurantId) 가 true 반환
 		given(restaurantRepository.existsById(restaurantId)).willReturn(true);
-		// 3. reviewRepository.findAllByRestaurantId(...) 가 page를 반환하도록 설정
-		given(reviewRepository.findAllByRestaurantId(restaurantId, pageable)).willReturn(page);
+
+		// 핵심 변경점: 기존 findAllByRestaurantId 대신 새로 만든 QueryDSL 메서드로 변경
+		given(reviewRepository.searchRestaurantReviews(eq(restaurantId), any(ReviewSearchCondition.class), eq(pageable)))
+			.willReturn(page);
 
 
 		// When
-		Page<ReviewResponseDto> result = reviewService.getRestaurantReviews(restaurantId, pageable);
+		Page<ReviewResponseDto> result = reviewService.getRestaurantReviews(restaurantId, condition, pageable);
+
 
 		// Then
-		// result 의 전체 요소 개수가 2개인지 확인
-		// result.getContent().get(0)의 내용이 맞게 매핑되었는지 확인
-
 		assertThat(result).isNotNull();
 		assertThat(result.getContent()).hasSize(2);
 
@@ -204,13 +215,9 @@ public class ReviewServiceTest {
 	}
 
 	private Order createFakeOrder(UUID orderId, User user, Restaurant restaurant) {
-		Order order = Order.builder()
-			.customer(user)
-			.restaurant(restaurant)
-			.orderStatus(Enums.OrderStatus.COMPLETED)
-			.build();
-
+		Order order = Order.create(user, restaurant, "test-01", "강남", "101", "123");
 		ReflectionTestUtils.setField(order, "id", orderId);
+		ReflectionTestUtils.setField(order, "orderStatus", Enums.OrderStatus.COMPLETED);
 		return order;
 	}
 
