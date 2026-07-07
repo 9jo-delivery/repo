@@ -1,6 +1,6 @@
 package com.sparta.delivery.domain.order.entity;
 
-import com.sparta.delivery.domain.menu.Menu;
+import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.global.common.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
