@@ -1,5 +1,7 @@
 package com.sparta.delivery.domain.order.entity;
 
+import com.sparta.delivery.domain.restaurant.Restaurant;
+import com.sparta.delivery.domain.user.enitiy.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
 import jakarta.persistence.CascadeType;
@@ -11,6 +13,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -35,11 +39,13 @@ public class Order extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@Column(name = "customer_id", nullable = false)
-	private Long customerId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "customer_id", nullable = false)
+	private User customer;
 
-	@Column(name = "restaurant_id", nullable = false)
-	private UUID restaurantId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "restaurant_id", nullable = false)
+	private Restaurant restaurant;
 
 	@Column(name = "order_number", nullable = false, unique = true, length = 100)
 	private String orderNumber;
@@ -88,10 +94,10 @@ public class Order extends BaseEntity {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private final List<OrderItem> orderItems = new ArrayList<>();
 
-	private Order(Long customerId, UUID restaurantId, String orderNumber, String deliveryAddress,
+	private Order(User customer, Restaurant restaurant, String orderNumber, String deliveryAddress,
 	              String deliveryDetailAddress, String deliveryZipCode) {
-		this.customerId = customerId;
-		this.restaurantId = restaurantId;
+		this.customer = customer;
+		this.restaurant = restaurant;
 		this.orderNumber = orderNumber;
 		this.deliveryAddress = deliveryAddress;
 		this.deliveryDetailAddress = deliveryDetailAddress;
@@ -99,8 +105,8 @@ public class Order extends BaseEntity {
 		this.orderedAt = LocalDateTime.now();
 	}
 
-	public static Order create(Long customerId, UUID restaurantId, String orderNumber, String deliveryAddress, String deliveryDetailAddress, String deliveryZipCode) {
-		return new Order(customerId, restaurantId, orderNumber, deliveryAddress, deliveryDetailAddress, deliveryZipCode);
+	public static Order create(User customer, Restaurant restaurant, String orderNumber, String deliveryAddress, String deliveryDetailAddress, String deliveryZipCode) {
+		return new Order(customer, restaurant, orderNumber, deliveryAddress, deliveryDetailAddress, deliveryZipCode);
 	}
 
 	public void addItem(OrderItem orderItem){
