@@ -9,7 +9,7 @@ import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
 
 @Entity
-@Table(name = "p_users")
+@Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE users SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
