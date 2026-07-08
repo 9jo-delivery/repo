@@ -64,6 +64,17 @@ public class Restaurant extends BaseEntity {
 	@Column(nullable = false, precision = 2, scale = 1)
 	private BigDecimal averageRating = BigDecimal.ZERO;
 
-	@Column(nullable = false)
-	private Integer reviewCount = 0;
+	@Column(nullable = false, columnDefinition = "bigint default 0")
+	private Long reviewCount = 0L; // count()함수쓸때 Long타입 반환만 가능해서 수정했습니다.
+
+
+	@Builder
+	Restaurant(String name){
+		this.name = name;
+	}
+
+	public void updateRatingAndCount(double averageRating, Long reviewCount) {
+		this.averageRating = BigDecimal.valueOf(averageRating);
+		this.reviewCount = reviewCount;
+	}
 }
