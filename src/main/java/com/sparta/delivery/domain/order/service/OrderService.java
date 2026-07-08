@@ -15,7 +15,6 @@ public interface OrderService {
     //주문 목록 검색
     Page<OrderSummaryResponseDto> getOrders(Long customerId, OrderSearchDto search, Pageable pageable);
 
-
     //주문 상세 조회
 
     //주문 상태 변경

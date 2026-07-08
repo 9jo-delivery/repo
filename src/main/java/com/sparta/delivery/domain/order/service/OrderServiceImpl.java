@@ -20,8 +20,14 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +47,7 @@ public class OrderServiceImpl implements OrderService{
     private final MenuOptionRepository menuOptionRepository;
 
 
+    //주문 생성
     @Transactional
     public OrderResponseDto createOrder(Long customerId, CreatedOrderRequestDto request) {
         User customer = userRepository.findById(customerId)
@@ -58,29 +65,11 @@ public class OrderServiceImpl implements OrderService{
                 request.getDeliveryZipCode()
         );
 
+        Map<UUID, Menu> menuMap = menuMap(request.getOrderItems());
+        Map<UUID, MenuOption> menuOptionMap = optionMap(request.getOrderItems());
+
         for (OrderItemRequestDto itemRequest : request.getOrderItems()){
-            Menu menu = menuRepository.findById(itemRequest.getMenuId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
-
-            OrderItem orderItem = OrderItem.create(menu, itemRequest.getQuantity());
-
-            List<UUID> optionIds = itemRequest.getSelectedOptionIds();
-            if (optionIds != null){
-                for (UUID optionId : optionIds){
-                    MenuOption menuOption = menuOptionRepository.findById(optionId)
-                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴 옵션입니다."));
-
-                    OrderItemOption orderItemOption = OrderItemOption.create(
-                            menuOption.getId(),
-                            menuOption.getMenuOptionGroup().getName(),
-                            menuOption.getName(),
-                            menuOption.getExtraPrice()
-                    );
-
-                    orderItem.addOption(orderItemOption);;
-                }
-            }
-
+            OrderItem orderItem = createOrderItem(itemRequest, menuMap, menuOptionMap);
             order.addItem(orderItem);
         }
 
@@ -88,6 +77,75 @@ public class OrderServiceImpl implements OrderService{
         return OrderResponseDto.from(saveOrder);
     }
 
+    //menuId만 조회해오기
+    private Map<UUID, Menu> menuMap(List<OrderItemRequestDto> itemRequest){
+        Set<UUID> menuIds = itemRequest.stream()
+                .map(OrderItemRequestDto::getMenuId)
+                .collect(Collectors.toSet());
+
+        return menuRepository.findAllById(menuIds).stream()
+                .collect(Collectors.toMap(Menu::getId, Function.identity()));
+    }
+
+    //optionId만 조회해오기
+    private Map<UUID, MenuOption> optionMap(List<OrderItemRequestDto> itemRequest){
+        Set<UUID> optionIds = itemRequest.stream()
+                .flatMap(item -> item.getSelectedOptionIds() == null
+                        ? Stream.empty()
+                        : item.getSelectedOptionIds().stream())
+                .collect(Collectors.toSet());
+
+        if (optionIds.isEmpty()){
+            return Collections.emptyMap();
+        }
+
+        return menuOptionRepository.findAllById(optionIds).stream()
+                .collect(Collectors.toMap(MenuOption::getId, Function.identity()));
+    }
+
+    //menuId, optionId 에서 id에 맞춰서 조합
+    private OrderItem createOrderItem(
+            OrderItemRequestDto itemRequest,
+            Map<UUID, Menu> menuMap,
+            Map<UUID, MenuOption> menuOptionMap
+    ) {
+        Menu menu = menuMap.get(itemRequest.getMenuId());
+        if (menu == null){
+            throw new IllegalArgumentException("존재하지 않는 메뉴입니다.");
+        }
+
+        OrderItem orderItem = OrderItem.create(menu, itemRequest.getQuantity());
+
+        List<UUID> optionIds = itemRequest.getSelectedOptionIds();
+        if (optionIds != null){
+            for (UUID optionId : optionIds){
+                MenuOption menuOption = menuOptionMap.get(optionId);
+                if (menuOption == null){
+                    throw new IllegalArgumentException("존재하지 않는 메뉴 옵션입니다.");
+                }
+
+                OrderItemOption orderItemOption = OrderItemOption.create(
+                        menuOption.getId(),
+                        menuOption.getMenuOptionGroup().getName(),
+                        menuOption.getName(),
+                        menuOption.getExtraPrice()
+                );
+
+                orderItem.addOption(orderItemOption);
+            }
+        }
+
+        return orderItem;
+    }
+
+    //OrderNumber 고유값 자동생성
+    private String generateOrderNumber(){
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String random = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        return "ORD-" + timestamp + "-" + random;
+    }
+
+    //주문 목록 검색
     @Override
     public Page<OrderSummaryResponseDto> getOrders(Long customerId, OrderSearchDto search, Pageable pageable) {
         Specification<Order> spec = Specification.allOf(
@@ -104,13 +162,4 @@ public class OrderServiceImpl implements OrderService{
     }
 
 
-
-
-
-    //OrderNumber 고유값 자동생성
-    private String generateOrderNumber(){
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String random = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        return "ORD-" + timestamp + "-" + random;
-    }
 }

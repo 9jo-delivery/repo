@@ -37,7 +37,7 @@ public class OrderController {
     //주문 생성
     @PostMapping
     public ResponseEntity<OrderResponseDto> createOrder(
-          @AuthenticationPrincipal Long customerId,
+            @AuthenticationPrincipal Long customerId,
             @Valid @RequestBody CreatedOrderRequestDto request
     ){
 
