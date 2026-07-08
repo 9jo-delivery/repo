@@ -1,7 +1,7 @@
 package com.sparta.delivery.domain.deliveryaddress.repository;
 
 import com.sparta.delivery.domain.deliveryaddress.entity.DeliveryAddress;
-import com.sparta.delivery.domain.user.enitiy.User;
+import com.sparta.delivery.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress, UUID> {
     Optional<DeliveryAddress> findByUserAndIsDefault(User user, boolean b);
     Page<DeliveryAddress> findByUserId(Long userId, Pageable pageable);
+
+    Optional<DeliveryAddress> findFirstByUserOrderByCreatedAtDesc(User user); // 가장 최신에 생성한 주소 찾기
 }

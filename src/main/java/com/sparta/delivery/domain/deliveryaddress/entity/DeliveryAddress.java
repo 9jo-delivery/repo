@@ -1,11 +1,14 @@
 package com.sparta.delivery.domain.deliveryaddress.entity;
 
 import com.sparta.delivery.domain.user.entity.User;
+import com.sparta.delivery.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import com.sparta.delivery.global.common.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -41,5 +44,31 @@ public class DeliveryAddress extends BaseEntity {
 
     public void updateDefault(boolean b) {
         this.isDefault = b;
+    }
+
+    public List<String> updateFields(String address, String detailAddress, String zipcode, String alias, Boolean isDefault) {
+        List<String> changedFields = new ArrayList<>();
+
+        if(address != null && !address.equals(this.address)){
+            this.address = address;
+            changedFields.add("address");
+        }
+        if(detailAddress != null && !detailAddress.equals(this.detailAddress)){
+            this.detailAddress = detailAddress;
+            changedFields.add("detailAddress");
+        }
+        if(zipcode != null && !zipcode.equals(this.zipCode)){
+            this.zipCode = zipcode;
+            changedFields.add("zipcode");
+        }
+        if(alias != null && !alias.equals(this.alias)){
+            this.alias = alias;
+            changedFields.add("alias");
+        }
+        if(isDefault != null && !isDefault.equals(this.isDefault)){
+            this.isDefault = isDefault;
+            changedFields.add("isDefault");
+        }
+        return changedFields;
     }
 }
