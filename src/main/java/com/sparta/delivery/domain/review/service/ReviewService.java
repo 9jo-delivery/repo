@@ -55,6 +55,7 @@ public class ReviewService {
 			throw new IllegalArgumentException("해당 주문에 이미 작성한 리뷰 존재");
 		}
 
+		// 메서드를 따서 isCompleted <---
 		// 리뷰 엔티티 생성
 		Review review = Review.create(order, request.getRating(), request.getContent());
 
