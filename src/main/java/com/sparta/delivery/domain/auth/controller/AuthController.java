@@ -25,8 +25,4 @@ public class AuthController {
 
         return new ResponseEntity<>(authService.signup(reqDto), HttpStatus.CREATED);
     }
-
-    // 로그인
-
-    // 로그아웃
 }
