@@ -59,7 +59,9 @@ public class ReviewController {
 	@GetMapping("/restaurants/{restaurantId}/reviews")
 	public ResponseEntity<Page<ReviewResponseDto>> getReviews(@PathVariable("restaurantId") UUID restaurantId,
 		ReviewSearchCondition condition, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-
+		if (size !=10 && size !=30 && size !=50) {
+			size = 10;
+		}
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
 		Page<ReviewResponseDto> response = reviewService.getRestaurantReviews(restaurantId, condition, pageable);
