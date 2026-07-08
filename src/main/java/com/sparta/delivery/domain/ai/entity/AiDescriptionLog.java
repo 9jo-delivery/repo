@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.ai;
+package com.sparta.delivery.domain.ai.entity;
 
 import com.sparta.delivery.domain.menu.entity.Menu;
 import jakarta.persistence.*;

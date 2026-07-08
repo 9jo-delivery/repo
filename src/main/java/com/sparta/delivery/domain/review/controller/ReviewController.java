@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
+import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
@@ -54,11 +55,11 @@ public class ReviewController {
 	// 가게 별 리뷰 목록 조회  (GET /api/restaurants/{restaurantId}/reviews)
 	@GetMapping("/restaurants/{restaurantId}/reviews")
 	public ResponseEntity<Page<ReviewResponseDto>> getReviews(@PathVariable("restaurantId") UUID restaurantId,
-		@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+		ReviewSearchCondition condition, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-		Page<ReviewResponseDto> response = reviewService.getRestaurantReviews(restaurantId, pageable);
+		Page<ReviewResponseDto> response = reviewService.getRestaurantReviews(restaurantId, condition, pageable);
 		return ResponseEntity.ok(response);
 	}
 
@@ -77,8 +78,6 @@ public class ReviewController {
 		Long customerId = 1L;
 		return reviewService.deleteReview(reviewId, customerId);
 	}
-
-
 
 
 }
