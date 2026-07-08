@@ -125,7 +125,7 @@ public class ReviewService {
 
 	private void updateRestaurantRatingAndCount(Restaurant restaurant) {
 		// softDelete 상태?가 아닌 리뷰들의 총갯수 가져옴
-		Long reviewCount = reviewRepository.countByRestaurantIdAndIsDeleteFalse(restaurant.getId());
+		Long reviewCount = reviewRepository.countByRestaurantIdAndIsDeletedFalse(restaurant.getId());
 
 		// 찾아온 식당의 리뷰둘의 평균 평점 계산식
 		// JQPL

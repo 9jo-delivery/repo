@@ -14,7 +14,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewRep
 
 	Page<Review> findAllByRestaurantId(UUID restaurantId, Pageable pageable);
 
-	Long countByRestaurantIdAndIsDeleteFalse(UUID id);
+	Long countByRestaurantIdAndIsDeletedFalse(UUID id);
 
 	@Query("SELECT COALESCE(AVG(r.rating), 0.0) " +
 		"FROM Review r " +
