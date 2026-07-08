@@ -1,20 +1,27 @@
 package com.sparta.delivery.domain.review.service;
 
-import com.sparta.delivery.domain.order.entity.Order;
-import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
-import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
-import com.sparta.delivery.domain.review.entity.Review;
-import com.sparta.delivery.domain.review.repository.ReviewRepository;
-import com.sparta.delivery.domain.review.repository.TempOrderRepository;
-import com.sparta.delivery.domain.review.repository.TempRestaurantRepository;
-import com.sparta.delivery.global.common.Enums;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.sparta.delivery.domain.order.entity.Order;
+
+import com.sparta.delivery.domain.order.entity.Order;
+import com.sparta.delivery.domain.restaurant.entity.Restaurant;
+import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
+import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
+import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
+import com.sparta.delivery.domain.review.entity.Review;
+import com.sparta.delivery.domain.review.repository.ReviewRepository;
+import com.sparta.delivery.domain.review.repository.TempOrderRepository;
+import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository;
+import com.sparta.delivery.global.common.Enums;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "Review API")
 @Service
@@ -39,7 +46,7 @@ public class ReviewService {
 
 		// 권한 검증 (이 주문을 한 고객과 현재 리뷰를 쓰려는 고객이 일치하는가?)
 
-		if (order.getCustomer().getId().equals(customerId)) {
+		if (!order.getCustomer().getId().equals(customerId)) {
 			throw new IllegalArgumentException("자신의 주문에서만 리뷰 작성 가능");
 		}
 
@@ -49,33 +56,29 @@ public class ReviewService {
 		}
 
 		// 리뷰 엔티티 생성
-		Review review = Review.builder()
-			.order(order)
-			.restaurant(order.getRestaurant())
-			.customer(order.getCustomer())
-			.rating(request.getRating())
-			.content(request.getContent())
-			.build();
+		Review review = Review.create(order, request.getRating(), request.getContent());
 
 		reviewRepository.save(review);
-		// 식당의 평균 별점과 리뷰 개수 갱신(미완)
-		return null;
+
+		// dirty Check
+		updateRestaurantRatingAndCount(order.getRestaurant());
+
+		return ReviewResponseDto.from(review);
 
 	}
 
-	@Transactional(readOnly = true)
 	public ReviewResponseDto getReview(UUID reviewId) {
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
 		-> new IllegalArgumentException("해당리뷰 없음"));
 		return ReviewResponseDto.from(review);
 	}
 
-	@Transactional(readOnly = true)
-	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, Pageable pageable) {
+	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, ReviewSearchCondition condition, Pageable pageable) {
 		if (!restaurantRepository.existsById(restaurantId)) {
 			throw new IllegalArgumentException("해당 레스토랑없음");
 		}
-		Page<Review> reviewPage = reviewRepository.findAllByRestaurantId(restaurantId, pageable);
+		// QureryDsl 메서드
+		Page<Review> reviewPage = reviewRepository.searchRestaurantReviews(restaurantId, condition, pageable);
 		return reviewPage.map(ReviewResponseDto::from);
 	}
 
@@ -95,10 +98,13 @@ public class ReviewService {
 		// updatedAt 역시 BaseEntity가 알아서 현재 시간으로 업데이트함..
 		review.updateContentAndRating(request.getContent(),request.getRating());
 
+		updateRestaurantRatingAndCount(review.getRestaurant());
+
 		return ReviewResponseDto.from(review);
 
 	}
 
+	@Transactional
 	public UUID deleteReview(UUID reviewId, Long customerId) {
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
 		-> new IllegalArgumentException("삭제 가능한 리뷰 없음"));
@@ -106,7 +112,25 @@ public class ReviewService {
 		if (!review.getCustomer().getId().equals(customerId)) {
 			throw new IllegalArgumentException("자신의 리뷰만 삭제 가능");
 		}
+		Enums.UserRole isOwner = review.getCustomer().getRole();
+
+		if (isOwner == Enums.UserRole.OWNER || isOwner == Enums.UserRole.MASTER) {
+			throw new IllegalArgumentException("삭제 권한 없음");
+		}
+
 		reviewRepository.delete(review);
+		updateRestaurantRatingAndCount(review.getRestaurant());
 		return reviewId;
 	}
+
+	private void updateRestaurantRatingAndCount(Restaurant restaurant) {
+		// softDelete 상태?가 아닌 리뷰들의 총갯수 가져옴
+		Long reviewCount = reviewRepository.countByRestaurantIdAndIsDeleteFalse(restaurant.getId());
+
+		// 찾아온 식당의 리뷰둘의 평균 평점 계산식
+		// JQPL
+		double averageRating = reviewRepository.calculateAverageRatingByRestaurantId(restaurant.getId());
+		restaurant.updateRatingAndCount(averageRating, reviewCount);
+	}
+
 }

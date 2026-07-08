@@ -1,6 +1,5 @@
 package com.sparta.delivery.domain.user.repository;
 
-
 import com.sparta.delivery.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
