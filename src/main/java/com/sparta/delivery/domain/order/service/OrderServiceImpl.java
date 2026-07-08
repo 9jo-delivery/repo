@@ -8,10 +8,13 @@ import com.sparta.delivery.domain.menu.repository.RestaurantRepository;
 import com.sparta.delivery.domain.order.dto.CreatedOrderRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderItemRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
+import com.sparta.delivery.domain.order.dto.OrderSearchDto;
+import com.sparta.delivery.domain.order.dto.OrderSummaryResponseDto;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.entity.OrderItem;
 import com.sparta.delivery.domain.order.entity.OrderItemOption;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
+import com.sparta.delivery.domain.order.repository.OrderSpecification;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
@@ -20,6 +23,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,6 +87,25 @@ public class OrderServiceImpl implements OrderService{
         Order saveOrder = orderRepository.save(order);
         return OrderResponseDto.from(saveOrder);
     }
+
+    @Override
+    public Page<OrderSummaryResponseDto> getOrders(Long customerId, OrderSearchDto search, Pageable pageable) {
+        Specification<Order> spec = Specification.allOf(
+                OrderSpecification.customerIdEquals(customerId),
+                OrderSpecification.orderStatusEquals(search.getOrderStatus()),
+                OrderSpecification.restaurantIdEquals(search.getRestaurantId()),
+                OrderSpecification.orderedAtBetween(
+                        search.getStartDate(),
+                        search.getEndDate()
+                )
+        );
+
+        return orderRepository.findAll(spec, pageable).map(OrderSummaryResponseDto :: from);
+    }
+
+
+
+
 
     //OrderNumber 고유값 자동생성
     private String generateOrderNumber(){

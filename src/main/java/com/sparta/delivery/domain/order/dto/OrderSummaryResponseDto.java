@@ -28,14 +28,15 @@ public class OrderSummaryResponseDto {
         this.orderedAt = orderedAt;
     }
 
-//    public static OrderSummaryResponseDto from(Order order){
-//        return new OrderSummaryResponseDto(
-//                order.getId(),
-//                order.getOrderNumber(),
-//                order.getRestaurant().getId(),
-//                order.getRestaurant().getName(),
-//                order.getOrderStatus(),
-//                order.getOrderedAt()
-//        );
-//    }
+    public static OrderSummaryResponseDto from(Order order){
+        return new OrderSummaryResponseDto(
+                order.getId(),
+                order.getOrderNumber(),
+                order.getRestaurant().getId(),
+                order.getRestaurant().getName(),
+                order.getOrderStatus(),
+                order.getTotalPrice(),
+                order.getOrderedAt()
+        );
+    }
 }
