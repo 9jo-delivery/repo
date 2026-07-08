@@ -1,6 +1,6 @@
 package com.sparta.delivery.domain.user.service;
 
-import com.sparta.delivery.domain.user.dto.response.GetMyInfoResDto;
+import com.sparta.delivery.domain.user.dto.response.UserResDto;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public GetMyInfoResDto getUserById(Long id) {
+    public UserResDto getUserById(Long id) {
 
         // 조회
         User user = userRepository.findById(id).orElseThrow(()
@@ -26,6 +26,6 @@ public class UserService {
             throw new IllegalArgumentException("본인의 프로필만 조회 가능합니다.");
         }
 
-        return new GetMyInfoResDto(user);
+        return new UserResDto(user);
     }
 }

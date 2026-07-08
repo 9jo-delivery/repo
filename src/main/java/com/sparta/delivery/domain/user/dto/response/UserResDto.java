@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class GetMyInfoResDto {
+public class UserResDto {
 
     private final Long userId;
 
@@ -23,7 +23,7 @@ public class GetMyInfoResDto {
 
     private final LocalDateTime createAt;
 
-    public GetMyInfoResDto(User user) {
+    public UserResDto(User user) {
         this.userId = user.getId();
         this.username = user.getUsername();
         this.name = user.getName();

@@ -1,6 +1,6 @@
 package com.sparta.delivery.domain.user.controller;
 
-import com.sparta.delivery.domain.user.dto.response.GetMyInfoResDto;
+import com.sparta.delivery.domain.user.dto.response.UserResDto;
 import com.sparta.delivery.domain.user.service.UserService;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class UserController {
 
     // 내 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<GetMyInfoResDto> getMyInfoById(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<UserResDto> getMyInfoById(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userDetails.getUser().getId()));
     }
