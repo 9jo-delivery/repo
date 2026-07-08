@@ -1,8 +1,8 @@
-package com.sparta.delivery.domain.user.controller;
+package com.sparta.delivery.domain.auth.controller;
 
-import com.sparta.delivery.domain.user.dto.request.SignupReqDto;
-import com.sparta.delivery.domain.user.dto.response.SignupResDto;
-import com.sparta.delivery.domain.user.service.AuthService;
+import com.sparta.delivery.domain.auth.dto.request.SignupReqDto;
+import com.sparta.delivery.domain.auth.dto.response.SignupResDto;
+import com.sparta.delivery.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
