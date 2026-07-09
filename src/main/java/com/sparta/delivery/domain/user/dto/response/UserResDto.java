@@ -21,7 +21,7 @@ public class UserResDto {
 
     private final Enums.UserRole role;
 
-    private final LocalDateTime createAt;
+    private final LocalDateTime createdAt;
 
     public UserResDto(User user) {
         this.userId = user.getId();
@@ -29,7 +29,7 @@ public class UserResDto {
         this.name = user.getName();
         this.phone = user.getPhone();
         this.role = user.getRole();
-        this.createAt = user.getCreatedAt();
+        this.createdAt = user.getCreatedAt();
     }
 
     public static UserResDto of(User user) {
