@@ -89,4 +89,13 @@ public class UserService {
 
         return UpdateUserResDto.from(user);
     }
+
+    @Transactional
+    public void userIsDelete(Long loginId) {
+
+        User user = userRepository.findById(loginId).orElseThrow(()
+                -> new UsernameNotFoundException("Not Found User"));
+
+        userRepository.delete(user);
+    }
 }

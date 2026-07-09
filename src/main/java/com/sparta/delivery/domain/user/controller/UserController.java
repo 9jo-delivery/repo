@@ -66,4 +66,20 @@ public class UserController {
     }
 
     // 회원 탈퇴(삭제)
+    @DeleteMapping("/users")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        userService.userIsDelete(userDetails.getUser().getId());
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @DeleteMapping("/admin/users/{userId}")
+    @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
+    public ResponseEntity<Void> AdminDeleteUser(@PathVariable Long userId) {
+
+        userService.userIsDelete(userId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
