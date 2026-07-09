@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.user.service;
 
+import com.sparta.delivery.domain.user.dto.request.AdminUpdateUserReqDto;
 import com.sparta.delivery.domain.user.dto.request.UpdateUserReqDto;
 import com.sparta.delivery.domain.user.dto.response.UpdateUserResDto;
 import com.sparta.delivery.domain.user.dto.response.UserResDto;
@@ -12,6 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +65,27 @@ public class UserService {
                 encodedPassword,
                 userReqDto.getPhone()
         );
+
+        return UpdateUserResDto.from(user);
+    }
+
+    @Transactional
+    public UpdateUserResDto AdminUpdateUser(Long id, AdminUpdateUserReqDto userReqDto) {
+
+        // 유저 검증
+        User user = userRepository.findById(id).orElseThrow(()
+                -> new UsernameNotFoundException("Not Found User"));
+
+        // 중복 유저 검증
+        Optional<User> checkUsername = userRepository.findByUsername(userReqDto.getUsername());
+        if (checkUsername.isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 유저입니다.");
+        }
+
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(userReqDto.getPassword());
+
+        user.adminUpdateUser(userReqDto, encodedPassword);
 
         return UpdateUserResDto.from(user);
     }

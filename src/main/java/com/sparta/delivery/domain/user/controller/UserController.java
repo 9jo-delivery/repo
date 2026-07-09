@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.user.controller;
 
+import com.sparta.delivery.domain.user.dto.request.AdminUpdateUserReqDto;
 import com.sparta.delivery.domain.user.dto.request.UpdateUserReqDto;
 import com.sparta.delivery.domain.user.dto.response.UpdateUserResDto;
 import com.sparta.delivery.domain.user.dto.response.UserResDto;
@@ -54,6 +55,14 @@ public class UserController {
                                                        @Valid @RequestBody UpdateUserReqDto reqDto) {
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(userDetails.getUser().getId(), reqDto));
+    }
+
+    @PatchMapping("/admin/users/{userId}")
+    @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
+    public ResponseEntity<UpdateUserResDto> adminUpdateUser(@PathVariable Long userId,
+                                                            @Valid @RequestBody AdminUpdateUserReqDto reqDto) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(userService.AdminUpdateUser(userId, reqDto));
     }
 
     // 회원 탈퇴(삭제)

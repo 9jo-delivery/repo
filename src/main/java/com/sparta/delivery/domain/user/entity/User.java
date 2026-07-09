@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.user.entity;
 
+import com.sparta.delivery.domain.user.dto.request.AdminUpdateUserReqDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -47,5 +48,13 @@ public class User extends BaseEntity {
 	public void updateUser(String password, String phone) {
 		this.password = password;
 		this.phone = phone;
+	}
+
+	public void adminUpdateUser(AdminUpdateUserReqDto reqDto, String encodedPassword) {
+		this.username = reqDto.getUsername();
+		this.password = encodedPassword;
+		this.name = reqDto.getName();
+		this.phone = reqDto.getPhone();
+		this.role = reqDto.getRole();
 	}
 }
