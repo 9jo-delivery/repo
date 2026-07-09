@@ -50,18 +50,12 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateUserResDto updateUser(Long id, User user, UpdateUserReqDto userReqDto) {
-
-        // 자기 자신 검증
-        if (!id.equals(user.getId())) {
-            throw new IllegalArgumentException("본인의 프로필만 조회 가능합니다.");
-        }
+    public UpdateUserResDto updateUser(Long loginId, UpdateUserReqDto userReqDto) {
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(userReqDto.getPassword());
 
-
-        userRepository.findById(user.getId()).orElseThrow(()
+       User user = userRepository.findById(loginId).orElseThrow(()
                 -> new UsernameNotFoundException("Not Found User"));
 
         user.updateUser(

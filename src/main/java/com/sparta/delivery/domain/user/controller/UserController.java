@@ -20,20 +20,20 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
 
     // 내 정보 조회
-    @GetMapping("/me")
+    @GetMapping("/users/me")
     public ResponseEntity<UserResDto> getMyInfoById(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userDetails.getUser().getId()));
     }
 
     // 사용자 목록 검색
-    @GetMapping
+    @GetMapping("/admin/users")
     @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
     public ResponseEntity<Page<UserResDto>> getUsers(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
@@ -41,7 +41,7 @@ public class UserController {
     }
 
     // 사용자 상세 조회
-    @GetMapping("/{userId}")
+    @GetMapping("/admin/users/{userId}")
     @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
     public ResponseEntity<UserResDto> getUserDetail(@PathVariable Long userId) {
 
@@ -49,12 +49,11 @@ public class UserController {
     }
 
     // 사용자 정보 수정 - 자기자신
-    @PatchMapping("/{userId}")
-    public ResponseEntity<UpdateUserResDto> updateUser(@PathVariable Long userId,
-                                                       @AuthenticationPrincipal UserDetailsImpl userDetails,
+    @PatchMapping("/users")
+    public ResponseEntity<UpdateUserResDto> updateUser(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                        @Valid @RequestBody UpdateUserReqDto reqDto) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(userId, userDetails.getUser(), reqDto));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(userDetails.getUser().getId(), reqDto));
     }
 
     // 회원 탈퇴(삭제)
