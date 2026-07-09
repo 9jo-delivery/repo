@@ -51,7 +51,8 @@ public class AiDescriptionLog extends BaseEntity {
 	private LocalDateTime createdAt = LocalDateTime.now();
 
 	// 3. User 엔티티와의 연관 관계로 수정
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "created_by")
-	private User createdBy;
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "created_by")
+//	private User createdBy;
+
 }
