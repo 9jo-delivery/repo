@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
+import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -80,9 +82,13 @@ public class ReviewController {
 
 	// 리뷰 삭제
 	@DeleteMapping("/reviews/{reviewId}")
-	public UUID deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+	public void deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 		Long customerId = userDetails.getUser().getId();
-		return reviewService.deleteReview(reviewId, customerId);
+		Enums.UserRole role = userDetails.getUser().getRole();
+		if (role == Enums.UserRole.OWNER) {
+			throw new IllegalArgumentException("삭제 권한 없음");
+		}
+		reviewService.deleteReview(reviewId, customerId);
 	}
 
 
