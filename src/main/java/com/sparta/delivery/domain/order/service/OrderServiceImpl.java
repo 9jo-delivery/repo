@@ -5,12 +5,14 @@ import com.sparta.delivery.domain.menu.entity.MenuOption;
 import com.sparta.delivery.domain.menu.repository.MenuOptionRepository;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.domain.menu.repository.RestaurantRepository;
+import com.sparta.delivery.domain.order.dto.CancelOrderRequestDto;
 import com.sparta.delivery.domain.order.dto.CreatedOrderRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderDetailResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderItemRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderSearchDto;
 import com.sparta.delivery.domain.order.dto.OrderSummaryResponseDto;
+import com.sparta.delivery.domain.order.dto.UpdateOrderStatusRequestDto;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.entity.OrderItem;
 import com.sparta.delivery.domain.order.entity.OrderItemOption;
@@ -19,6 +21,7 @@ import com.sparta.delivery.domain.order.repository.OrderSpecification;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
+import com.sparta.delivery.global.common.Enums.OrderStatus;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -47,8 +50,10 @@ public class OrderServiceImpl implements OrderService{
     private final MenuRepository menuRepository;
     private final MenuOptionRepository menuOptionRepository;
 
+    private static final long CANCELLABLE_MIN = 5L;
 
     //주문 생성
+    @Override
     @Transactional
     public OrderResponseDto createOrder(Long customerId, CreatedOrderRequestDto request) {
         User customer = userRepository.findById(customerId)
@@ -162,12 +167,52 @@ public class OrderServiceImpl implements OrderService{
         return orderRepository.findAll(spec, pageable).map(OrderSummaryResponseDto :: from);
     }
 
+    //주문 상세 조회
     @Override
-    public OrderDetailResponseDto getOrderDetail(long customerId, UUID orderId) {
+    public OrderDetailResponseDto getOrderDetail(Long customerId, UUID orderId) {
         Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
         return OrderDetailResponseDto.from(order);
     }
 
+    //주문 상태 변경
+    @Override
+    @Transactional
+    public OrderResponseDto updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+
+        applyStatus(order, request.getOrderStatus());
+
+        return OrderResponseDto.from(order);
+    }
+
+    //주문 취소
+    @Override
+    @Transactional
+    public OrderResponseDto cancelOrder(Long customerId, UUID orderId, CancelOrderRequestDto request) {
+        Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+
+        LocalDateTime deadline = order.getCreatedAt().plusMinutes(CANCELLABLE_MIN);
+        if (LocalDateTime.now().isAfter(deadline)){
+            throw new IllegalArgumentException("주문 생성 후 5분이 지나 취소할 수 없습니다.");
+        }
+
+        order.cancelled(request.getCancelReason());
+
+        return OrderResponseDto.from(order);
+    }
+
+    private void applyStatus(Order order, OrderStatus status){
+        switch (status){
+            case ACCEPTED -> order.accepted();
+            case COOKED -> order.cooked();
+            case DELIVERED -> order.delivered();
+            case COMPLETED -> order.completed();
+            case CANCELLED -> order.cancelled(null);
+            default -> throw new IllegalArgumentException("허용되지 않는 주문 상태입니다: " + status);
+        }
+    }
 
 }

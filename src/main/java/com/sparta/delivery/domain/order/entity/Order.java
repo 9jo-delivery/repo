@@ -5,6 +5,7 @@ import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
+import com.sparta.delivery.global.common.Enums.OrderStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -123,5 +124,27 @@ public class Order extends BaseEntity {
 		this.totalPrice = orderItems.stream()
 				.mapToInt(OrderItem::getTotalPrice)
 				.sum();
+	}
+
+	public void accepted() {
+		this.orderStatus = OrderStatus.ACCEPTED;
+		this.acceptedAt = LocalDateTime.now();
+	}
+	public void cooked() {
+		this.orderStatus = OrderStatus.COOKED;
+		this.acceptedAt = LocalDateTime.now();
+	}
+	public void delivered() {
+		this.orderStatus = OrderStatus.DELIVERED;
+		this.acceptedAt = LocalDateTime.now();
+	}
+	public void completed() {
+		this.orderStatus = OrderStatus.COMPLETED;
+		this.acceptedAt = LocalDateTime.now();
+	}
+	public void cancelled(String cancelReason) {
+		this.orderStatus = OrderStatus.CANCELLED;
+		this.acceptedAt = LocalDateTime.now();
+		this.cancelReason = cancelReason;
 	}
 }
