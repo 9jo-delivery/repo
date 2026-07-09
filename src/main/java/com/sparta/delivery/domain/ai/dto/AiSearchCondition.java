@@ -18,7 +18,7 @@ import lombok.Setter;
 public class AiSearchCondition {
 	private Long owenrId;
 	private UUID restaurantId;
-	private Boolean isSuccess;
+	private Boolean isSuccess; // boolean은 null을 허용하지 않음
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate startDate;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")

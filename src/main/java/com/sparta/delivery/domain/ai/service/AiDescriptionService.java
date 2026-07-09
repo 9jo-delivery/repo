@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.delivery.domain.ai.dto.AiLogDetailResponseDto;
 import com.sparta.delivery.domain.ai.dto.AiLogSummaryResponseDto;
 import com.sparta.delivery.domain.ai.dto.AiSearchCondition;
 import com.sparta.delivery.domain.ai.entity.AiDescriptionLog;
@@ -19,6 +20,7 @@ import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.common.Enums;
+import com.sparta.delivery.global.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +39,7 @@ public class AiDescriptionService {
 	public Page<AiLogSummaryResponseDto> searchLogs(Long managerId,AiSearchCondition condition,Pageable pageable) {
 
 		User manager = userRepository.findById(managerId)
-			.orElseThrow(()-> new IllegalArgumentException("찾으시는 Id 존재하지 않음"));
+			.orElseThrow(()-> new ResourceNotFoundException("User with id " + managerId + " not found"));
 
 		if (manager.getRole() != Enums.UserRole.MANAGER) {
 			throw new IllegalArgumentException("권한없음");
@@ -49,5 +51,8 @@ public class AiDescriptionService {
 		return logPage.map(AiLogSummaryResponseDto::from);
 	}
 
+	public AiLogDetailResponseDto searchDetails(UUID logId, Long managerId) {
+		return null;
+	}
 }
 
