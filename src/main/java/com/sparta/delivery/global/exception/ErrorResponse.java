@@ -1,5 +1,8 @@
 package com.sparta.delivery.global.exception;
 
+import lombok.Getter;
+
+@Getter
 public class ErrorResponse {
 	private int status;
 	private String message;

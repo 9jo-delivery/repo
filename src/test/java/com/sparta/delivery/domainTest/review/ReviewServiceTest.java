@@ -1,6 +1,5 @@
 package com.sparta.delivery.domainTest.review;
 
-import static org.awaitility.Awaitility.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,7 +30,7 @@ import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
-import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
 
 import com.sparta.delivery.domain.user.entity.User;
@@ -39,7 +38,6 @@ import com.sparta.delivery.global.common.Enums;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +54,7 @@ public class ReviewServiceTest {
 	private TempOrderRepository orderRepository;
 
 	@Mock
-	private TempRestaurantRepository restaurantRepository;
+	private RestaurantRepository restaurantRepository;
 
 	@Test
 	@DisplayName("리뷰 생성 성공 테스트")

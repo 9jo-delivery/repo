@@ -28,14 +28,4 @@ public class GlobalExceptionHandler {
 			.status(HttpStatus.METHOD_NOT_ALLOWED) // 405
 			.body(new ErrorResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), "지원하지 않는 HTTP 메서드입니다."));
 	}
-
-	// 또는 IllegalArgumentException을 공통으로 400 Bad Request 처리하고 싶을 때
-	@ExceptionHandler(IllegalArgumentException.class)
-	public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-		ErrorResponse errorResponse = new ErrorResponse(
-			HttpStatus.BAD_REQUEST.value(),
-			ex.getMessage()
-		);
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-	}
 }
