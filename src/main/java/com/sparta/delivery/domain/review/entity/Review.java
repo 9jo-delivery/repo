@@ -31,7 +31,7 @@ import org.hibernate.annotations.SQLRestriction;
 public class Review extends BaseEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.UUID) // 수정: UUID 생성 전략 적용
+	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
 	@OneToOne(fetch = FetchType.LAZY)

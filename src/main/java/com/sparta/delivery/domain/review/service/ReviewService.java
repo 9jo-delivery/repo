@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.delivery.domain.order.entity.Order;
-
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
