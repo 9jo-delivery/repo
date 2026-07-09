@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.ai.dto;
+package com.sparta.delivery.domain.ai.dto.AiLogDto;
 
 import java.time.LocalDateTime;
 

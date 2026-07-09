@@ -6,10 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,12 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.delivery.domain.ai.dto.AiLogDetailResponseDto;
-import com.sparta.delivery.domain.ai.dto.AiLogSummaryResponseDto;
-import com.sparta.delivery.domain.ai.dto.AiSearchCondition;
+import com.sparta.delivery.domain.ai.dto.AiLogDto.AiLogDetailResponseDto;
+import com.sparta.delivery.domain.ai.dto.AiLogDto.AiLogSummaryResponseDto;
+import com.sparta.delivery.domain.ai.dto.AiLogDto.AiSearchCondition;
 import com.sparta.delivery.domain.ai.service.AiDescriptionService;
-import com.sparta.delivery.global.common.Enums;
-import com.sparta.delivery.global.config.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,23 +30,24 @@ public class AiDescriptionController {
 
 	private final AiDescriptionService aiDescriptionService;
 
+	// 로그 전체 조회(page 별) + 조건 별(자세한건 명세서참고)
 	@PreAuthorize("hasAnyAuthority('MANAGER')")
 	@GetMapping("/ai-description-logs")
 	public ResponseEntity<Page<AiLogSummaryResponseDto>> getAiLog(@ModelAttribute AiSearchCondition condition,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size) {
-
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		//파라미터로 page 받는법
+		int size = pageable.getPageSize();
 		if (size != 10 && size != 30 && size != 50) {
 			size = 10;
+			pageable = PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
 		}
 
-		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 		Page<AiLogSummaryResponseDto> response = aiDescriptionService.searchLogs(condition, pageable);
 
 		return ResponseEntity.ok(response);
 	}
 
-	// 2. AI 요청 로그 상세 조회
+	// AI 요청 로그 상세 조회
 	@GetMapping("/ai-description-logs/{logId}")
 	@PreAuthorize("hasAnyAuthority('MANAGER')")
 	public ResponseEntity<AiLogDetailResponseDto> getAiLogDetail(

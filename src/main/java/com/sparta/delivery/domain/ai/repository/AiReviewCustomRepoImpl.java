@@ -17,7 +17,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sparta.delivery.domain.ai.dto.AiSearchCondition;
+import com.sparta.delivery.domain.ai.dto.AiLogDto.AiSearchCondition;
 import com.sparta.delivery.domain.ai.entity.AiDescriptionLog;
 
 import lombok.RequiredArgsConstructor;

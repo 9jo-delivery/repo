@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.ai.dto;
+package com.sparta.delivery.domain.ai.dto.AiLogDto;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -8,7 +8,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter

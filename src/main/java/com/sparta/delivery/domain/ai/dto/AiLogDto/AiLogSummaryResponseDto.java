@@ -1,10 +1,9 @@
-package com.sparta.delivery.domain.ai.dto;
+package com.sparta.delivery.domain.ai.dto.AiLogDto;
 
 import com.sparta.delivery.domain.ai.entity.AiDescriptionLog;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 @Builder
