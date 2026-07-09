@@ -32,7 +32,7 @@ public class UserResDto {
         this.createdAt = user.getCreatedAt();
     }
 
-    public static UserResDto of(User user) {
+    public static UserResDto from(User user) {
         return new UserResDto(
                 user.getId(),
                 user.getUsername(),
