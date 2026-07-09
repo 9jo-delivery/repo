@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.delivery.domain.order.entity.Order;
-
-import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
@@ -17,7 +15,7 @@ import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
-import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.global.common.Enums;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +29,7 @@ public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
 	private final TempOrderRepository orderRepository;
-	private final TempRestaurantRepository restaurantRepository;
+	private final RestaurantRepository restaurantRepository;
 
 	@Transactional
 	public ReviewResponseDto createReview(UUID orderId, ReviewRequestDto request, Long customerId) {
@@ -125,7 +123,7 @@ public class ReviewService {
 
 	private void updateRestaurantRatingAndCount(Restaurant restaurant) {
 		// softDelete 상태?가 아닌 리뷰들의 총갯수 가져옴
-		Long reviewCount = reviewRepository.countByRestaurantIdAndIsDeleteFalse(restaurant.getId());
+		Long reviewCount = reviewRepository.countByRestaurantIdAndIsDeletedFalse(restaurant.getId());
 
 		// 찾아온 식당의 리뷰둘의 평균 평점 계산식
 		// JQPL

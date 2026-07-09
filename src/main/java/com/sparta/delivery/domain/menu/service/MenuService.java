@@ -5,9 +5,8 @@ import com.sparta.delivery.domain.menu.dto.MenuResponse;
 import com.sparta.delivery.domain.menu.dto.MenuUpdateRequest;
 import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
-import com.sparta.delivery.domain.menu.repository.RestaurantRepository; // menu 패키지에 만든 껍대기 repository
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
-import java.util.UUID;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

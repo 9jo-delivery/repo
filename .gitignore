@@ -41,3 +41,6 @@ out/
 .env
 **/application.yml
 
+# 로컬 테스트용 더미 데이터 스크립트 제외
+**/data.sql
+

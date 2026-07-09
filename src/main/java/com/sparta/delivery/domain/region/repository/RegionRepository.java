@@ -1,5 +1,6 @@
-package com.sparta.delivery.domain.region;
+package com.sparta.delivery.domain.region.repository;
 
+import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.global.common.Enums;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
