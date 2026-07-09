@@ -1,22 +1,24 @@
 package com.sparta.delivery.domain.ai.entity;
 
 import com.sparta.delivery.domain.menu.entity.Menu;
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDateTime;
-
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.user.entity.User;
+import com.sparta.delivery.global.common.BaseEntity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+import java.util.UUID; // UUID 임포트 추가
 
 @Entity
-@Table(name = "ai_description_logs")
+@Table(name = "p_ai_description_logs")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AiDescriptionLog {
+public class AiDescriptionLog extends BaseEntity {
 
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "owner_id", nullable = false)
@@ -39,7 +41,7 @@ public class AiDescriptionLog {
 	@Column(columnDefinition = "TEXT")
 	private String responseText;
 
-	@Column(nullable = false)
+	@Column(name = "is_success", nullable = false)
 	private boolean isSuccess = true;
 
 	@Column(columnDefinition = "TEXT")
@@ -48,5 +50,8 @@ public class AiDescriptionLog {
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt = LocalDateTime.now();
 
-	private Long createdBy;
+	// 3. User 엔티티와의 연관 관계로 수정
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "created_by")
+	private User createdBy;
 }
