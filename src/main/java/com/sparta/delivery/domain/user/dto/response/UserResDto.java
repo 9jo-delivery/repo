@@ -30,7 +30,16 @@ public class UserResDto {
         this.phone = user.getPhone();
         this.role = user.getRole();
         this.createAt = user.getCreatedAt();
+    }
 
-
+    public static UserResDto of(User user) {
+        return new UserResDto(
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getPhone(),
+                user.getRole(),
+                user.getCreatedAt()
+        );
     }
 }
