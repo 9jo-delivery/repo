@@ -10,7 +10,9 @@ import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +60,16 @@ public class MenuService {
             throw new IllegalArgumentException("존재하지 않는 가게입니다.");
         }
 
+        // 기본 정렬을 "createdAt, desc"로 설정
+        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
+        int size = pageable.getPageSize();
+
+        if (size != 10 && size != 30 && size != 50) {
+            size = 10;
+        }
+        pageable = PageRequest.of(pageable.getPageNumber(), size, sort);
+
+        // TODO: 나중에 name 조건을 포함하여 조회하는 리포지토리 메서드로 확장해야 함
         Page<Menu> menus = menuRepository.findAllByRestaurantIdAndIsHiddenFalse(restaurantId, pageable);
 
         return menus.map(MenuResponse::from);
