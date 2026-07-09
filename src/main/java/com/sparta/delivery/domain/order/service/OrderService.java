@@ -29,6 +29,7 @@ public interface OrderService {
     //주문 취소
     OrderResponseDto cancelOrder(Long customerId, UUID orderId, CancelOrderRequestDto request);
 
-
     //주문 삭제
+    void deleteOrder(Long customerId, UUID orderId);
+
 }

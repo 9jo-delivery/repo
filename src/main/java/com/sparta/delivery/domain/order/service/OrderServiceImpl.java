@@ -196,12 +196,25 @@ public class OrderServiceImpl implements OrderService{
 
         LocalDateTime deadline = order.getCreatedAt().plusMinutes(CANCELLABLE_MIN);
         if (LocalDateTime.now().isAfter(deadline)){
-            throw new IllegalArgumentException("주문 생성 후 5분이 지나 취소할 수 없습니다.");
+            throw new IllegalStateException("주문 생성 후 5분이 지나 취소할 수 없습니다.");
         }
 
         order.cancelled(request.getCancelReason());
 
         return OrderResponseDto.from(order);
+    }
+
+    @Override
+    @Transactional
+    public void deleteOrder(Long customerId, UUID orderId) {
+        Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+
+        if (order.getOrderStatus() != OrderStatus.COMPLETED && order.getOrderStatus() != OrderStatus.CANCELLED){
+            throw new IllegalStateException("완료되었거나 취소된 주문만 삭제할 수 있습니다.");
+        }
+
+        order.markAsDeleted(customerId);
     }
 
     private void applyStatus(Order order, OrderStatus status){

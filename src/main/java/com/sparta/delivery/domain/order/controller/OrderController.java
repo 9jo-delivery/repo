@@ -23,6 +23,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,7 +59,7 @@ public class OrderController {
 //            @RequestHeader("X-USER-ID") Long customerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt, desc") String sort,
+            @RequestParam(defaultValue = "createdAt,desc") String sort,
             @RequestParam(required = false) OrderStatus orderStatus,
             @RequestParam(required = false) UUID restaurantId,
             @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate startDate,
@@ -119,5 +120,13 @@ public class OrderController {
     }
 
     //주문 삭제
-
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> deleteOrder(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable UUID orderId
+    ){
+        Long customerId = userDetails.getUser().getId();
+        orderService.deleteOrder(customerId, orderId);
+        return ResponseEntity.noContent().build();
+    }
 }
