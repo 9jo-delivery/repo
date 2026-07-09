@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.restaurant.service;
 import com.sparta.delivery.domain.restaurant.dto.*;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
+import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -72,7 +73,7 @@ public class RestaurantCategoryService {
 
     public CategorySummaryResDto getCategoryInfo(UUID id) {
         RestaurantCategory category = rcRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 카테고리입니다."));
 
         return new CategorySummaryResDto(category);
     }
@@ -80,7 +81,7 @@ public class RestaurantCategoryService {
     @Transactional
     public CategorySummaryResDto updateCategory(UUID id, CategoryUpdateReqDto categoryUpdateReqDto) {
         RestaurantCategory category = rcRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 카테고리입니다."));
 
         // 수정하려는 카테고리명이 이미 있는지 존재 여부 검증 (카테고리명은 고유값이어야 함)
         if (categoryUpdateReqDto.getName() != null &&
@@ -103,7 +104,7 @@ public class RestaurantCategoryService {
     @Transactional
     public void deleteCategory(UUID id) {
         RestaurantCategory category = rcRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 카테고리입니다."));
 
         rcRepository.delete(category);
     }
