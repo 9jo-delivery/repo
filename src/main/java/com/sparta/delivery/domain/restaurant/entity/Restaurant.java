@@ -67,10 +67,32 @@ public class Restaurant extends BaseEntity {
 	@Column(nullable = false, columnDefinition = "bigint default 0")
 	private Long reviewCount = 0L; // count()함수쓸때 Long타입 반환만 가능해서 수정했습니다.
 
-
-	@Builder
-	Restaurant(String name){
-		this.name = name;
+	public static Restaurant create(
+			User owner,
+			RestaurantCategory category,
+			Region region,
+			String name,
+			String description,
+			String phone,
+			String address,
+			String detailAddress,
+			String businessNumber,
+			Integer minOrderAmount,
+			Integer deliveryFee
+	) {
+		Restaurant restaurant = new Restaurant();
+		restaurant.owner = owner;
+		restaurant.category = category;
+		restaurant.region = region;
+		restaurant.name = name;
+		restaurant.description = description;
+		restaurant.phone = phone;
+		restaurant.address = address;
+		restaurant.detailAddress = detailAddress;
+		restaurant.businessNumber = businessNumber;
+		restaurant.minOrderAmount = minOrderAmount;
+		restaurant.deliveryFee = deliveryFee;
+		return restaurant;
 	}
 
 	public void updateRatingAndCount(double averageRating, Long reviewCount) {
