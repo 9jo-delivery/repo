@@ -31,7 +31,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 				review.restaurant.id.eq(restaurantId), // 기본 필수 조건: 이 식당의 리뷰여야 함
 				ratingEq(condition.getRating())        // 동적 조건: 별점 필터 조건
 			)
-			.offset(pageable.getOffset())  // 페이징: 어디서부터 시작할지
+			.offset(pageable.getOffset())  // 페이징: 어디서부터 시작할지 문제점: 1000번대부터 10개 1~1000 오프셋리밋 개선방안 있음 -> 개선방안 찾아보기
 			.limit(pageable.getPageSize()) // 페이징: 몇 개를 가져올지
 			.orderBy(review.createdAt.desc())
 			.fetch(); // 이거 호출하면 ListReview형태로 반환함

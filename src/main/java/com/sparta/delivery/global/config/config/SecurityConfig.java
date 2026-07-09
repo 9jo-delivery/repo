@@ -1,5 +1,6 @@
-package com.sparta.delivery.global.config.security;
+package com.sparta.delivery.global.config.config;
 
+import com.sparta.delivery.global.config.security.UserDetailsServiceImpl;
 import com.sparta.delivery.global.config.security.jwt.JwtAuthenticationFilter;
 import com.sparta.delivery.global.config.security.jwt.JwtAuthorizationFilter;
 import com.sparta.delivery.global.config.security.jwt.JwtUtil;
@@ -63,6 +64,12 @@ public class SecurityConfig {
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll()
+                    //  Swagger 관련 URL 전부 허용 (추가)
+                        .requestMatchers(
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html"
+                        ).permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
