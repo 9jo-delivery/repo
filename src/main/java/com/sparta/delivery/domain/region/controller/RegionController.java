@@ -5,9 +5,11 @@ import com.sparta.delivery.domain.region.dto.RegionResponseDto;
 import com.sparta.delivery.domain.region.dto.RegionSearchDto;
 import com.sparta.delivery.domain.region.dto.RegionSummaryResponseDto;
 import com.sparta.delivery.domain.region.service.RegionService;
+import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,9 +20,12 @@ import java.util.UUID;
 public class RegionController {
     private final RegionService regionService;
 
-    @PostMapping // 추후 권한 추가
-    public RegionResponseDto createRegion(@RequestBody RegionRequestDto regionRequestDto) {
-        return regionService.createRegion(regionRequestDto);
+    @PostMapping
+    public RegionResponseDto createRegion(@RequestBody RegionRequestDto regionRequestDto,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+        return regionService.createRegion(regionRequestDto, userId);
     }
 
     @GetMapping
@@ -34,13 +39,17 @@ public class RegionController {
     }
 
     @PatchMapping("/{regionId}")
-    public RegionSummaryResponseDto updateRegion(@PathVariable UUID regionId, @RequestBody RegionRequestDto regionRequestDto) {
-        return regionService.updateRegion(regionId, regionRequestDto);
+    public RegionSummaryResponseDto updateRegion(@PathVariable UUID regionId, @RequestBody RegionRequestDto regionRequestDto,
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.getUser().getId();
+        return regionService.updateRegion(regionId, regionRequestDto, userId);
     }
 
     @DeleteMapping("/{regionId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT) // 204 No Content 강제
-    public void deleteRegion(@PathVariable UUID regionId) {
-        regionService.deleteRegion(regionId);
+    public ResponseEntity<Void> deleteRegion(@PathVariable UUID regionId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.getUser().getId();
+        regionService.deleteRegion(regionId, userId);
+
+        return ResponseEntity.noContent().build();
     }
 }
