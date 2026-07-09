@@ -51,14 +51,14 @@ public class AiReviewCustomRepoImpl implements AiReviewCustomRepo {
 				isSuccessEq(condition.getIsSuccess()),
 				whenEq(condition.getStartDate(), condition.getEndDate())
 			);
-		return PageableExecutionUtils.getPage(logs, pageable, () -> countQuery.fetchOne());
+		return PageableExecutionUtils.getPage(logs, pageable, countQuery::fetchOne);
 		// 처음에 왜 sortQuery.fetchCount() 쓰면돼는거 아닌가>?
 		// () -> sortQuery.fetchCount()
 		// "전체 페이지 개수를 계산하기 위한 '진짜 Count 쿼리'는 지금 바로 실행하지 말고,
 		// 나중에 정말 필요할 때만 실행해줘"라고 JPA에게 예약(지연 실행)해 두는 문법
 		// PageableExecutionUtils.getPage()는 첫 페이지나 마지막 페이지 데이터를 보고,
 		// "어? 이거 굳이 DB에 Count 쿼리 안 날려도 전체 개수가 몇 개인지 계산이 나오는데?"
-		// 라고 판단되면 세 번째 파라미터로 받은 람다식(() -> ...)을 아예 실행조차 하지 않고 패스
+		// 라고 판단되면 세 번째 파라미터로 받은 countQuery::fetchOne을 아예 실행조차 하지 않고 패스
 
 	}
 
