@@ -1,29 +1,24 @@
 package com.sparta.delivery.domain.ai.service;
 
-import java.util.UUID;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.sparta.delivery.domain.ai.dto.AiLogDetailResponseDto;
 import com.sparta.delivery.domain.ai.dto.AiLogSummaryResponseDto;
 import com.sparta.delivery.domain.ai.dto.AiSearchCondition;
 import com.sparta.delivery.domain.ai.entity.AiDescriptionLog;
 import com.sparta.delivery.domain.ai.repository.AiDescriptRepository;
-import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
-import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Slf4j(topic = "AI Api")
 @Service
@@ -32,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AiDescriptionService {
 
 	private AiDescriptRepository aiDescriptRepository;
-	private TempRestaurantRepository tempRestaurantRepository;
+	private RestaurantRepository tempRestaurantRepository;
 	private MenuRepository menuRepository;
 	private UserRepository userRepository;
 

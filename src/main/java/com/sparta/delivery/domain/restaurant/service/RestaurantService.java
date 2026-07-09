@@ -1,7 +1,7 @@
 package com.sparta.delivery.domain.restaurant.service;
 
-import com.sparta.delivery.domain.region.Region;
-import com.sparta.delivery.domain.region.RegionRepository;
+import com.sparta.delivery.domain.region.entity.Region;
+import com.sparta.delivery.domain.region.repository.RegionRepository;
 import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateReqDto;
 import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateResDto;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
