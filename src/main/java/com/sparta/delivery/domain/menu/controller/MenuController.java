@@ -21,13 +21,14 @@ import java.util.UUID;
 public class MenuController {
 
     private final MenuService menuService;
+    private final Long userId = 1L; // 임시 유저 ID
 
     // 메뉴 등록
     @PostMapping("/api/restaurants/{restaurantId}/menus")
     public ResponseEntity<Void> createMenu(@PathVariable UUID restaurantId, @Valid @RequestBody MenuCreateRequest request) {
         validationOwnerRole(); // 권한 검증
 
-        UUID createdMenuId = menuService.createMenu(restaurantId, request);
+        UUID createdMenuId = menuService.createMenu(restaurantId, request, userId);
         // 생성된 메뉴의 상세 조회 URI를 Location 헤더에 담아 201 Created 응답
         return ResponseEntity.created(URI.create("/api/menus/" + createdMenuId)).build();
     }
@@ -51,15 +52,14 @@ public class MenuController {
     public ResponseEntity<MenuResponse> updateMenu(@PathVariable UUID menuId, @Valid @RequestBody MenuUpdateRequest request) {
         validationOwnerRole(); // 권한 검증
 
-        MenuResponse response = menuService.updateMenu(menuId, request);
+        MenuResponse response = menuService.updateMenu(menuId, request, userId);
         return ResponseEntity.ok(response);
     }
 
     // 메뉴 삭제
     @DeleteMapping("/api/menus/{menuId}")
     public ResponseEntity<Void> deleteMenu(@PathVariable UUID menuId) {
-        validationOwnerRole(); // 권한 검증
-        Long userId = 1L; // 임시 유저 ID
+        validationOwnerRole(); // OWNER 권한 검증
 
         menuService.deleteMenu(menuId, userId);
         return ResponseEntity.noContent().build();

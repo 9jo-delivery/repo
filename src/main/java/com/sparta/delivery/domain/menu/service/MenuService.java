@@ -26,11 +26,16 @@ public class MenuService {
 
     // 메뉴 등록
     @Transactional
-    public UUID createMenu(UUID restaurantId, MenuCreateRequest request) {
+    public UUID createMenu(UUID restaurantId, MenuCreateRequest request, Long userId) {
 
         // RestaurantRepository를 통해 가게 조회
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
+
+        // 본인 가게 검증
+        if (!restaurant.getOwner().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인 가게의 메뉴만 등록할 수 있습니다.");
+        }
 
         // aiGenerateDescription=true일때
         String finalDescription = request.description();
@@ -89,10 +94,15 @@ public class MenuService {
 
     // 메뉴 수정
     @Transactional
-    public MenuResponse updateMenu(UUID menuId, MenuUpdateRequest request) {
+    public MenuResponse updateMenu(UUID menuId, MenuUpdateRequest request, Long userId) {
         // 존재하는 메뉴인지 검증
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
+
+        // 본인 가게 검증
+        if (!menu.getRestaurant().getOwner().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인 가게의 메뉴만 수정할 수 있습니다.");
+        }
 
         String finalDescription = request.description();
 //        if (request.aiGenerateDescription != null && request.aiGenerateDescription) {
@@ -116,6 +126,11 @@ public class MenuService {
 
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
+
+        // 본인 가게 검증
+        if(!menu.getRestaurant().getOwner().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인 가게의 메뉴만 삭제할 수 있습니다.");
+        }
 
         menu.markAsDeleted(userId);
     }
