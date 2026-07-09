@@ -1,23 +1,25 @@
 package com.sparta.delivery.domain.review.service;
 
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
-import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.global.common.Enums;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j(topic = "Review API")
 @Service
@@ -27,7 +29,7 @@ public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
 	private final TempOrderRepository orderRepository;
-	private final TempRestaurantRepository restaurantRepository;
+	private final RestaurantRepository restaurantRepository;
 
 	@Transactional
 	public ReviewResponseDto createReview(UUID orderId, ReviewRequestDto request, Long customerId) {
@@ -51,7 +53,6 @@ public class ReviewService {
 			throw new IllegalArgumentException("해당 주문에 이미 작성한 리뷰 존재");
 		}
 
-		// 메서드를 따서 isCompleted <---
 		// 리뷰 엔티티 생성
 		Review review = Review.create(order, request.getRating(), request.getContent());
 
