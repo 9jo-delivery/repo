@@ -6,6 +6,7 @@ import com.sparta.delivery.domain.menu.repository.MenuOptionRepository;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.domain.menu.repository.RestaurantRepository;
 import com.sparta.delivery.domain.order.dto.CreatedOrderRequestDto;
+import com.sparta.delivery.domain.order.dto.OrderDetailResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderItemRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderSearchDto;
@@ -159,6 +160,13 @@ public class OrderServiceImpl implements OrderService{
         );
 
         return orderRepository.findAll(spec, pageable).map(OrderSummaryResponseDto :: from);
+    }
+
+    @Override
+    public OrderDetailResponseDto getOrderDetail(long customerId, UUID orderId) {
+        Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+        return OrderDetailResponseDto.from(order);
     }
 
 
