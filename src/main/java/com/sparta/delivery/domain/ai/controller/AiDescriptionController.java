@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.delivery.domain.ai.dto.AiLogDto.AiLogDetailResponseDto;
@@ -34,8 +33,11 @@ public class AiDescriptionController {
 	@PreAuthorize("hasAnyAuthority('MANAGER')")
 	@GetMapping("/ai-description-logs")
 	public ResponseEntity<Page<AiLogSummaryResponseDto>> getAiLog(@ModelAttribute AiSearchCondition condition,
-		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-		//파라미터로 page 받는법
+		@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		// 파라미터로 page 받는법
+		// @PageableDefault 기본값 세팅
+		// pageable은 final이 붙은 수정 불가 객체
+		// 10, 30, 50이 아닐경우 밑의 로직으로 다시 만들어야 문제가 안생김
 		int size = pageable.getPageSize();
 		if (size != 10 && size != 30 && size != 50) {
 			size = 10;
