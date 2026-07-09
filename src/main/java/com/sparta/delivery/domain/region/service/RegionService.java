@@ -1,9 +1,11 @@
-package com.sparta.delivery.domain.region;
+package com.sparta.delivery.domain.region.service;
 
 import com.sparta.delivery.domain.region.dto.RegionRequestDto;
 import com.sparta.delivery.domain.region.dto.RegionResponseDto;
 import com.sparta.delivery.domain.region.dto.RegionSearchDto;
 import com.sparta.delivery.domain.region.dto.RegionSummaryResponseDto;
+import com.sparta.delivery.domain.region.entity.Region;
+import com.sparta.delivery.domain.region.repository.RegionRepository;
 import com.sparta.delivery.global.common.Enums;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
