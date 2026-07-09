@@ -1,13 +1,13 @@
-package com.sparta.delivery.domain.region;
+package com.sparta.delivery.domain.region.controller;
 
 import com.sparta.delivery.domain.region.dto.RegionRequestDto;
 import com.sparta.delivery.domain.region.dto.RegionResponseDto;
 import com.sparta.delivery.domain.region.dto.RegionSearchDto;
 import com.sparta.delivery.domain.region.dto.RegionSummaryResponseDto;
+import com.sparta.delivery.domain.region.service.RegionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
