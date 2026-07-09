@@ -12,8 +12,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor // 기본생성자
-@NoArgsConstructor // 테스트코드 위해서 필드값 모조리 넣는데 쓰는 생성자
+@AllArgsConstructor // 테스트코드 위해서 필드값 모조리 넣는데 쓰는 생성자
+@NoArgsConstructor // 기본생성자
 // queryDSL에 필요한 조건 Dto
 public class AiSearchCondition {
 	private Long ownerId;
