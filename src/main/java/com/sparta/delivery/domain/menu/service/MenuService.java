@@ -5,7 +5,7 @@ import com.sparta.delivery.domain.menu.dto.MenuResponse;
 import com.sparta.delivery.domain.menu.dto.MenuUpdateRequest;
 import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
-import com.sparta.delivery.domain.menu.repository.RestaurantRepository; // menu 패키지에 만든 껍대기 repository
+import com.sparta.delivery.domain.menu.repository.TempRestaurantRepository; // menu 패키지에 만든 껍대기 repository
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class MenuService {
 
     private final MenuRepository menuRepository;
-    private final RestaurantRepository restaurantRepository; // 추후 import 수정할 것
+    private final TempRestaurantRepository tempRestaurantRepository; // 추후 import 수정할 것
 
     // 메뉴 등록
     @Transactional
     public UUID createMenu(UUID restaurantId, MenuCreateRequest request) {
 
         // RestaurantRepository를 통해 가게 조회
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+        Restaurant restaurant = tempRestaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
 
         // aiGenerateDescription=true일때
@@ -54,7 +54,7 @@ public class MenuService {
     // 메뉴 목록 검색 (가게 메뉴 전체 조회)
     public Page<MenuResponse> getMenusByRestaurant(UUID restaurantId, Pageable pageable) {
 
-        if(!restaurantRepository.existsById(restaurantId)){
+        if(!tempRestaurantRepository.existsById(restaurantId)){
             throw new IllegalArgumentException("존재하지 않는 가게입니다.");
         }
 

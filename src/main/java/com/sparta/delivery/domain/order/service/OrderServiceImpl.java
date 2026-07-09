@@ -4,7 +4,7 @@ import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.entity.MenuOption;
 import com.sparta.delivery.domain.menu.repository.MenuOptionRepository;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
-import com.sparta.delivery.domain.menu.repository.RestaurantRepository;
+import com.sparta.delivery.domain.menu.repository.TempRestaurantRepository;
 import com.sparta.delivery.domain.order.dto.CreatedOrderRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderItemRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
@@ -30,7 +30,7 @@ public class OrderServiceImpl implements OrderService{
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final RestaurantRepository restaurantRepository;
+    private final TempRestaurantRepository tempRestaurantRepository;
     private final MenuRepository menuRepository;
     private final MenuOptionRepository menuOptionRepository;
 
@@ -40,7 +40,7 @@ public class OrderServiceImpl implements OrderService{
         User customer = userRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
+        Restaurant restaurant = tempRestaurantRepository.findById(request.getRestaurantId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 가게입니다."));
 
         Order order = Order.create(
