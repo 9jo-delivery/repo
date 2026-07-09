@@ -95,6 +95,11 @@ public class Restaurant extends BaseEntity {
 		return restaurant;
 	}
 
+	@Builder
+	public Restaurant(String name) {
+		this.name = name;
+	}
+
 	public void updateRatingAndCount(double averageRating, Long reviewCount) {
 		this.averageRating = BigDecimal.valueOf(averageRating);
 		this.reviewCount = reviewCount;
