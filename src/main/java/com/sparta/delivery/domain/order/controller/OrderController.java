@@ -6,9 +6,9 @@ import com.sparta.delivery.domain.order.dto.OrderSearchDto;
 import com.sparta.delivery.domain.order.dto.OrderSummaryResponseDto;
 import com.sparta.delivery.domain.order.service.OrderServiceImpl;
 import com.sparta.delivery.global.common.Enums.OrderStatus;
+import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,10 +37,11 @@ public class OrderController {
     //주문 생성
     @PostMapping
     public ResponseEntity<OrderResponseDto> createOrder(
-            @AuthenticationPrincipal Long customerId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+//            @RequestHeader("X-USER-ID") Long customerId,
             @Valid @RequestBody CreatedOrderRequestDto request
     ){
-
+        Long customerId = userDetails.getUser().getId();
         OrderResponseDto response = orderService.createOrder(customerId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -48,7 +49,8 @@ public class OrderController {
     //주문 목록 검색
     @GetMapping
     public ResponseEntity<Page<OrderSummaryResponseDto>> getOrders(
-            @AuthenticationPrincipal Long customerId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+//            @RequestHeader("X-USER-ID") Long customerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt, desc") String sort,
@@ -57,6 +59,7 @@ public class OrderController {
             @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate endDate
             ){
+        Long customerId = userDetails.getUser().getId();
         Pageable pageable = buildPageable(page, size, sort);
         OrderSearchDto search = new OrderSearchDto(orderStatus, restaurantId, startDate, endDate);
 
