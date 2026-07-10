@@ -35,7 +35,7 @@ import com.sparta.delivery.domain.restaurant.service.RestaurantCategoryService;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-class RestaurantCategoryServiceTest {
+public class RestaurantCategoryServiceTest {
 
 	@InjectMocks
 	private RestaurantCategoryService restaurantCategoryService;

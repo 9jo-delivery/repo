@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/restaurants")
 public class RestaurantController {
     public final RestaurantService restaurantService;
 
@@ -22,7 +22,7 @@ public class RestaurantController {
     }
 
     // 가게 등록
-    @PostMapping("/restaurants")
+    @PostMapping
     public ResponseEntity<RestaurantCreateResDto> createRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody RestaurantCreateReqDto restaurantCreateReqDto) {
         // TODO: 유저 세팅용 하드코딩 수정
         // Long userId = userDetails.getUser().getId();
