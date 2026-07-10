@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.payment.entity;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -13,16 +14,18 @@ import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.domain.order.entity.Order;
 
 @Entity
-@Table(name = "payments")
+@Table(name = "p_payments")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE payments SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE p_payments SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class Payment extends BaseEntity {
 
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
+	//주문1당 결제1
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_id", nullable = false, unique = true)
 	private Order order;
@@ -32,7 +35,7 @@ public class Payment extends BaseEntity {
 	private User customer;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
+	@Column(name = "payment_method", nullable = false)
 	private Enums.PaymentMethod paymentMethod = Enums.PaymentMethod.CARD;
 
 	@Enumerated(EnumType.STRING)
