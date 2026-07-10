@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.menu.controller;
 
 import com.sparta.delivery.domain.menu.dto.MenuCreateRequest;
+import com.sparta.delivery.domain.menu.dto.MenuCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuResponse;
 import com.sparta.delivery.domain.menu.dto.MenuUpdateRequest;
 import com.sparta.delivery.domain.menu.service.MenuService;
@@ -25,12 +26,12 @@ public class MenuController {
 
     // 메뉴 등록
     @PostMapping("/api/restaurants/{restaurantId}/menus")
-    public ResponseEntity<Void> createMenu(@PathVariable UUID restaurantId, @Valid @RequestBody MenuCreateRequest request) {
+    public ResponseEntity<MenuCreateResponse> createMenu(@PathVariable UUID restaurantId, @Valid @RequestBody MenuCreateRequest request) {
         validationOwnerRole(); // 권한 검증
 
-        UUID createdMenuId = menuService.createMenu(restaurantId, request, userId);
+        MenuCreateResponse response = menuService.createMenu(restaurantId, request, userId);
         // 생성된 메뉴의 상세 조회 URI를 Location 헤더에 담아 201 Created 응답
-        return ResponseEntity.created(URI.create("/api/menus/" + createdMenuId)).build();
+        return ResponseEntity.created(URI.create("/api/menus/" + response.menuId())).body(response);
     }
 
     // 메뉴 목록 검색

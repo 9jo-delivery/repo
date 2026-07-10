@@ -5,8 +5,7 @@ import com.sparta.delivery.domain.menu.entity.Menu;
 import java.util.UUID;
 
 public record MenuResponse(
-        UUID id,
-        UUID restaurantId,
+        UUID menuId,
         String name,
         String description,
         Integer price,
@@ -17,7 +16,6 @@ public record MenuResponse(
     public static MenuResponse from(Menu menu) {
         return new MenuResponse(
                 menu.getId(),
-                menu.getRestaurant() != null ? menu.getRestaurant().getId() : null,
                 menu.getName(),
                 menu.getDescription(),
                 menu.getPrice(),

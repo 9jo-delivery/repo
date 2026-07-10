@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.menu.service;
 
 import com.sparta.delivery.domain.menu.dto.MenuCreateRequest;
+import com.sparta.delivery.domain.menu.dto.MenuCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuResponse;
 import com.sparta.delivery.domain.menu.dto.MenuUpdateRequest;
 import com.sparta.delivery.domain.menu.entity.Menu;
@@ -23,11 +24,11 @@ import java.util.UUID;
 public class MenuService {
 
     private final MenuRepository menuRepository;
-    private final RestaurantRepository restaurantRepository; // 추후 import 수정할 것
+    private final RestaurantRepository restaurantRepository;
 
     // 메뉴 등록
     @Transactional
-    public UUID createMenu(UUID restaurantId, MenuCreateRequest request, Long userId) {
+    public MenuCreateResponse createMenu(UUID restaurantId, MenuCreateRequest request, Long userId) {
 
         // RestaurantRepository를 통해 가게 조회
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
@@ -56,7 +57,7 @@ public class MenuService {
 
         //DB 저장 후 만들어진 메뉴 ID 반환
         Menu savedMenu = menuRepository.save(menu);
-        return savedMenu.getId();
+        return MenuCreateResponse.from(savedMenu);
     }
 
     // 메뉴 목록 검색 (가게 메뉴 전체 조회)

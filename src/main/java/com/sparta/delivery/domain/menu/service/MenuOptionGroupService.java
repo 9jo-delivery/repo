@@ -27,7 +27,7 @@ public class MenuOptionGroupService {
             throw new IllegalArgumentException("최소 선택 개수는 최대 선택 개수보다 클 수 없습니다.");
         }
 
-        // 메뉴 옵션 그룹 조회
+        // 메뉴 조회
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
 
