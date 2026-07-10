@@ -1,23 +1,27 @@
 package com.sparta.delivery.domain.review.service;
 
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
-import com.sparta.delivery.domain.restaurant.repository.TempRestaurantRepository;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.global.common.Enums;
+
+import com.sparta.delivery.global.exception.ResourceNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j(topic = "Review API")
 @Service
@@ -27,7 +31,7 @@ public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
 	private final TempOrderRepository orderRepository;
-	private final TempRestaurantRepository restaurantRepository;
+	private final RestaurantRepository restaurantRepository;
 
 	@Transactional
 	public ReviewResponseDto createReview(UUID orderId, ReviewRequestDto request, Long customerId) {
@@ -51,7 +55,6 @@ public class ReviewService {
 			throw new IllegalArgumentException("해당 주문에 이미 작성한 리뷰 존재");
 		}
 
-		// 메서드를 따서 isCompleted <---
 		// 리뷰 엔티티 생성
 		Review review = Review.create(order, request.getRating(), request.getContent());
 
@@ -102,22 +105,18 @@ public class ReviewService {
 	}
 
 	@Transactional
-	public UUID deleteReview(UUID reviewId, Long customerId) {
+	public void deleteReview(UUID reviewId, Long customerId) {
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
-		-> new IllegalArgumentException("삭제 가능한 리뷰 없음"));
+		-> new ResourceNotFoundException("삭제 가능한 리뷰 존재하지않음"));
 
 		if (!review.getCustomer().getId().equals(customerId)) {
 			throw new IllegalArgumentException("자신의 리뷰만 삭제 가능");
 		}
-		Enums.UserRole isOwner = review.getCustomer().getRole();
 
-		if (isOwner == Enums.UserRole.OWNER || isOwner == Enums.UserRole.MASTER) {
-			throw new IllegalArgumentException("삭제 권한 없음");
-		}
-
-		reviewRepository.delete(review);
 		updateRestaurantRatingAndCount(review.getRestaurant());
-		return reviewId;
+		review.markAsDeleted(customerId); //jpa auditing 객체를 삭제 x 아니고 누가 삭제했는지에 대한 기록
+		// dirty check -> 실제로 commit()이 완료되기 전까지는 삭제됨(아님) 상태임 -> flush()
+		// 커밋이 끝나면 이름표(삭제)를 떼고 실질 데이터베이스에 적용 commit()
 	}
 
 	private void updateRestaurantRatingAndCount(Restaurant restaurant) {

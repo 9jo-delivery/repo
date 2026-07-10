@@ -12,7 +12,7 @@ import com.sparta.delivery.global.common.Enums;
 @Table(name = "p_users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE users SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLDelete(sql = "UPDATE p_users SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class User extends BaseEntity {
 
