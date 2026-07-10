@@ -5,6 +5,7 @@ import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
+import com.sparta.delivery.global.common.Enums.OrderStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +22,8 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -123,5 +126,47 @@ public class Order extends BaseEntity {
 		this.totalPrice = orderItems.stream()
 				.mapToInt(OrderItem::getTotalPrice)
 				.sum();
+	}
+
+	// 주문상태 역행 방지( 허용된 상태전이를 정해둠 )
+	private static final Map<Enums.OrderStatus, Set<Enums.OrderStatus>> ALLOWED_TRANSITIONS = Map.of(
+			Enums.OrderStatus.CREATED,   Set.of(Enums.OrderStatus.ACCEPTED, Enums.OrderStatus.CANCELLED),
+			Enums.OrderStatus.ACCEPTED,  Set.of(Enums.OrderStatus.COOKED, Enums.OrderStatus.CANCELLED),
+			Enums.OrderStatus.COOKED,    Set.of(Enums.OrderStatus.DELIVERED, Enums.OrderStatus.COMPLETED),
+			Enums.OrderStatus.DELIVERED, Set.of(Enums.OrderStatus.COMPLETED),
+			Enums.OrderStatus.COMPLETED, Set.of(),  //끝 더 이상 수정불가
+			Enums.OrderStatus.CANCELLED, Set.of()   //끝 더 이상 수정불가
+	);
+
+	private void changeStatus(Enums.OrderStatus target) {
+		Set<Enums.OrderStatus> allowedNext = ALLOWED_TRANSITIONS.getOrDefault(this.orderStatus, Set.of());
+		if (!allowedNext.contains(target)) {
+			throw new IllegalStateException(
+					String.format("%s 상태에서 %s(으)로 변경할 수 없습니다.", this.orderStatus, target)
+			);
+		}
+		this.orderStatus = target;
+	}
+
+	public void accepted() {
+		changeStatus(OrderStatus.ACCEPTED);
+		this.acceptedAt = LocalDateTime.now();
+	}
+	public void cooked() {
+		changeStatus(OrderStatus.COOKED);
+		this.cookedAt = LocalDateTime.now();
+	}
+	public void delivered() {
+		changeStatus(OrderStatus.DELIVERED);
+		this.deliveredAt = LocalDateTime.now();
+	}
+	public void completed() {
+		changeStatus(OrderStatus.COMPLETED);
+		this.completedAt = LocalDateTime.now();
+	}
+	public void cancelled(String cancelReason) {
+		changeStatus(OrderStatus.CANCELLED);
+		this.cancelledAt = LocalDateTime.now();
+		this.cancelReason = cancelReason;
 	}
 }

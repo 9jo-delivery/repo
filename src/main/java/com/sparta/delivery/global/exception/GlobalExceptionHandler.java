@@ -28,4 +28,12 @@ public class GlobalExceptionHandler {
 			.status(HttpStatus.METHOD_NOT_ALLOWED) // 405
 			.body(new ErrorResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), "지원하지 않는 HTTP 메서드입니다."));
 	}
+
+	//409 Conflict (비즈니스 규칙 위반 - 상태 전이 불가, 시간 초과 등)
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<ErrorResponse> handleConflict(IllegalStateException ex) {
+		return ResponseEntity
+				.status(HttpStatus.CONFLICT) // 409
+				.body(new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage()));
+	}
 }
