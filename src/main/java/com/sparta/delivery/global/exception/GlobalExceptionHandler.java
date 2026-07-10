@@ -10,14 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	// 1. 400 Bad Request (잘못된 요청 - 파라미터 누락, 타입 오류 등)
-	@ExceptionHandler(IllegalArgumentException.class)
-	public ResponseEntity<ErrorResponse> handleBadRequest(IllegalArgumentException ex) {
-		return ResponseEntity
-			.status(HttpStatus.BAD_REQUEST) // 400
-			.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
-	}
-
 
 	// 특정 커스텀 예외 처리 (404 Not Found)
 	@ExceptionHandler(ResourceNotFoundException.class)

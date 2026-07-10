@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ReviewResponseDto {
-	private UUID reviewid;
+	private UUID reviewId;
 	private Integer rating;
 	private String content;
 	private LocalDateTime createdAt;
@@ -19,7 +19,7 @@ public class ReviewResponseDto {
 	// Entity를 DTO로 변환하는 펙토리 메서드
 	public static ReviewResponseDto from(Review review) {
 		return ReviewResponseDto.builder()
-			.reviewid(review.getId())
+			.reviewId(review.getId())
 			.rating(review.getRating())
 			.content(review.getContent())
 			.createdAt(review.getCreatedAt())
