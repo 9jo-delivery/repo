@@ -132,19 +132,19 @@ public class Order extends BaseEntity {
 	}
 	public void cooked() {
 		this.orderStatus = OrderStatus.COOKED;
-		this.acceptedAt = LocalDateTime.now();
+		this.cookedAt = LocalDateTime.now();
 	}
 	public void delivered() {
 		this.orderStatus = OrderStatus.DELIVERED;
-		this.acceptedAt = LocalDateTime.now();
+		this.deliveredAt = LocalDateTime.now();
 	}
 	public void completed() {
 		this.orderStatus = OrderStatus.COMPLETED;
-		this.acceptedAt = LocalDateTime.now();
+		this.completedAt = LocalDateTime.now();
 	}
 	public void cancelled(String cancelReason) {
 		this.orderStatus = OrderStatus.CANCELLED;
-		this.acceptedAt = LocalDateTime.now();
+		this.cancelledAt = LocalDateTime.now();
 		this.cancelReason = cancelReason;
 	}
 }
