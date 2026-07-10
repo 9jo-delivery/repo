@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -29,11 +31,6 @@ public class UserService {
         // 조회
         User user = userRepository.findById(id).orElseThrow(()
                 -> new UsernameNotFoundException("Not Found User"));
-
-        // 자기 자신 검증
-        if (!id.equals(user.getId())) {
-            throw new IllegalArgumentException("본인의 프로필만 조회 가능합니다.");
-        }
 
         return new UserResDto(user);
     }
@@ -82,8 +79,10 @@ public class UserService {
                 -> new UsernameNotFoundException("Not Found User"));
 
         // 중복 유저 검증
-        userRepository.findByUsername(userReqDto.getUsername()).orElseThrow(()
-                -> new UsernameNotFoundException("Not Found User"));
+        Optional<User> checkUsername = userRepository.findByUsername(userReqDto.getUsername());
+        if (checkUsername.isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 유저입니다.");
+        }
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(userReqDto.getPassword());
