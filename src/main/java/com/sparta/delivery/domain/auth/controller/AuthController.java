@@ -23,10 +23,6 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<SignupResDto> signup(@Valid @RequestBody SignupReqDto reqDto) {
 
-        return new ResponseEntity<>(authService.signup(reqDto), HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(reqDto));
     }
-
-    // 로그인
-
-    // 로그아웃
 }
