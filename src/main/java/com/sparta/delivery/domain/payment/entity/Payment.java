@@ -107,7 +107,7 @@ public class Payment extends BaseEntity {
 	//환불 처리 (paid -> refunded)
 	public void refund(){
 		if (this.paymentStatus != PaymentStatus.PAID){
-			throw new IllegalStateException("결제 완료 상태에서만 환불ㅊ 처리할 수 있습니다.");
+			throw new IllegalStateException("결제 완료 상태에서만 환불 처리할 수 있습니다.");
 		}
 		this.paymentStatus = PaymentStatus.REFUNDED;
 	}
