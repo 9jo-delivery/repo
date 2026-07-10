@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.payment;
+package com.sparta.delivery.domain.payment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

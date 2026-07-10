@@ -22,6 +22,7 @@ import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.common.Enums.OrderStatus;
+import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -57,10 +58,10 @@ public class OrderServiceImpl implements OrderService{
     @Transactional
     public OrderResponseDto createOrder(Long customerId, CreatedOrderRequestDto request) {
         User customer = userRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
 
         Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 가게입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 가게입니다."));
 
         Order order = Order.create(
                 customer,
@@ -117,7 +118,7 @@ public class OrderServiceImpl implements OrderService{
     ) {
         Menu menu = menuMap.get(itemRequest.getMenuId());
         if (menu == null){
-            throw new IllegalArgumentException("존재하지 않는 메뉴입니다.");
+            throw new ResourceNotFoundException("존재하지 않는 메뉴입니다.");
         }
 
         OrderItem orderItem = OrderItem.create(menu, itemRequest.getQuantity());
@@ -127,7 +128,7 @@ public class OrderServiceImpl implements OrderService{
             for (UUID optionId : optionIds){
                 MenuOption menuOption = menuOptionMap.get(optionId);
                 if (menuOption == null){
-                    throw new IllegalArgumentException("존재하지 않는 메뉴 옵션입니다.");
+                    throw new ResourceNotFoundException("존재하지 않는 메뉴 옵션입니다.");
                 }
 
                 OrderItemOption orderItemOption = OrderItemOption.create(
@@ -171,7 +172,7 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public OrderDetailResponseDto getOrderDetail(Long customerId, UUID orderId) {
         Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
         return OrderDetailResponseDto.from(order);
     }
 
@@ -180,7 +181,7 @@ public class OrderServiceImpl implements OrderService{
     @Transactional
     public OrderResponseDto updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
 
         applyStatus(order, request.getOrderStatus());
 
@@ -192,7 +193,7 @@ public class OrderServiceImpl implements OrderService{
     @Transactional
     public OrderResponseDto cancelOrder(Long customerId, UUID orderId, CancelOrderRequestDto request) {
         Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
 
         LocalDateTime deadline = order.getCreatedAt().plusMinutes(CANCELLABLE_MIN);
         if (LocalDateTime.now().isAfter(deadline)){
@@ -208,7 +209,7 @@ public class OrderServiceImpl implements OrderService{
     @Transactional
     public void deleteOrder(Long customerId, UUID orderId) {
         Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
 
         if (order.getOrderStatus() != OrderStatus.COMPLETED && order.getOrderStatus() != OrderStatus.CANCELLED){
             throw new IllegalStateException("완료되었거나 취소된 주문만 삭제할 수 있습니다.");
