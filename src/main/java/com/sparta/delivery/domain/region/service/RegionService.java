@@ -6,8 +6,6 @@ import com.sparta.delivery.domain.region.dto.RegionSearchDto;
 import com.sparta.delivery.domain.region.dto.RegionSummaryResponseDto;
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.region.repository.RegionRepository;
-import com.sparta.delivery.domain.user.entity.User;
-import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.common.Enums;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,17 +21,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RegionService {
     private final RegionRepository regionRepository;
-    private final UserRepository userRepository;
 
     @Transactional
-    public RegionResponseDto createRegion(RegionRequestDto regionRequestDto, Long userId) {
-
-        User user = userRepository.findById(userId).orElseThrow(()
-                -> new IllegalArgumentException("해당 유저가 없습니다."));
-
-        if(user.getRole() != Enums.UserRole.MASTER){
-            throw new IllegalArgumentException("지역 등록 권한이 없습니다.");
-        }
+    public RegionResponseDto createRegion(RegionRequestDto regionRequestDto) {
 
         Region parentRegion = null;
         if(regionRequestDto.getParentRegionId() != null){
@@ -117,14 +107,7 @@ public class RegionService {
     }
 
     @Transactional
-    public RegionSummaryResponseDto updateRegion(UUID regionId, RegionRequestDto regionRequestDto, Long userId) {
-
-        User user = userRepository.findById(userId).orElseThrow(()
-                -> new IllegalArgumentException("해당 유저가 없습니다."));
-
-        if(user.getRole() != Enums.UserRole.MASTER){
-            throw new IllegalArgumentException("지역 수정 권한이 없습니다.");
-        }
+    public RegionSummaryResponseDto updateRegion(UUID regionId, RegionRequestDto regionRequestDto) {
 
         Region region = regionRepository.findById(regionId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 지역이 존재하지 않습니다."));
@@ -141,13 +124,6 @@ public class RegionService {
     }
     @Transactional
     public void deleteRegion(UUID regionId, Long userId) {
-
-        User user = userRepository.findById(userId).orElseThrow(()
-                -> new IllegalArgumentException("해당 유저가 없습니다."));
-
-        if(user.getRole() != Enums.UserRole.MASTER){
-            throw new IllegalArgumentException("지역 삭제 권한이 없습니다.");
-        }
 
         Region region = regionRepository.findById(regionId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 지역이 존재하지 않습니다."));

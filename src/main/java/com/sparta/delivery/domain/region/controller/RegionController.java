@@ -9,6 +9,7 @@ import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +22,10 @@ public class RegionController {
     private final RegionService regionService;
 
     @PostMapping
-    public RegionResponseDto createRegion(@RequestBody RegionRequestDto regionRequestDto,
-                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
+    public RegionResponseDto createRegion(@RequestBody RegionRequestDto regionRequestDto) {
 
-        Long userId = userDetails.getUser().getId();
-        return regionService.createRegion(regionRequestDto, userId);
+        return regionService.createRegion(regionRequestDto);
     }
 
     @GetMapping
@@ -39,13 +39,13 @@ public class RegionController {
     }
 
     @PatchMapping("/{regionId}")
-    public RegionSummaryResponseDto updateRegion(@PathVariable UUID regionId, @RequestBody RegionRequestDto regionRequestDto,
-                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.getUser().getId();
-        return regionService.updateRegion(regionId, regionRequestDto, userId);
+    @PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
+    public RegionSummaryResponseDto updateRegion(@PathVariable UUID regionId, @RequestBody RegionRequestDto regionRequestDto) {
+        return regionService.updateRegion(regionId, regionRequestDto);
     }
 
     @DeleteMapping("/{regionId}")
+    @PreAuthorize("hasAnyRole('MASTER')")
     public ResponseEntity<Void> deleteRegion(@PathVariable UUID regionId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.getUser().getId();
         regionService.deleteRegion(regionId, userId);
