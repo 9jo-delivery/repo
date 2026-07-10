@@ -65,10 +65,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         Enums.UserRole role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-        String token = jwtUtil.createToken(username, role);
-        jwtUtil.addJwtToCookie(token, response);
+        // 토큰 생성
+        String accessToken = jwtUtil.createAccessToken(username, role);
+        String refreshToken = jwtUtil.createRefreshToken(username);
 
-        LoginResDto resLoginDto = new LoginResDto(userId, username, token, role);
+        // RefreshToken DB에 저장
+
+
+        // 생성된 토큰을 Cookie에 저장
+        jwtUtil.addAccessTokenToCookie(accessToken, response);
+        jwtUtil.addAccessTokenToCookie(refreshToken, response);
+
+        LoginResDto resLoginDto = new LoginResDto(userId, username, accessToken, role);
 
         // HTTP 응답 헤더 설정 (JSON 타입 및 인코딩 명시)
         response.setContentType("application/json");

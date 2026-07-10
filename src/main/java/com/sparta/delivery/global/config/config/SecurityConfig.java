@@ -65,7 +65,11 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll()
+                        .requestMatchers(
+                                "/api/auth/signup",
+                                "/api/auth/login",
+                                "/api/auth/reissue"
+                        ).permitAll()
                     //  Swagger 관련 URL 전부 허용 (추가)
                         .requestMatchers(
                             "/v3/api-docs/**",
