@@ -7,11 +7,14 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +29,7 @@ import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
+import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -34,7 +38,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ReviewController {
-	private ReviewRepository reviewRepository;
 	private ReviewService reviewService;
 
 	// 리뷰 등록
@@ -58,12 +61,13 @@ public class ReviewController {
 	// 가게 별 리뷰 목록 조회  (GET /api/restaurants/{restaurantId}/reviews)
 	@GetMapping("/restaurants/{restaurantId}/reviews")
 	public ResponseEntity<Page<ReviewResponseDto>> getReviews(@PathVariable("restaurantId") UUID restaurantId,
-		ReviewSearchCondition condition, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+		@ModelAttribute ReviewSearchCondition condition,
+		@PageableDefault(page = 0 ,size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		int size = pageable.getPageSize();
 		if (size !=10 && size !=30 && size !=50) {
 			size = 10;
+			pageable = PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
 		}
-		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
 		Page<ReviewResponseDto> response = reviewService.getRestaurantReviews(restaurantId, condition, pageable);
 		return ResponseEntity.ok(response);
 	}
@@ -80,10 +84,13 @@ public class ReviewController {
 
 	// 리뷰 삭제
 	@DeleteMapping("/reviews/{reviewId}")
-	public UUID deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+	public void deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 		Long customerId = userDetails.getUser().getId();
-		return reviewService.deleteReview(reviewId, customerId);
+		Enums.UserRole role = userDetails.getUser().getRole();
+		if (role == Enums.UserRole.OWNER) {
+			throw new IllegalArgumentException("삭제 권한 없음");
+		}
+		reviewService.deleteReview(reviewId, customerId);
 	}
-
 
 }
