@@ -17,17 +17,21 @@ import com.sparta.delivery.domain.order.entity.OrderItem;
 import com.sparta.delivery.domain.order.entity.OrderItemOption;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
 import com.sparta.delivery.domain.order.repository.OrderSpecification;
+import com.sparta.delivery.domain.payment.entity.Payment;
+import com.sparta.delivery.domain.payment.repository.PaymentRepository;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.common.Enums.OrderStatus;
+import com.sparta.delivery.global.common.Enums.PaymentStatus;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -50,6 +54,7 @@ public class OrderServiceImpl implements OrderService{
     private final RestaurantRepository restaurantRepository;
     private final MenuRepository menuRepository;
     private final MenuOptionRepository menuOptionRepository;
+    private final PaymentRepository paymentRepository;
 
     private static final long CANCELLABLE_MIN = 5L;
 
@@ -201,6 +206,7 @@ public class OrderServiceImpl implements OrderService{
         }
 
         order.cancelled(request.getCancelReason());
+        refundPayment(order);
 
         return OrderResponseDto.from(order);
     }
@@ -224,9 +230,28 @@ public class OrderServiceImpl implements OrderService{
             case COOKED -> order.cooked();
             case DELIVERED -> order.delivered();
             case COMPLETED -> order.completed();
-            case CANCELLED -> order.cancelled(null);
+            case CANCELLED -> {
+                order.cancelled(null);
+                refundPayment(order);
+            }
+
             default -> throw new IllegalArgumentException("허용되지 않는 주문 상태입니다: " + status);
         }
     }
 
+    //PAID 된 주문이 취소되면 자동으로 환불
+    private void refundPayment(Order order){
+        Optional<Payment> paymentOptional = paymentRepository.findByOrder_Id(order.getId());
+
+        //결제 정보가없으면 패스
+        if (paymentOptional.isEmpty()){
+            return;
+        }
+
+        //READY면 패스, PAID일때만 환불
+        Payment payment = paymentOptional.get();
+        if (payment.getPaymentStatus() == PaymentStatus.PAID){
+            payment.refund();
+        }
+    }
 }

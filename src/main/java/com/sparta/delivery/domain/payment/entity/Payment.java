@@ -5,6 +5,7 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.common.Enums.PaymentMethod;
+import com.sparta.delivery.global.common.Enums.PaymentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -82,4 +83,34 @@ public class Payment extends BaseEntity {
 	public static Payment create(Order order, User customer, PaymentMethod paymentMethod, int amount){
 		return new Payment(order, customer, paymentMethod, amount);
 	}
+
+	//결제 승인 (ready -> paid)
+
+
+	//결제 실패 (ready -> failed)
+	public void fail(){
+		if (this.paymentStatus != PaymentStatus.READY){
+			throw new IllegalStateException("결제 대기 상태에서만 실패 처리할 수 있습니다.");
+		}
+		this.paymentStatus = PaymentStatus.FAILED;
+	}
+
+	//결제 취소 (paid -> cancelled)
+	public void cancel(){
+		if (this.paymentStatus != PaymentStatus.PAID){
+			throw new IllegalStateException("결제 완료 상태에서만 취소 처리할 수 있습니다.");
+		}
+		this.paymentStatus = PaymentStatus.CANCELLED;
+		this.cancelledAt = LocalDateTime.now();
+	}
+
+	//환불 처리 (paid -> refunded)
+	public void refund(){
+		if (this.paymentStatus != PaymentStatus.PAID){
+			throw new IllegalStateException("결제 완료 상태에서만 환불 처리할 수 있습니다.");
+		}
+		this.paymentStatus = PaymentStatus.REFUNDED;
+	}
+
+
 }
