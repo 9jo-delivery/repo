@@ -10,9 +10,6 @@ import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -36,9 +33,14 @@ public class UserController {
     // 사용자 목록 검색
     @GetMapping("/admin/users")
     @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
-    public ResponseEntity<Page<UserResDto>> getUsers(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Page<UserResDto>> getUsers(@RequestParam("page") int page,
+                                                     @RequestParam("size") int size,
+                                                     @RequestParam("sortBy") String sortBy,
+                                                     @RequestParam("isAsc") boolean isAsc
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(pageable));
+    ) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(page -1, size, sortBy, isAsc));
     }
 
     // 사용자 상세 조회
