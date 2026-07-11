@@ -47,7 +47,7 @@ public class AiLogServiceTest {
 	private RestaurantRepository restaurantRepository;
 
 	@Test
-	@DisplayName("조건이 붙지 않은 로그 목록 조회")
+	@DisplayName("조건이 붙지 않은 로그 목록 조회 성공")
 	void default_LogListTest() {
 		Long ownerId = 1L;
 		UUID restaurantId = UUID.randomUUID();
@@ -83,6 +83,46 @@ public class AiLogServiceTest {
 		// Mock 객체가 실제 예상한 파라미터로 호출되었는지?
 		verify(aiDescriptRepository).searchLogsByCondition(any(AiSearchCondition.class), eq(pageable));
 
+	}
+
+	@Test
+	@DisplayName("조건에 따른 검색 실패해도 결과 성공? : updatedAt이 들어온 경우")
+	void LogSearchCreatedAtTest() {
+		Long ownerId = 1L;
+		UUID restaurantId = UUID.randomUUID();
+		User owner = createUser(ownerId);
+		Restaurant restaurant = createRestaurant(restaurantId);
+
+		AiSearchCondition condition = AiSearchCondition.builder()
+			.ownerId(ownerId)
+			.restaurantId(restaurantId)
+			.isSuccess(false)
+			.build();
+		List<AiDescriptionLog> logs = new ArrayList<>();
+		for (int i = 0; i < 4; i++) {
+			UUID menuId = UUID.randomUUID();
+			Menu menu = createMenu(menuId);
+			AiDescriptionLog log = AiDescriptionLog.create(
+				owner, restaurant, menu, "prompt", "txt", "response"
+			);
+			logs.add(log);
+		}
+		Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+		Page<AiDescriptionLog> page = new PageImpl<>(logs, pageable, logs.size());
+
+		given(aiDescriptRepository.searchLogsByCondition(any(AiSearchCondition.class), eq(pageable))).willReturn(page);
+
+		// when
+		Page<AiLogSummaryResponseDto> reports = aiDescriptionService.searchLogs(condition, pageable);
+		// RuntimeException exception = assertThrows(IllegalArgumentException.class, () -> {
+		// 	aiDescriptRepository.searchLogsByCondition(condition, pageable);
+		// });
+
+		// 에러를 뱉어내는게 아니고 isSuccess(false)로 인해 데이터 1건만 조회되고 나머지는 조회되지 않음
+		// assertThat(reports).isEmpty();
+
+		assertThat(reports).isNotEmpty();
+		assertThat(reports.getTotalElements()).isEqualTo(4);
 	}
 
 	private User createUser(Long userId) {

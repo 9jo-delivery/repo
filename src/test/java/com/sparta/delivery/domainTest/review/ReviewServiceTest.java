@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -145,19 +146,18 @@ public class ReviewServiceTest {
 	void getRestaurantReviews_Success() {
 		// Given
 		Long customerId = 1L;
-		UUID orderId = UUID.randomUUID();
-		UUID orderId2 = UUID.randomUUID();
-		UUID orderId3 = UUID.randomUUID();
-		UUID orderId4 = UUID.randomUUID();
-
-
 		UUID restaurantId = UUID.randomUUID();
+
 		User customer = createFakeUser(customerId);
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
-		Order order = createFakeOrder(orderId, customer, restaurant);
-		Order order2 = createFakeOrder(orderId2, customer, restaurant);
-		Order order3 = createFakeOrder(orderId3, customer, restaurant);
-		Order order4 = createFakeOrder(orderId4, customer, restaurant);
+
+		List<Review> reviews = new ArrayList<>();
+		for (int i=0; i<4; i++){
+			UUID oredrId = UUID.randomUUID();
+			Order order = createFakeOrder(oredrId, customer, restaurant);
+			Review review = Review.create(order, 3, "so so");
+			reviews.add(review);
+		}
 
 		// 검색 조건을 담을 DTO (주문서) 생성
 		// (조건이 없는 전체 조회 상황을 가정) 생성자 파라미터에 null
@@ -166,12 +166,7 @@ public class ReviewServiceTest {
 		Pageable pageable = PageRequest.of(0, 10,
 			Sort.by(Sort.Direction.DESC, "createdAt"));
 
-		List<Review> reviews = List.of(
-			Review.create(order, 3, "so so"),
-			Review.create(order2, 4, "not bad"),
-			Review.create(order3, 5, "delicious"),
-			Review.create(order4, 5, "gae good")
-		);
+
 		Page<Review> page = new PageImpl<>(reviews, pageable, reviews.size());
 
 		given(restaurantRepository.existsById(restaurantId)).willReturn(true);
