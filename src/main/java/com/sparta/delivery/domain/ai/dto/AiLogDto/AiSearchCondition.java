@@ -6,14 +6,14 @@ import java.util.UUID;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor // 테스트코드 위해서 필드값 모조리 넣는데 쓰는 생성자
-@NoArgsConstructor // 기본생성자
+@NoArgsConstructor
 // queryDSL에 필요한 조건 Dto
 public class AiSearchCondition {
 	private Long ownerId;
@@ -24,4 +24,24 @@ public class AiSearchCondition {
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate endDate;
 
+	@Builder
+	public AiSearchCondition(Long ownerId, UUID restaurantId, Boolean isSuccess, LocalDate startDate, LocalDate endDate) {
+		this.ownerId = ownerId;
+		this.restaurantId = restaurantId;
+		this.isSuccess = isSuccess;
+		this.startDate = startDate;
+		this.endDate = endDate;
+	}
+
+	public static AiSearchCondition build(Long ownerId, UUID restaurantId, Boolean isSuccess, LocalDate startDate, LocalDate endDate)
+	{
+		return AiSearchCondition.builder()
+			.ownerId(ownerId)
+			.restaurantId(restaurantId)
+			.isSuccess(isSuccess)
+			.startDate(startDate)
+			.endDate(endDate)
+			.build();
+
+	}
 }
