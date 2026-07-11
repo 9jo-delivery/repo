@@ -47,4 +47,41 @@ public class AiDescriptionLog extends BaseEntity {
 	@Column(columnDefinition = "TEXT")
 	private String errorMessage;
 
+	@Builder
+	public AiDescriptionLog(User owner, Restaurant restaurant, Menu menu, String prompt, String requestText, String responseText
+	, boolean isSuccess, String errorMessage) {
+		this.owner = owner;
+		this.restaurant = restaurant;
+		this.menu = menu;
+		this.prompt = prompt;
+		this.requestText = requestText;
+		this.responseText = responseText;
+		this.isSuccess = isSuccess;
+		this.errorMessage = errorMessage;
+	}
+
+	public static AiDescriptionLog create(User owner, Restaurant restaurant, Menu menu, String prompt, String requestText, String responseText) {
+		return AiDescriptionLog.builder()
+			.menu(menu)
+			.owner(owner)
+			.restaurant(restaurant)
+			.prompt(prompt)
+			.requestText(requestText)
+			.responseText(responseText)
+			.isSuccess(true)
+			.build();
+	}
+
+	public static AiDescriptionLog createFailure(User owner, Restaurant restaurant, Menu menu, String prompt, String requestText, String responseText) {
+		return AiDescriptionLog.builder()
+			.menu(menu)
+			.owner(owner)
+			.restaurant(restaurant)
+			.prompt(prompt)
+			.requestText(requestText)
+			.responseText(responseText)
+			.isSuccess(false)
+			.build();
+	}
+
 }

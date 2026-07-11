@@ -1,5 +1,4 @@
 package com.sparta.delivery.domain.ai.service;
-
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -56,12 +55,11 @@ public class AiService {
 
 	private String extractTextFromResponse(GeminiResponseDto body) {
 		if (body == null || body.getCandidates() == null || body.getCandidates().isEmpty()) {
-			throw new RuntimeException("AI 응답하지 않음");
+			throw new RuntimeException("AI 응답 하지 않음");
 		}
 		return body.getCandidates().get(0)
 			.getContent()
 			.getParts().get(0)
 			.getText();
 	}
-
 }
