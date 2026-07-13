@@ -35,11 +35,11 @@ public class UserController {
     public ResponseEntity<Page<UserResDto>> getUsers(@RequestParam("page") int page,
                                                      @RequestParam("size") int size,
                                                      @RequestParam("sortBy") String sortBy,
-                                                     @RequestParam("isAsc") boolean isAsc
-
+                                                     @RequestParam("isAsc") boolean isAsc,
+                                                     @RequestParam(value = "keyword", required = false) String keyword
     ) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(page - 1, size, sortBy, isAsc));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(page - 1, size, sortBy, isAsc, keyword));
     }
 
     // 사용자 상세 조회 - 관리자

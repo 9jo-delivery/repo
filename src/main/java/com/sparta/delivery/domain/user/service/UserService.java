@@ -36,14 +36,21 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResDto> getUsers(int page, int size, String sortBy, boolean isAsc) {
+    public Page<UserResDto> getUsers(int page, int size, String sortBy, boolean isAsc, String keyword) {
 
         // 페이징 처리
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        return userRepository.findAll(pageable).map(UserResDto::from);
+        Page<User> userPage;
+        if (keyword != null && !keyword.isBlank()) {
+            userPage = userRepository.searchByUsernameOrRole(keyword, pageable);
+        } else {
+            userPage = userRepository.findAll(pageable);
+        }
+
+        return userPage.map(UserResDto::from);
     }
 
     @Transactional(readOnly = true)
