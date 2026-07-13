@@ -37,7 +37,7 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.Enums;
 
 @ExtendWith(MockitoExtension.class)
-public class ReviewServiceTest {
+class ReviewServiceTest {
 	@InjectMocks
 	private ReviewService reviewService;
 

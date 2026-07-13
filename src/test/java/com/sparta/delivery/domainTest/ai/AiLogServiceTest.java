@@ -35,7 +35,7 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class AiLogServiceTest {
+class AiLogServiceTest {
 	@InjectMocks
 	private AiDescriptionService aiDescriptionService;
 	@Mock
