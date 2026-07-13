@@ -96,9 +96,10 @@ public class Restaurant extends BaseEntity {
 	}
 
 	@Builder
-	public Restaurant(User owner, RestaurantCategory category,String name, String description, String phone, String address, String detailAddress, String businessNumber, Integer minOrderAmount, Integer deliveryFee) {
+	public Restaurant(User owner, RestaurantCategory category, Region region ,String name, String description, String phone, String address, String detailAddress, String businessNumber, Integer minOrderAmount, Integer deliveryFee) {
 		this.owner = owner;
 		this.category = category;
+		this.region = region;
 		this.name = name;
 		this.description = description;
 		this.phone = phone;
