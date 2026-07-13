@@ -3,6 +3,7 @@ package com.sparta.delivery.global.config.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.delivery.domain.auth.dto.request.LoginReqDto;
 import com.sparta.delivery.domain.auth.dto.response.LoginResDto;
+import com.sparta.delivery.domain.auth.service.AuthService;
 import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
@@ -22,9 +23,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, AuthService authService) {
         this.jwtUtil = jwtUtil;
+        this.authService = authService;
         setFilterProcessesUrl("/api/auth/login");
     }
 
@@ -65,10 +68,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         Enums.UserRole role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-        String token = jwtUtil.createToken(username, role);
-        jwtUtil.addJwtToCookie(token, response);
+        // 토큰 생성
+        String accessToken = jwtUtil.createAccessToken(username, role);
+        String refreshToken = jwtUtil.createRefreshToken(username);
 
-        LoginResDto resLoginDto = new LoginResDto(userId, username, token, role);
+        // RefreshToken DB에 저장
+        authService.saveRefreshToken(username, refreshToken);
+
+        // 생성된 토큰을 Cookie에 저장
+        jwtUtil.addAccessTokenToCookie(accessToken, response);
+        jwtUtil.addAccessTokenToCookie(refreshToken, response);
+
+        LoginResDto resLoginDto = new LoginResDto(userId, username, accessToken, role);
 
         // HTTP 응답 헤더 설정 (JSON 타입 및 인코딩 명시)
         response.setContentType("application/json");

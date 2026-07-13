@@ -7,8 +7,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -22,15 +21,17 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtUtil {
 
     // JWT 데이터
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String AUTHORIZATION_KEY = "auth";
+    public static final String ACCESS_TOKEN_HEADER = "AccessToken";
+    public static final String REFRESH_TOKEN_HEADER = "RefreshToken";
+    public static final String ACCESS_TOKEN_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";
-    public static final long TOKEN_TIME = 60 * 60 * 1000L;
-    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
+    public static final long ACCESS_TOKEN_TIME = 60 * 60 * 1000L;
+    public static final long REFRESH_TOKEN_TIME = 14 * 24 * 60 * 60 * 1000L;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -44,31 +45,58 @@ public class JwtUtil {
     }
 
     // JWT 생성
-    public String createToken(String username, Enums.UserRole role) {
+    public String createAccessToken(String username, Enums.UserRole role) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(username) // 사용자 식별자값
-                        .claim(AUTHORIZATION_KEY, role) // 사용자 권한
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
+                        .claim(ACCESS_TOKEN_KEY, role) // 사용자 권한
+                        .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME)) // 만료 시간
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화
                         .compact();
     }
 
+    public String createRefreshToken(String username) {
+        Date date = new Date();
+        return Jwts.builder()
+                .setSubject(username)
+                .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME))
+                .setIssuedAt(date)
+                .signWith(key, signatureAlgorithm)
+                .compact();
+    }
+
     // 생성된 JWT Cookie에 저장
-    public void addJwtToCookie(String token, HttpServletResponse response) {
+    public void addAccessTokenToCookie(String token, HttpServletResponse response) {
         try {
             token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20");
 
-            Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token);
+            Cookie cookie = new Cookie(ACCESS_TOKEN_HEADER, token);
             cookie.setPath("/");
 
             // Response 객체에 Cookie 추가
             response.addCookie(cookie);
         } catch (UnsupportedEncodingException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    public void addRefreshTokenToCookie(String token, HttpServletResponse response) {
+        try {
+            token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20");
+
+            Cookie cookie = new Cookie(REFRESH_TOKEN_HEADER, token);
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+
+            // 쿠키 수명을 리프레시 토큰 만료 시간과 동기화
+            cookie.setMaxAge((int) (REFRESH_TOKEN_TIME / 1000));
+
+            response.addCookie(cookie);
+        } catch (UnsupportedEncodingException e) {
+            log.error("리프레시 토큰 쿠키 저장 실패: {}", e.getMessage());
         }
     }
 
@@ -103,14 +131,36 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
-    // HttpServletRequest 에서 Cookie Value : JWT 가져오기
+    // 만료된 토큰이더라도 내부 유저 정보를 억지로 꺼내오는 메서드
+    public Claims getUserInfoFromExpiredToken(String token) {
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims(); // 만료되었어도 Claims를 강제로 반환하여 유저 이름을 꺼낼 수 있음
+        }
+    }
+
+    // HttpServletRequest 에서 Cookie Value : AccessToken 가져오기
     public String getTokenFromRequest(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
 
         if (cookies == null) return null;
 
         return Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals(AUTHORIZATION_HEADER))
+                .filter(cookie -> cookie.getName().equals(ACCESS_TOKEN_HEADER))
+                .map(cookie -> URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8))
+                .findFirst()
+                .orElse(null);
+    }
+
+    // HttpServletRequest 에서 Cookie Value : RefreshToken 가져오기
+    public String getRefreshTokenFromRequest(HttpServletRequest req) {
+        Cookie[] cookies = req.getCookies();
+
+        if (cookies == null) return null;
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals(REFRESH_TOKEN_HEADER))
                 .map(cookie -> URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);
