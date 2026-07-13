@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.region.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sparta.delivery.global.common.Enums;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,5 +16,7 @@ public class RegionSummaryResponseDto {
     private UUID parentRegionId;
     private String name;
     private Enums.RegionType regionType;
-    private boolean isServiceAvailable;
+
+    @JsonProperty("isServiceAvailable")
+    private Boolean isServiceAvailable;
 }

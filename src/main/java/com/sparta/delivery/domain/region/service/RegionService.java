@@ -24,6 +24,7 @@ public class RegionService {
 
     @Transactional
     public RegionResponseDto createRegion(RegionRequestDto regionRequestDto) {
+
         Region parentRegion = null;
         if(regionRequestDto.getParentRegionId() != null){
             parentRegion = regionRepository.findById(regionRequestDto.getParentRegionId()).orElseThrow(()
@@ -34,7 +35,7 @@ public class RegionService {
 
         if(currentType == Enums.RegionType.SIDO){
             if(parentRegion != null){
-                throw new IllegalArgumentException("시/도(SIDO)는 최상위 지역입니다. 지역 선택을 해제해 주세요.");
+                throw new IllegalArgumentException("시/도는 최상위 지역입니다. 지역 선택을 해제해 주세요.");
             }
         }else if(currentType == Enums.RegionType.SIGUNGU){
             if(parentRegion == null || parentRegion.getRegionType() != Enums.RegionType.SIDO){
@@ -55,7 +56,6 @@ public class RegionService {
 
         Region savedRegion = regionRepository.save(region);
 
-        // [4단계] 결과를 응답 가방에 이쁘게 담아서 돌려주기
         return RegionResponseDto.builder()
                 .id(savedRegion.getId())
                 .name(savedRegion.getName())
@@ -108,6 +108,7 @@ public class RegionService {
 
     @Transactional
     public RegionSummaryResponseDto updateRegion(UUID regionId, RegionRequestDto regionRequestDto) {
+
         Region region = regionRepository.findById(regionId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 지역이 존재하지 않습니다."));
 
@@ -122,7 +123,8 @@ public class RegionService {
                 .build();
     }
     @Transactional
-    public void deleteRegion(UUID regionId) {
+    public void deleteRegion(UUID regionId, Long userId) {
+
         Region region = regionRepository.findById(regionId).orElseThrow(
                 ()-> new IllegalArgumentException("해당 지역이 존재하지 않습니다."));
 
@@ -130,6 +132,6 @@ public class RegionService {
             throw new IllegalArgumentException("하위 지역이 존재하여 삭제할 수 없습니다.");
         }
 
-        region.markAsDeleted(1L); // user 연결되면 처리
+        region.markAsDeleted(userId);
     }
 }
