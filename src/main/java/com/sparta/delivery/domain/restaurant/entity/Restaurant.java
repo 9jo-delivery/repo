@@ -95,8 +95,33 @@ public class Restaurant extends BaseEntity {
 		return restaurant;
 	}
 
+	public void update(
+			String name,
+			String description,
+			String phone,
+			String address,
+			Boolean isOpen,
+			Integer minOrderAmount,
+			Integer deliveryFee
+	) {
+		if (name != null)
+			this.name = name;
+		if (description != null)
+			this.description = description;
+		if (phone != null)
+			this.phone = phone;
+		if (address != null)
+			this.address = address;
+		if (isOpen != null)
+			this.isOpen = isOpen;
+		if (minOrderAmount != null)
+			this.minOrderAmount = minOrderAmount;
+		if (deliveryFee != null)
+			this.deliveryFee = deliveryFee;
+	}
+
 	@Builder
-	public Restaurant(String name) {
+	public Restaurant(String name) { // TODO: test 사용 확인
 		this.name = name;
 	}
 

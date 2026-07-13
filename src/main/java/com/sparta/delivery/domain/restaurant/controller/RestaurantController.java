@@ -50,4 +50,14 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.getRestaurantInfo(restaurantId));
     }
 
+    // 가게 정보 수정
+    @PatchMapping("/{restaurantId}") // 권한: Owner
+    public ResponseEntity<RestaurantSummaryResDto> updateRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                    @PathVariable UUID restaurantId,
+                                                                    @Valid @RequestBody RestaurantUpdateReqDto restaurantUpdateReqDto) {
+        // TODO: 유저 세팅용 하드코딩 수정
+        // Long userId = userDetails.getUser().getId();
+        Long userId = 1L;
+        return ResponseEntity.ok(restaurantService.updateRestaurant(userId, restaurantId, restaurantUpdateReqDto));
+    }
 }

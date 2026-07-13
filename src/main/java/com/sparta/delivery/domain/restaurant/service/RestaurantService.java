@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -104,6 +105,32 @@ public class RestaurantService {
     public RestaurantSummaryResDto getRestaurantInfo(UUID restaurantId) {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 가게입니다."));
+
+        return new RestaurantSummaryResDto(restaurant);
+    }
+
+    @Transactional
+    public RestaurantSummaryResDto updateRestaurant(Long userId, UUID restaurantId, RestaurantUpdateReqDto restaurantUpdateReqDto) { // TODO: 권한 분기
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 레스토랑입니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
+
+        // 수정 권한 검증
+        if (user.getRole() == Enums.UserRole.CUSTOMER ||
+                user.getRole() == Enums.UserRole.OWNER && !Objects.equals(userId, restaurant.getOwner().getId()))
+            throw new IllegalArgumentException("가게 정보를 수정하려면 해당 가게의 주인이어야 합니다.");
+
+
+        restaurant.update(
+                restaurantUpdateReqDto.getName(),
+                restaurantUpdateReqDto.getDescription(),
+                restaurantUpdateReqDto.getPhone(),
+                restaurantUpdateReqDto.getAddress(),
+                restaurantUpdateReqDto.getIsOpen(),
+                restaurantUpdateReqDto.getMinOrderAmount(),
+                restaurantUpdateReqDto.getDeliveryFee()
+        );
 
         return new RestaurantSummaryResDto(restaurant);
     }
