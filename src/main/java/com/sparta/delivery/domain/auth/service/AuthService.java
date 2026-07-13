@@ -54,11 +54,9 @@ public class AuthService {
 
     @Transactional
     public void saveRefreshToken(String username, String token) {
-        refreshTokenRepository.findByUsername(username)
-                .ifPresentOrElse(
-                        existingToken -> existingToken.updateRefreshToken(token), // 이미 있으면 갱신
-                        () -> refreshTokenRepository.save(new RefreshToken(username, token)) // 없으면 신규 저장
-                );
+
+        // save() 메서드가 '이미 있으면 갱신, 없으면 신규 저장'을 자동으로 처리
+        refreshTokenRepository.save(new RefreshToken(username, token));
     }
 
     @Transactional
@@ -81,8 +79,8 @@ public class AuthService {
         Claims claims = jwtUtil.getUserInfoFromExpiredToken(cleanAccessToken);
         String username = claims.getSubject();
 
-        // 4. DB에 저장된 리프레시 토큰을 가져와 클라이언트가 보낸 것과 똑같은지 비교 (보안 핵심)
-        RefreshToken savedRefreshToken = refreshTokenRepository.findByUsername(username)
+        // 4. Redis에 저장된 리프레시 토큰을 가져와 클라이언트가 보낸 것과 똑같은지 비교 (보안 핵심)
+        RefreshToken savedRefreshToken = refreshTokenRepository.findById(username)
                 .orElseThrow(() -> new IllegalArgumentException("서버에 저장된 인증 정보가 없습니다."));
 
         if (!savedRefreshToken.getRefreshToken().equals(refreshTokenValue)) {
