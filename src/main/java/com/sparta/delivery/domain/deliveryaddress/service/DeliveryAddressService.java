@@ -5,7 +5,6 @@ import com.sparta.delivery.domain.deliveryaddress.entity.DeliveryAddress;
 import com.sparta.delivery.domain.deliveryaddress.repository.DeliveryAddressRepository;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
-import com.sparta.delivery.global.common.Enums;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,10 +28,6 @@ public class DeliveryAddressService {
     public DeliveryResponseDto createDeliveryAddress(DeliveryRequestDto deliveryRequestDto, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()
             -> new IllegalArgumentException("해당 유저가 없습니다."));
-
-        if(user.getRole() != Enums.UserRole.CUSTOMER){
-            throw new IllegalArgumentException("주소 생성 권한이 없습니다.");
-        }
 
         if(deliveryRequestDto.getIsDefault() != null && deliveryRequestDto.getIsDefault()){
             Optional<DeliveryAddress> oldDefaultAddress = deliveryAddressRepository.findByUserAndIsDefault(user, true);
@@ -62,12 +57,6 @@ public class DeliveryAddressService {
 
     @Transactional(readOnly = true)
     public Page<DeliverySummaryDto> findAllDeliveryAddresses(Long userId, DeliverySearchDto deliverySearchDto) {
-        User user = userRepository.findById(userId).orElseThrow(()
-        -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
-
-        if(user.getRole() != Enums.UserRole.CUSTOMER){
-            throw new IllegalArgumentException("해당 기능의 권한이 없습니다.");
-        }
 
         int validatedSize = deliverySearchDto.getSize();
         if(validatedSize != 10 && validatedSize != 30 && validatedSize != 50){
@@ -81,7 +70,7 @@ public class DeliveryAddressService {
 
         return addressPage.map(address -> DeliverySummaryDto.builder()
                 .id(address.getId())
-                .userId(user.getId())
+                .userId(userId)
                 .address(address.getAddress())
                 .detailAddress((address.getDetailAddress()))
                 .zipcode(address.getZipCode())
@@ -92,17 +81,11 @@ public class DeliveryAddressService {
 
     @Transactional(readOnly = true)
     public DeliveryDetailResponseDto findDeliveryAddressById(UUID addressId, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()
-                -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
-
-        if(user.getRole() != Enums.UserRole.CUSTOMER){
-            throw new IllegalArgumentException("해당 기능의 권한이 없습니다.");
-        }
 
         DeliveryAddress address = deliveryAddressRepository.findById(addressId).orElseThrow(()
         -> new IllegalArgumentException("조회하고자 하는 주소가 등록되어있지 않습니다."));
 
-        if(!address.getUser().getId().equals(user.getId())){
+        if(!address.getUser().getId().equals(userId)){
             throw new IllegalArgumentException("본인의 배송지만 조회할 수 있습니다.");
         }
 
@@ -119,15 +102,15 @@ public class DeliveryAddressService {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
 
-        if(user.getRole() != Enums.UserRole.CUSTOMER){
-            throw new IllegalArgumentException("해당 기능의 권한이 없습니다.");
-        }
-
         DeliveryAddress address = deliveryAddressRepository.findById(addressId).orElseThrow(()
                 -> new IllegalArgumentException("조회하고자 하는 주소가 등록되어있지 않습니다."));
 
         if(!address.getUser().getId().equals(user.getId())){
             throw new IllegalArgumentException("본인의 배송지만 수정할 수 있습니다.");
+        }
+
+        if(address.getIsDefault() && (deliveryRequestDto.getIsDefault() != null && !deliveryRequestDto.getIsDefault())){
+            throw new IllegalArgumentException("기본 배송지는 단독으로 해제할 수 없습니다. 다른 주소를 기본 배송지로 지정해 주세요");
         }
 
         if(deliveryRequestDto.getIsDefault() != null && deliveryRequestDto.getIsDefault()){
@@ -160,9 +143,6 @@ public class DeliveryAddressService {
         User user = userRepository.findById(userId).orElseThrow(()
             -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
 
-        if(user.getRole() != Enums.UserRole.CUSTOMER){
-            throw new IllegalArgumentException("해당 기능의 권한이 없습니다.");
-        }
         DeliveryAddress address = deliveryAddressRepository.findById(addressId).orElseThrow(()
                 -> new IllegalArgumentException("조회하고자 하는 주소가 등록되어있지 않습니다."));
 
