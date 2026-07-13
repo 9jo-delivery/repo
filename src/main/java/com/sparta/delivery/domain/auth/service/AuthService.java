@@ -39,19 +39,8 @@ public class AuthService {
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(reqDto.getPassword());
 
-        if (reqDto.isOwner()) {
-            // 유저 DB에 등록
-            User user = userRepository.save(
-                    User.builder()
-                            .username(reqDto.getUsername())
-                            .password(encodedPassword)
-                            .name(reqDto.getName())
-                            .phone(reqDto.getPhone())
-                            .role(Enums.UserRole.OWNER)
-                            .build());
-
-            return new SignupResDto(user);
-        }
+        // 삼항 연산자 활용하여 if문으로 반복되는 코드 사용 최적화
+        Enums.UserRole role = reqDto.isOwner() ? Enums.UserRole.OWNER : Enums.UserRole.CUSTOMER;
 
         // 유저 DB에 등록
         User user = userRepository.save(
@@ -60,7 +49,7 @@ public class AuthService {
                         .password(encodedPassword)
                         .name(reqDto.getName())
                         .phone(reqDto.getPhone())
-                        .role(Enums.UserRole.CUSTOMER)
+                        .role(role)
                         .build());
 
         return new SignupResDto(user);
