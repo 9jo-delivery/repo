@@ -16,7 +16,6 @@ import com.sparta.delivery.domain.region.entity.Region;
 @Table(name = "p_restaurants")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE p_restaurants SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class Restaurant extends BaseEntity {
 
