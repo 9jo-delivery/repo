@@ -39,6 +39,20 @@ public class AuthService {
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(reqDto.getPassword());
 
+        if (reqDto.isOwner()) {
+            // 유저 DB에 등록
+            User user = userRepository.save(
+                    User.builder()
+                            .username(reqDto.getUsername())
+                            .password(encodedPassword)
+                            .name(reqDto.getName())
+                            .phone(reqDto.getPhone())
+                            .role(Enums.UserRole.OWNER)
+                            .build());
+
+            return new SignupResDto(user);
+        }
+
         // 유저 DB에 등록
         User user = userRepository.save(
                 User.builder()
