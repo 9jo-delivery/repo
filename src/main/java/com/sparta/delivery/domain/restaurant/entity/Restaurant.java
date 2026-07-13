@@ -96,8 +96,17 @@ public class Restaurant extends BaseEntity {
 	}
 
 	@Builder
-	public Restaurant(String name) {
+	public Restaurant(User owner, RestaurantCategory category,String name, String description, String phone, String address, String detailAddress, String businessNumber, Integer minOrderAmount, Integer deliveryFee) {
+		this.owner = owner;
+		this.category = category;
 		this.name = name;
+		this.description = description;
+		this.phone = phone;
+		this.address = address;
+		this.detailAddress = detailAddress;
+		this.businessNumber = businessNumber;
+		this.minOrderAmount = minOrderAmount;
+		this.deliveryFee = deliveryFee;
 	}
 
 	public void updateRatingAndCount(double averageRating, Long reviewCount) {
