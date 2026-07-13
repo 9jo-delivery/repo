@@ -29,7 +29,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userDetails.getUser().getId()));
     }
 
-    // 사용자 목록 검색
+    // 사용자 목록 검색 - 관리자
     @GetMapping("/admin/users")
     @PreAuthorize("hasRole('MASTER') or hasRole('MANAGER')")
     public ResponseEntity<Page<UserResDto>> getUsers(@RequestParam("page") int page,
@@ -39,10 +39,10 @@ public class UserController {
 
     ) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(page -1, size, sortBy, isAsc));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(page - 1, size, sortBy, isAsc));
     }
 
-    // 사용자 상세 조회
+    // 사용자 상세 조회 - 관리자
     @GetMapping("/admin/users/{userId}")
     @PreAuthorize("hasRole('MASTER') or hasRole('MANAGER')")
     public ResponseEntity<UserResDto> getUserDetail(@PathVariable Long userId) {
@@ -50,7 +50,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDetail(userId));
     }
 
-    // 사용자 정보 수정 - 자기자신
+    // 사용자 정보 수정 - 본인
     @PatchMapping("/users")
     public ResponseEntity<UpdateUserResDto> updateUser(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                        @Valid @RequestBody UpdateUserReqDto reqDto) {
@@ -58,6 +58,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(userDetails.getUser().getId(), reqDto));
     }
 
+    // 사용자 정보 수정 - 관리자
     @PatchMapping("/admin/users/{userId}")
     @PreAuthorize("hasRole('MASTER') or hasRole('MANAGER')")
     public ResponseEntity<UpdateUserResDto> adminUpdateUser(@PathVariable Long userId,
@@ -66,7 +67,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.AdminUpdateUser(userId, reqDto));
     }
 
-    // 회원 탈퇴(삭제)
+    // 회원 탈퇴 - 본인
     @DeleteMapping("/users")
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -75,6 +76,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    // 회원 정보 삭제 - 관리자
     @DeleteMapping("/admin/users/{userId}")
     @PreAuthorize("hasRole('MASTER') or hasRole('MANAGER')")
     public ResponseEntity<Void> AdminDeleteUser(@PathVariable Long userId) {
