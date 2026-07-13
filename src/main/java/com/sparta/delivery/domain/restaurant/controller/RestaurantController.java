@@ -47,11 +47,19 @@ public class RestaurantController {
     }
 
     // 가게 정보 수정
-    @PatchMapping("/{restaurantId}") // 권한: Owner
+    @PatchMapping("/{restaurantId}")
     public ResponseEntity<RestaurantSummaryResDto> updateRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                     @PathVariable UUID restaurantId,
                                                                     @Valid @RequestBody RestaurantUpdateReqDto restaurantUpdateReqDto) {
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(restaurantService.updateRestaurant(userId, restaurantId, restaurantUpdateReqDto));
+    }
+
+    // 가게 정보 삭제
+    @DeleteMapping("/{restaurantId}")
+    public ResponseEntity<Void> deleteRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable UUID restaurantId) {
+        Long userId = userDetails.getUser().getId();
+        restaurantService.deleteRestaurant(userId, restaurantId);
+        return ResponseEntity.noContent().build();
     }
 }
