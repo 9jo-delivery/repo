@@ -1,10 +1,8 @@
-package com.sparta.delivery.domainTest.ai;
+package com.sparta.delivery.domainTest.ai.service;
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
