@@ -8,6 +8,7 @@ import com.sparta.delivery.domain.ai.entity.AiDescriptionLog;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Builder

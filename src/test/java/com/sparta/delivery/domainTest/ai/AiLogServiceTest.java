@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -86,7 +87,7 @@ public class AiLogServiceTest {
 	}
 
 	@Test
-	@DisplayName("조건에 따른 검색 실패해도 결과 성공? : updatedAt이 들어온 경우")
+	@DisplayName("조건에 따른 검색 실패해도 결과 성공? : ")
 	void LogSearchCreatedAtTest() {
 		Long ownerId = 1L;
 		UUID restaurantId = UUID.randomUUID();
@@ -118,8 +119,11 @@ public class AiLogServiceTest {
 		// 	aiDescriptRepository.searchLogsByCondition(condition, pageable);
 		// });
 
-		// 에러를 뱉어내는게 아니고 isSuccess(false)로 인해 데이터 1건만 조회되고 나머지는 조회되지 않음
-		// assertThat(reports).isEmpty();
+		// 에러를 뱉어내는게 아니고 isSuccess(false)로 queryDsl의 메서드를 통해서 false로 변환됨
+		// 그러면 BooleanException은 null값을 허용하니깐  isSuccess == false, start&endDate == null
+		// 입력된후에 owner,menu,restaurant만으로 채워진 테이블 4행이 조회됨
+		// 근데 생각해보니 Mock환경이므로
+		// assertThat(reports).isEmpty(); == False
 
 		assertThat(reports).isNotEmpty();
 		assertThat(reports.getTotalElements()).isEqualTo(4);
