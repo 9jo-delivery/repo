@@ -26,9 +26,7 @@ public class RestaurantController {
     // 가게 등록
     @PostMapping
     public ResponseEntity<RestaurantCreateResDto> createRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody RestaurantCreateReqDto restaurantCreateReqDto) {
-        // TODO: 유저 세팅용 하드코딩 수정
-        // Long userId = userDetails.getUser().getId();
-        Long userId = 1L;
+        Long userId = userDetails.getUser().getId();
 
         return ResponseEntity.ok(restaurantService.createRestaurant(userId, restaurantCreateReqDto));
     }
@@ -38,9 +36,7 @@ public class RestaurantController {
     public ResponseEntity<Page<RestaurantSummaryResDto>> getAllRestaurants(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                            @PageableDefault(page=0, size=10, sort="createdAt", direction=Sort.Direction.DESC) Pageable pageable,
                                                                            @ModelAttribute RestaurantSearchReqDto restaurantSearchReqDto) {
-        // TODO: 유저 세팅용 하드코딩 수정
-        // Long userId = userDetails.getUser().getId();
-        Long userId = 1L;
+        Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(restaurantService.getAllRestaurants(userId, pageable, restaurantSearchReqDto));
     }
 
@@ -55,9 +51,7 @@ public class RestaurantController {
     public ResponseEntity<RestaurantSummaryResDto> updateRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                     @PathVariable UUID restaurantId,
                                                                     @Valid @RequestBody RestaurantUpdateReqDto restaurantUpdateReqDto) {
-        // TODO: 유저 세팅용 하드코딩 수정
-        // Long userId = userDetails.getUser().getId();
-        Long userId = 1L;
+        Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(restaurantService.updateRestaurant(userId, restaurantId, restaurantUpdateReqDto));
     }
 }

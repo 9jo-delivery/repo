@@ -14,6 +14,7 @@ import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,7 +120,7 @@ public class RestaurantService {
         // 수정 권한 검증
         if (user.getRole() == Enums.UserRole.CUSTOMER ||
                 user.getRole() == Enums.UserRole.OWNER && !Objects.equals(userId, restaurant.getOwner().getId()))
-            throw new IllegalArgumentException("가게 정보를 수정하려면 해당 가게의 주인이어야 합니다.");
+            throw new AccessDeniedException("수정 권한이 없습니다. 가게 정보를 수정하려면 해당 가게의 주인이어야 합니다.");
 
 
         restaurant.update(
