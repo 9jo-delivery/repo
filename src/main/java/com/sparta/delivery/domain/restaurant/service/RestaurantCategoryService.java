@@ -104,6 +104,7 @@ public class RestaurantCategoryService {
         return new CategorySummaryResDto(category);
     }
 
+    // MASTER (현재 정책상 manager도 추가)
     @Transactional
     public void deleteCategory(Long userId, UUID categoryId) {
         RestaurantCategory category = rcRepository.findById(categoryId)

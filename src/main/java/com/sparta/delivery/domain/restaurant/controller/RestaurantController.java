@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,7 @@ public class RestaurantController {
     }
 
     // 가게 등록
+    @PreAuthorize("hasRole('OWNER')")
     @PostMapping
     public ResponseEntity<RestaurantCreateResDto> createRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody RestaurantCreateReqDto restaurantCreateReqDto) {
         Long userId = userDetails.getUser().getId();
@@ -47,6 +49,7 @@ public class RestaurantController {
     }
 
     // 가게 정보 수정
+    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
     @PatchMapping("/{restaurantId}")
     public ResponseEntity<RestaurantSummaryResDto> updateRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                     @PathVariable UUID restaurantId,
@@ -56,6 +59,7 @@ public class RestaurantController {
     }
 
     // 가게 정보 삭제
+    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
     @DeleteMapping("/{restaurantId}")
     public ResponseEntity<Void> deleteRestaurant(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable UUID restaurantId) {
         Long userId = userDetails.getUser().getId();

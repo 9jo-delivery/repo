@@ -6,6 +6,7 @@ import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,8 @@ public class RestaurantCategoryController {
         this.rcService = rcService;
     }
 
-    @PostMapping // TODO: 유저/권한 관련 부분 추후 추가 예정: Manager, Master
+    @PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
+    @PostMapping
     public ResponseEntity<CategoryCreateResDto> createCategory(@Valid @RequestBody CategoryCreateReqDto categoryCreateReqDto) {
         return ResponseEntity.ok(rcService.createCategory(categoryCreateReqDto));
     }
@@ -35,11 +37,13 @@ public class RestaurantCategoryController {
        return ResponseEntity.ok(rcService.getCategoryInfo(id));
     }
 
-    @PatchMapping("/{id}") // TODO: 유저/권한 관련 부분 추후 추가 예정: Manager, Master
+    @PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
+    @PatchMapping("/{id}")
     public ResponseEntity<CategorySummaryResDto> updateCategory(@PathVariable UUID id, @Valid @RequestBody CategoryUpdateReqDto categoryUpdateReqDto) {
         return ResponseEntity.ok(rcService.updateCategory(id, categoryUpdateReqDto));
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
     @DeleteMapping("{categoryId}")
     public ResponseEntity<Void> deleteCategory(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable UUID categoryId) {
         Long userId = userDetails.getUser().getId();
