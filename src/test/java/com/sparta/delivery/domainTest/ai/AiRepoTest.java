@@ -23,8 +23,11 @@ import com.sparta.delivery.domain.ai.entity.AiDescriptionLog;
 import com.sparta.delivery.domain.ai.repository.AiDescriptRepository;
 import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
+import com.sparta.delivery.domain.region.entity.Region;
+import com.sparta.delivery.domain.region.repository.RegionRepository;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
@@ -48,6 +51,10 @@ class AiRepoTest {
 
 	@Autowired
 	private MenuRepository menuRepository;
+	@Autowired
+	private RestaurantCategoryRepository restaurantCategoryRepository;
+	@Autowired
+	private RegionRepository regionRepository;
 
 	@Test
 	@DisplayName("조건별 쿼리 통과 테스트")
@@ -58,6 +65,7 @@ class AiRepoTest {
 		Menu menu = createMenu(restaurant);
 
 		aiDescriptRepository.save(AiDescriptionLog.create(owner, restaurant, menu, "prompt1", "txt", "res1"));
+
 		AiSearchCondition condition = AiSearchCondition.builder()
 			.isSuccess(Boolean.TRUE)
 			.startDate(LocalDate.now())
@@ -73,7 +81,7 @@ class AiRepoTest {
 
 	private User createUser() {
 		return userRepository.save(User.builder()
-			.username("testUser") // 유니크 제약조건 방지
+			.username("testUser")
 			.password("password123")
 			.name("테스트유저")
 			.phone("010-1234-5678")
@@ -82,9 +90,13 @@ class AiRepoTest {
 	}
 
 	private Restaurant createRestaurant(User owner) {
+		RestaurantCategory category = createRestaurantCategory();
+		Region region = regionRepository.save(Region.builder().name("서울").build());
+
 		return restaurantRepository.save(Restaurant.builder()
 			.owner(owner)
-			.category(RestaurantCategory.builder().build())
+			.category(category)
+			.region(region)
 			.name("테스트 식당")
 			.description("맛있는 식당입니다")
 			.phone("02-123-4567")
@@ -104,5 +116,15 @@ class AiRepoTest {
 			.isHidden(false)
 			.isSoldOut(false)
 			.build());
+	}
+
+	private RestaurantCategory createRestaurantCategory() {
+		return restaurantCategoryRepository.save(RestaurantCategory.builder()
+			.name("한식")
+			.description("dd")
+			.sortOrder(2)
+			.isActive(true)
+			.build()
+		);
 	}
 }
