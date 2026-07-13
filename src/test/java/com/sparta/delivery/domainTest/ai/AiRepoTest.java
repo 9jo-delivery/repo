@@ -67,9 +67,9 @@ class AiRepoTest {
 		aiDescriptRepository.save(AiDescriptionLog.create(owner, restaurant, menu, "prompt1", "txt", "res1"));
 
 		AiSearchCondition condition = AiSearchCondition.builder()
-			.isSuccess(Boolean.TRUE)
+			.isSuccess(true)
 			.startDate(LocalDate.now())
-			.endDate(LocalDate.MAX)
+			.endDate(LocalDate.now().plusDays(1))
 			.build();
 		Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
@@ -77,6 +77,7 @@ class AiRepoTest {
 		Page<AiDescriptionLog> result = aiDescriptRepository.searchLogsByCondition(condition, pageable);
 
 		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getContent().get(0).getPrompt()).isEqualTo("prompt1");
 	}
 
 	private User createUser() {
@@ -91,7 +92,7 @@ class AiRepoTest {
 
 	private Restaurant createRestaurant(User owner) {
 		RestaurantCategory category = createRestaurantCategory();
-		Region region = regionRepository.save(Region.builder().name("서울").build());
+		Region region = regionRepository.save(Region.builder().name("서울").regionType(Enums.RegionType.SIGUNGU).isServiceAvailable(true).build());
 
 		return restaurantRepository.save(Restaurant.builder()
 			.owner(owner)
