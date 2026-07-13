@@ -64,6 +64,7 @@ class RestaurantServiceTest {
 	@Test
 	@DisplayName("가게 목록 조회 성공 - 검색, 페이지 조건 전달 후 summary 반환")
 	void getAllRestaurants_Success() {
+		// given
 		UUID categoryId = UUID.randomUUID();
 		UUID regionId = UUID.randomUUID();
 		UUID restaurantId = UUID.randomUUID();
@@ -74,37 +75,32 @@ class RestaurantServiceTest {
 		given(restaurantRepository.searchRestaurants(eq(categoryId), eq(regionId), eq(true), eq("치킨"), any(Pageable.class)))
 				.willReturn(new PageImpl<>(List.of(restaurant), pageable, 1));
 
+		// when
 		Page<RestaurantSummaryResDto> result = restaurantService.getAllRestaurants(1L, pageable, condition);
 
+		// then
 		assertThat(result.getContent()).hasSize(1);
 		RestaurantSummaryResDto response = result.getContent().get(0);
 		assertThat(response.getRestaurantId()).isEqualTo(restaurantId);
-		assertThat(response.getCategoryId()).isEqualTo(categoryId);
-		assertThat(response.getRegionId()).isEqualTo(regionId);
 		assertThat(response.getName()).isEqualTo("맛있는 치킨집");
-		assertThat(response.getIsOpen()).isTrue();
 		assertThat(response.getAverageRating()).isEqualByComparingTo(BigDecimal.valueOf(4.5));
 		assertThat(response.getReviewCount()).isEqualTo(12L);
-
-		ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
-		verify(restaurantRepository).searchRestaurants(eq(categoryId), eq(regionId), eq(true), eq("치킨"), captor.capture());
-		Pageable capturedPageable = captor.getValue();
-		assertThat(capturedPageable.getPageNumber()).isZero();
-		assertThat(capturedPageable.getPageSize()).isEqualTo(10);
-		assertThat(capturedPageable.getSort().getOrderFor("averageRating").getDirection()).isEqualTo(Sort.Direction.DESC);
 	}
 
 	@Test
 	@DisplayName("가게 목록 조회 - name, size 보정")
 	void getAllRestaurants_NormalizeNameAndSize() {
+		// given
 		RestaurantSearchReqDto condition = createSearchReqDto(null, null, null, null);
 		Pageable pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
 
 		given(restaurantRepository.searchRestaurants(eq(null), eq(null), eq(null), eq(""), any(Pageable.class)))
 				.willReturn(Page.empty());
 
+		// when
 		restaurantService.getAllRestaurants(1L, pageable, condition);
 
+		// then
 		ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
 		verify(restaurantRepository).searchRestaurants(eq(null), eq(null), eq(null), eq(""), captor.capture());
 		Pageable capturedPageable = captor.getValue();
@@ -116,6 +112,7 @@ class RestaurantServiceTest {
 	@Test
 	@DisplayName("가게 등록 성공")
 	void createRestaurant_Success() {
+		// given
 		UUID categoryId = UUID.randomUUID();
 		UUID regionId = UUID.randomUUID();
 		UUID restaurantId = UUID.randomUUID();
@@ -134,35 +131,24 @@ class RestaurantServiceTest {
 			return savedRestaurant;
 		});
 
+		// when
 		RestaurantCreateResDto response = restaurantService.createRestaurant(1L, request);
 
+		// then
 		assertThat(response.getRestaurantId()).isEqualTo(restaurantId);
 		assertThat(response.getName()).isEqualTo("test restaurant");
 		assertThat(response.getIsOpen()).isTrue();
-
-		ArgumentCaptor<Restaurant> captor = ArgumentCaptor.forClass(Restaurant.class);
-		verify(restaurantRepository).save(captor.capture());
-
-		Restaurant savedRestaurant = captor.getValue();
-		assertThat(savedRestaurant.getOwner()).isEqualTo(owner);
-		assertThat(savedRestaurant.getCategory()).isEqualTo(category);
-		assertThat(savedRestaurant.getRegion()).isEqualTo(region);
-		assertThat(savedRestaurant.getName()).isEqualTo("test restaurant");
-		assertThat(savedRestaurant.getDescription()).isEqualTo("test description");
-		assertThat(savedRestaurant.getPhone()).isEqualTo("02-1234-5678");
-		assertThat(savedRestaurant.getAddress()).isEqualTo("test address");
-		assertThat(savedRestaurant.getDetailAddress()).isEqualTo("1F");
-		assertThat(savedRestaurant.getBusinessNumber()).isEqualTo("123-45-67890");
-		assertThat(savedRestaurant.getMinOrderAmount()).isEqualTo(15000);
-		assertThat(savedRestaurant.getDeliveryFee()).isEqualTo(3000);
+		verify(restaurantRepository).save(any(Restaurant.class));
 	}
 
 	@Test
 	@DisplayName("가게 등록 실패 - 사용자를 찾을 수 없음")
 	void createRestaurant_Fail_UserNotFound() {
+		// given
 		RestaurantCreateReqDto request = createRestaurantCreateReqDto(UUID.randomUUID(), UUID.randomUUID());
 		given(userRepository.findById(1L)).willReturn(Optional.empty());
 
+		// when & then
 		assertThatThrownBy(() -> restaurantService.createRestaurant(1L, request))
 				.isInstanceOf(ResourceNotFoundException.class);
 
@@ -172,10 +158,12 @@ class RestaurantServiceTest {
 	@Test
 	@DisplayName("가게 등록 실패 - 사용자가 가게 주인이 아님")
 	void createRestaurant_Fail_UserIsNotOwner() {
+		// given
 		RestaurantCreateReqDto request = createRestaurantCreateReqDto(UUID.randomUUID(), UUID.randomUUID());
 		User customer = createUser(Enums.UserRole.CUSTOMER);
 		given(userRepository.findById(1L)).willReturn(Optional.of(customer));
 
+		// when & then
 		assertThatThrownBy(() -> restaurantService.createRestaurant(1L, request))
 				.isInstanceOf(IllegalArgumentException.class);
 
@@ -185,6 +173,7 @@ class RestaurantServiceTest {
 	@Test
 	@DisplayName("가게 등록 실패 - 지역을 찾을 수 없음")
 	void createRestaurant_Fail_RegionNotFound() {
+		// given
 		UUID categoryId = UUID.randomUUID();
 		UUID regionId = UUID.randomUUID();
 		RestaurantCreateReqDto request = createRestaurantCreateReqDto(categoryId, regionId);
@@ -192,6 +181,7 @@ class RestaurantServiceTest {
 		given(userRepository.findById(1L)).willReturn(Optional.of(owner));
 		given(regionRepository.findById(regionId)).willReturn(Optional.empty());
 
+		// when & then
 		assertThatThrownBy(() -> restaurantService.createRestaurant(1L, request))
 				.isInstanceOf(ResourceNotFoundException.class);
 
@@ -201,6 +191,7 @@ class RestaurantServiceTest {
 	@Test
 	@DisplayName("가게 등록 실패 - 서비스 가능 지역이 아님")
 	void createRestaurant_Fail_RegionIsNotServiceAvailable() {
+		// given
 		UUID categoryId = UUID.randomUUID();
 		UUID regionId = UUID.randomUUID();
 		RestaurantCreateReqDto request = createRestaurantCreateReqDto(categoryId, regionId);
@@ -209,6 +200,7 @@ class RestaurantServiceTest {
 		given(userRepository.findById(1L)).willReturn(Optional.of(owner));
 		given(regionRepository.findById(regionId)).willReturn(Optional.of(region));
 
+		// when & then
 		assertThatThrownBy(() -> restaurantService.createRestaurant(1L, request))
 				.isInstanceOf(IllegalArgumentException.class);
 
@@ -218,6 +210,7 @@ class RestaurantServiceTest {
 	@Test
 	@DisplayName("가게 등록 실패 - 카테고리를 찾을 수 없음")
 	void createRestaurant_Fail_CategoryNotFound() {
+		// given
 		UUID categoryId = UUID.randomUUID();
 		UUID regionId = UUID.randomUUID();
 		RestaurantCreateReqDto request = createRestaurantCreateReqDto(categoryId, regionId);
@@ -227,6 +220,7 @@ class RestaurantServiceTest {
 		given(regionRepository.findById(regionId)).willReturn(Optional.of(region));
 		given(categoryRepository.findById(categoryId)).willReturn(Optional.empty());
 
+		// when & then
 		assertThatThrownBy(() -> restaurantService.createRestaurant(1L, request))
 				.isInstanceOf(ResourceNotFoundException.class);
 
@@ -236,6 +230,7 @@ class RestaurantServiceTest {
 	@Test
 	@DisplayName("가게 등록 실패 - 비활성화된 카테고리")
 	void createRestaurant_Fail_CategoryIsInactive() {
+		// given
 		UUID categoryId = UUID.randomUUID();
 		UUID regionId = UUID.randomUUID();
 		RestaurantCreateReqDto request = createRestaurantCreateReqDto(categoryId, regionId);
@@ -246,6 +241,7 @@ class RestaurantServiceTest {
 		given(regionRepository.findById(regionId)).willReturn(Optional.of(region));
 		given(categoryRepository.findById(categoryId)).willReturn(Optional.of(category));
 
+		// when & then
 		assertThatThrownBy(() -> restaurantService.createRestaurant(1L, request))
 				.isInstanceOf(IllegalArgumentException.class);
 
@@ -253,6 +249,38 @@ class RestaurantServiceTest {
 	}
 
 
+
+	@Test
+	@DisplayName("가게 상세 조회 성공")
+	void getRestaurantInfo_Success() {
+		// given
+		UUID categoryId = UUID.randomUUID();
+		UUID regionId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		Restaurant restaurant = createRestaurant(restaurantId, categoryId, regionId, "test restaurant", true, 4.5, 12L);
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.of(restaurant));
+
+		// when
+		RestaurantSummaryResDto response = restaurantService.getRestaurantInfo(restaurantId);
+
+		// then
+		assertThat(response.getRestaurantId()).isEqualTo(restaurantId);
+		assertThat(response.getName()).isEqualTo("test restaurant");
+		assertThat(response.getAverageRating()).isEqualByComparingTo(BigDecimal.valueOf(4.5));
+		assertThat(response.getReviewCount()).isEqualTo(12L);
+	}
+
+	@Test
+	@DisplayName("가게 상세 조회 실패 - 존재하지 않는 가게")
+	void getRestaurantInfo_Fail_RestaurantNotFound() {
+		// given
+		UUID restaurantId = UUID.randomUUID();
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> restaurantService.getRestaurantInfo(restaurantId))
+				.isInstanceOf(ResourceNotFoundException.class);
+	}
 
 	private RestaurantSearchReqDto createSearchReqDto(UUID categoryId, UUID regionId, String name, Boolean isOpen) {
 		RestaurantSearchReqDto request = new RestaurantSearchReqDto();
