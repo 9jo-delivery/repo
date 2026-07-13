@@ -16,8 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -31,10 +29,9 @@ public class AuthService {
     public SignupResDto signup(SignupReqDto reqDto) {
 
         // 중복 유저 검증
-        Optional<User> checkUsername = userRepository.findByUsername(reqDto.getUsername());
-        if (checkUsername.isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 유저입니다.");
-        }
+        userRepository.findByUsername(reqDto.getUsername()).ifPresent(checkUser
+                -> {throw new IllegalArgumentException("이미 존재하는 유저입니다.");
+        });
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(reqDto.getPassword());
