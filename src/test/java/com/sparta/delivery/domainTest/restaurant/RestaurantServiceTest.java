@@ -12,10 +12,14 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -33,6 +37,7 @@ import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateReqDto;
 import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateResDto;
 import com.sparta.delivery.domain.restaurant.dto.RestaurantSearchReqDto;
 import com.sparta.delivery.domain.restaurant.dto.RestaurantSummaryResDto;
+import com.sparta.delivery.domain.restaurant.dto.RestaurantUpdateReqDto;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
@@ -282,6 +287,103 @@ class RestaurantServiceTest {
 				.isInstanceOf(ResourceNotFoundException.class);
 	}
 
+	@Test
+	@DisplayName("가게 정보 수정 성공 - 전달된 필드만 변경")
+	void updateRestaurant_Success_PartialUpdate() {
+		// given
+		Long userId = 200L;
+		UUID categoryId = UUID.randomUUID();
+		UUID regionId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		User owner = createUser(Enums.UserRole.OWNER);
+		ReflectionTestUtils.setField(owner, "id", userId);
+		Restaurant restaurant = createRestaurant(restaurantId, categoryId, regionId, "기존 가게", true, 4.5, 12L);
+		ReflectionTestUtils.setField(restaurant, "owner", owner);
+		RestaurantUpdateReqDto request = createRestaurantUpdateReqDto("수정 가게", "수정 설명", null, null, false, 20000, null);
+
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.of(restaurant));
+		given(userRepository.findById(userId)).willReturn(Optional.of(owner));
+
+		// when
+		RestaurantSummaryResDto response = restaurantService.updateRestaurant(userId, restaurantId, request);
+
+		// then
+		assertThat(response.getRestaurantId()).isEqualTo(restaurantId);
+		assertThat(response.getName()).isEqualTo("수정 가게");
+		assertThat(response.getDescription()).isEqualTo("수정 설명");
+		assertThat(response.getIsOpen()).isFalse();
+		assertThat(response.getMinOrderAmount()).isEqualTo(20000);
+		assertThat(response.getDeliveryFee()).isEqualTo(3000);
+	}
+
+	@Test
+	@DisplayName("가게 정보 수정 실패 - 존재하지 않는 가게")
+	void updateRestaurant_Fail_RestaurantNotFound() {
+		// given
+		Long userId = 1L;
+		UUID restaurantId = UUID.randomUUID();
+		RestaurantUpdateReqDto request = createRestaurantUpdateReqDto("수정 가게", null, null, null, null, null, null);
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> restaurantService.updateRestaurant(userId, restaurantId, request))
+				.isInstanceOf(ResourceNotFoundException.class);
+	}
+
+	@Test
+	@DisplayName("가게 정보 수정 실패 - 존재하지 않는 사용자")
+	void updateRestaurant_Fail_UserNotFound() {
+		// given
+		Long userId = 1L;
+		UUID categoryId = UUID.randomUUID();
+		UUID regionId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		Restaurant restaurant = createRestaurant(restaurantId, categoryId, regionId, "기존 가게", true, 4.5, 12L);
+		RestaurantUpdateReqDto request = createRestaurantUpdateReqDto("수정 가게", null, null, null, null, null, null);
+
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.of(restaurant));
+		given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> restaurantService.updateRestaurant(userId, restaurantId, request))
+				.isInstanceOf(ResourceNotFoundException.class);
+	}
+
+	@ParameterizedTest
+	@MethodSource("invalidUpdateUsers")
+	@DisplayName("가게 정보 수정 실패 - 수정 권한이 없는 사용자는 수정 불가")
+	void updateRestaurant_Fail_UserWithoutPermissionCannotUpdate(
+			Enums.UserRole requestUserRole,
+			Long requestUserId,
+			Long restaurantOwnerId
+	) {
+		// given
+		UUID categoryId = UUID.randomUUID();
+		UUID regionId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		User requestUser = createUser(requestUserRole);
+		User restaurantOwner = createUser(Enums.UserRole.OWNER);
+		ReflectionTestUtils.setField(requestUser, "id", requestUserId);
+		ReflectionTestUtils.setField(restaurantOwner, "id", restaurantOwnerId);
+		Restaurant restaurant = createRestaurant(restaurantId, categoryId, regionId, "기존 가게", true, 4.5, 12L);
+		ReflectionTestUtils.setField(restaurant, "owner", restaurantOwner);
+		RestaurantUpdateReqDto request = createRestaurantUpdateReqDto("수정 가게", null, null, null, null, null, null);
+
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.of(restaurant));
+		given(userRepository.findById(requestUserId)).willReturn(Optional.of(requestUser));
+
+		// when & then
+		assertThatThrownBy(() -> restaurantService.updateRestaurant(requestUserId, restaurantId, request))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	private static Stream<Arguments> invalidUpdateUsers() {
+		return Stream.of(
+				Arguments.of(Enums.UserRole.CUSTOMER, 1L, 1L),
+				Arguments.of(Enums.UserRole.OWNER, 200L, 201L)
+		);
+	}
+
 	private RestaurantSearchReqDto createSearchReqDto(UUID categoryId, UUID regionId, String name, Boolean isOpen) {
 		RestaurantSearchReqDto request = new RestaurantSearchReqDto();
 		ReflectionTestUtils.setField(request, "categoryId", categoryId);
@@ -344,6 +446,26 @@ class RestaurantServiceTest {
 		ReflectionTestUtils.setField(request, "businessNumber", "123-45-67890");
 		ReflectionTestUtils.setField(request, "minOrderAmount", 15000);
 		ReflectionTestUtils.setField(request, "deliveryFee", 3000);
+		return request;
+	}
+
+	private RestaurantUpdateReqDto createRestaurantUpdateReqDto(
+			String name,
+			String description,
+			String phone,
+			String address,
+			Boolean isOpen,
+			Integer minOrderAmount,
+			Integer deliveryFee
+	) {
+		RestaurantUpdateReqDto request = new RestaurantUpdateReqDto();
+		ReflectionTestUtils.setField(request, "name", name);
+		ReflectionTestUtils.setField(request, "description", description);
+		ReflectionTestUtils.setField(request, "phone", phone);
+		ReflectionTestUtils.setField(request, "address", address);
+		ReflectionTestUtils.setField(request, "isOpen", isOpen);
+		ReflectionTestUtils.setField(request, "minOrderAmount", minOrderAmount);
+		ReflectionTestUtils.setField(request, "deliveryFee", deliveryFee);
 		return request;
 	}
 
