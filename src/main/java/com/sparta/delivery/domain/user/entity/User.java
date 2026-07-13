@@ -1,13 +1,14 @@
 package com.sparta.delivery.domain.user.entity;
 
-import com.sparta.delivery.domain.user.dto.request.AdminUpdateUserReqDto;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
-
 import com.sparta.delivery.global.common.BaseEntity;
 import com.sparta.delivery.global.common.Enums;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "p_users")
@@ -17,7 +18,8 @@ import com.sparta.delivery.global.common.Enums;
 @SQLRestriction("is_deleted = false")
 public class User extends BaseEntity {
 
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(nullable = false, unique = true, length = 10)
@@ -45,16 +47,14 @@ public class User extends BaseEntity {
 		this.role = role;
 	}
 
-	public void updateUser(String password, String phone) {
-		this.password = password;
-		this.phone = phone;
+	public void updateUser(String username, String password, String name, String phone) {
+		if (username != null && !username.isBlank()) this.username = username;
+		if (password != null && !password.isBlank()) this.password = password;
+		if (name != null && !name.isBlank()) this.name = name;
+		if (phone != null && !phone.isBlank()) this.phone = phone;
 	}
 
-	public void adminUpdateUser(AdminUpdateUserReqDto reqDto, String encodedPassword) {
-		this.username = reqDto.getUsername();
-		this.password = encodedPassword;
-		this.name = reqDto.getName();
-		this.phone = reqDto.getPhone();
-		this.role = reqDto.getRole();
-	}
+    public void updateRole(Enums.UserRole role) {
+		this.role = role;
+    }
 }
