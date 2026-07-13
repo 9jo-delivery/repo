@@ -2,10 +2,7 @@ package com.sparta.delivery.domain.restaurant.service;
 
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.region.repository.RegionRepository;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateReqDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateResDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantSearchReqDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantSummaryResDto;
+import com.sparta.delivery.domain.restaurant.dto.*;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
@@ -19,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 public class RestaurantService {
@@ -99,5 +98,13 @@ public class RestaurantService {
             return size;
         }
         return 10;
+    }
+
+    @Transactional(readOnly = true)
+    public RestaurantSummaryResDto getRestaurantInfo(UUID restaurantId) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 가게입니다."));
+
+        return new RestaurantSummaryResDto(restaurant);
     }
 }

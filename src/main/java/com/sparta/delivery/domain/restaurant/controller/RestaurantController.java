@@ -1,9 +1,6 @@
 package com.sparta.delivery.domain.restaurant.controller;
 
-import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateReqDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateResDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantSearchReqDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantSummaryResDto;
+import com.sparta.delivery.domain.restaurant.dto.*;
 import com.sparta.delivery.domain.restaurant.service.RestaurantService;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -14,6 +11,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/restaurants")
@@ -43,6 +42,12 @@ public class RestaurantController {
         // Long userId = userDetails.getUser().getId();
         Long userId = 1L;
         return ResponseEntity.ok(restaurantService.getAllRestaurants(userId, pageable, restaurantSearchReqDto));
+    }
+
+    // 가게 상세 조회
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<RestaurantSummaryResDto> getRestaurantInfo(@PathVariable UUID restaurantId) {
+        return ResponseEntity.ok(restaurantService.getRestaurantInfo(restaurantId));
     }
 
 }
