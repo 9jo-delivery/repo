@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ public class DeliveryAddressController {
     private final DeliveryAddressService deliveryAddressService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public DeliveryResponseDto createDeliveryAddress(@Valid @RequestBody DeliveryRequestDto deliveryRequestDto,
                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.getUser().getId();
@@ -26,6 +28,7 @@ public class DeliveryAddressController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public Page<DeliverySummaryDto> findAllDeliveryAddresses(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             DeliverySearchDto deliverySearchDto) {
@@ -34,6 +37,7 @@ public class DeliveryAddressController {
     }
 
     @GetMapping("/{addressId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public DeliveryDetailResponseDto findDeliveryAddressById(
             @PathVariable UUID addressId,
             @AuthenticationPrincipal UserDetailsImpl userDetails){
@@ -42,6 +46,7 @@ public class DeliveryAddressController {
     }
 
     @PatchMapping("/{addressId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public DeliveryUpdateResponseDto updateDeliveryAddress(
             @Valid @RequestBody DeliveryRequestDto deliveryRequestDto,
             @PathVariable UUID addressId,
@@ -52,6 +57,7 @@ public class DeliveryAddressController {
     }
 
     @DeleteMapping("/{addressId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<Void> deleteDeliveryAddress(@PathVariable UUID addressId,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.getUser().getId();

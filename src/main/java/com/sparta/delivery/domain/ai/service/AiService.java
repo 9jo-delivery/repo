@@ -1,6 +1,9 @@
 package com.sparta.delivery.domain.ai.service;
 
-import java.util.List;
+import com.sparta.delivery.domain.ai.dto.Gemini.GeminiRequestDto;
+import com.sparta.delivery.domain.ai.dto.Gemini.GeminiResponseDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -9,10 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.sparta.delivery.domain.ai.dto.Gemini.GeminiRequestDto;
-import com.sparta.delivery.domain.ai.dto.Gemini.GeminiResponseDto;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @Slf4j(topic = "AI Connect Api")
 @Service
