@@ -4,6 +4,8 @@ import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.region.repository.RegionRepository;
 import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateReqDto;
 import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.RestaurantSearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.RestaurantSummaryResDto;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
@@ -12,6 +14,9 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,5 +72,32 @@ public class RestaurantService {
         Restaurant savedRestaurant = restaurantRepository.save(newRestaurant);
         // 가게 정보 반환
         return new RestaurantCreateResDto(savedRestaurant);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RestaurantSummaryResDto> getAllRestaurants(Long userId, Pageable pageable, RestaurantSearchReqDto restaurantSearchReqDto) {
+        // TODO: userRoles
+        // 입력값 검증
+        int vdPage = Math.max(pageable.getPageNumber(), 0);
+        int vdSize = validatePageSize(pageable.getPageSize());
+        Pageable vdPageable = PageRequest.of(vdPage, vdSize, pageable.getSort());
+
+        String name = restaurantSearchReqDto.getName() == null ? "" : restaurantSearchReqDto.getName();
+
+
+        return restaurantRepository.searchRestaurants(
+                        restaurantSearchReqDto.getCategoryId(),
+                        restaurantSearchReqDto.getRegionId(),
+                        restaurantSearchReqDto.getIsOpen(),
+                        name,
+                        vdPageable
+                ).map(RestaurantSummaryResDto::new);
+    }
+
+    private int validatePageSize(int size) {
+        if (size == 10 || size == 30 || size == 50) {
+            return size;
+        }
+        return 10;
     }
 }
