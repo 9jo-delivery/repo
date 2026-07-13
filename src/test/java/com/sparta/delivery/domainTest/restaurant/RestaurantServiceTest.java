@@ -29,6 +29,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sparta.delivery.domain.region.entity.Region;
@@ -374,10 +375,100 @@ class RestaurantServiceTest {
 
 		// when & then
 		assertThatThrownBy(() -> restaurantService.updateRestaurant(requestUserId, restaurantId, request))
-				.isInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(AccessDeniedException.class);
 	}
 
 	private static Stream<Arguments> invalidUpdateUsers() {
+		return Stream.of(
+				Arguments.of(Enums.UserRole.CUSTOMER, 1L, 1L),
+				Arguments.of(Enums.UserRole.OWNER, 200L, 201L)
+		);
+	}
+
+	@Test
+	@DisplayName("가게 삭제 성공")
+	void deleteRestaurant_Success() {
+		// given
+		Long userId = 200L;
+		UUID categoryId = UUID.randomUUID();
+		UUID regionId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		User owner = createUser(Enums.UserRole.OWNER);
+		ReflectionTestUtils.setField(owner, "id", userId);
+		Restaurant restaurant = createRestaurant(restaurantId, categoryId, regionId, "삭제할 가게", true, 4.5, 12L);
+		ReflectionTestUtils.setField(restaurant, "owner", owner);
+
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.of(restaurant));
+		given(userRepository.findById(userId)).willReturn(Optional.of(owner));
+
+		// when
+		restaurantService.deleteRestaurant(userId, restaurantId);
+
+		// then
+		assertThat(restaurant.isDeleted()).isTrue();
+		assertThat(restaurant.getDeletedBy()).isEqualTo(userId);
+		assertThat(restaurant.getDeletedAt()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("가게 삭제 실패 - 존재하지 않는 가게")
+	void deleteRestaurant_Fail_RestaurantNotFound() {
+		// given
+		Long userId = 1L;
+		UUID restaurantId = UUID.randomUUID();
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> restaurantService.deleteRestaurant(userId, restaurantId))
+				.isInstanceOf(ResourceNotFoundException.class);
+	}
+
+	@Test
+	@DisplayName("가게 삭제 실패 - 존재하지 않는 사용자")
+	void deleteRestaurant_Fail_UserNotFound() {
+		// given
+		Long userId = 1L;
+		UUID categoryId = UUID.randomUUID();
+		UUID regionId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		Restaurant restaurant = createRestaurant(restaurantId, categoryId, regionId, "삭제할 가게", true, 4.5, 12L);
+
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.of(restaurant));
+		given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> restaurantService.deleteRestaurant(userId, restaurantId))
+				.isInstanceOf(ResourceNotFoundException.class);
+	}
+
+	@ParameterizedTest
+	@MethodSource("invalidDeleteUsers")
+	@DisplayName("가게 삭제 실패 - 삭제 권한이 없는 사용자는 삭제 불가")
+	void deleteRestaurant_Fail_UserWithoutPermissionCannotDelete(
+			Enums.UserRole requestUserRole,
+			Long requestUserId,
+			Long restaurantOwnerId
+	) {
+		// given
+		UUID categoryId = UUID.randomUUID();
+		UUID regionId = UUID.randomUUID();
+		UUID restaurantId = UUID.randomUUID();
+		User requestUser = createUser(requestUserRole);
+		User restaurantOwner = createUser(Enums.UserRole.OWNER);
+		ReflectionTestUtils.setField(requestUser, "id", requestUserId);
+		ReflectionTestUtils.setField(restaurantOwner, "id", restaurantOwnerId);
+		Restaurant restaurant = createRestaurant(restaurantId, categoryId, regionId, "삭제할 가게", true, 4.5, 12L);
+		ReflectionTestUtils.setField(restaurant, "owner", restaurantOwner);
+
+		given(restaurantRepository.findById(restaurantId)).willReturn(Optional.of(restaurant));
+		given(userRepository.findById(requestUserId)).willReturn(Optional.of(requestUser));
+
+		// when & then
+		assertThatThrownBy(() -> restaurantService.deleteRestaurant(requestUserId, restaurantId))
+				.isInstanceOf(AccessDeniedException.class);
+	}
+
+	private static Stream<Arguments> invalidDeleteUsers() {
 		return Stream.of(
 				Arguments.of(Enums.UserRole.CUSTOMER, 1L, 1L),
 				Arguments.of(Enums.UserRole.OWNER, 200L, 201L)
