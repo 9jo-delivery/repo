@@ -47,8 +47,9 @@ public class AiLogServiceTest {
 	@Mock
 	private RestaurantRepository restaurantRepository;
 
+	// 지금 서비스코드 테스트는 변환 및 위임 검증 여부에 집중
 	@Test
-	@DisplayName("조건이 붙지 않은 로그 목록 조회 성공")
+	@DisplayName("로그 검색 시 레포 호출 및 dto 변환 검증")
 	void default_LogListTest() {
 		Long ownerId = 1L;
 		UUID restaurantId = UUID.randomUUID();
@@ -71,6 +72,7 @@ public class AiLogServiceTest {
 		Page<AiDescriptionLog> page = new PageImpl<>(logs, pageable, logs.size());
 
 		given(aiDescriptRepository.searchLogsByCondition(any(AiSearchCondition.class), eq(pageable))).willReturn(page);
+		// willReturn: 조건에 상관없이 Repo의 searchLogsByCondition이 호출되면 내가 만든 가짜 page객체를 반환
 
 		// when
 		Page<AiLogSummaryResponseDto> reports = aiDescriptionService.searchLogs(condition, pageable);
@@ -87,7 +89,7 @@ public class AiLogServiceTest {
 	}
 
 	@Test
-	@DisplayName("조건에 따른 검색 실패해도 결과 성공? : ")
+	@DisplayName("조건에 따른 검색 실패해도 결과 성공? : 잘못된 테스트코드 예시")
 	void LogSearchCreatedAtTest() {
 		Long ownerId = 1L;
 		UUID restaurantId = UUID.randomUUID();
@@ -128,6 +130,35 @@ public class AiLogServiceTest {
 		assertThat(reports).isNotEmpty();
 		assertThat(reports.getTotalElements()).isEqualTo(4);
 	}
+
+	@Test
+	@DisplayName("자세한 검색시 레포 호출 및 dto 변환 검증")
+	void SearchDetailsTest() {
+		AiSearchCondition condition = AiSearchCondition.builder()
+			.ownerId(1L)
+			.build();
+		Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+		AiDescriptionLog log = AiDescriptionLog.create(createUser(1L), createRestaurant(UUID.randomUUID()),
+			createMenu(UUID.randomUUID()), "p", "t", "r");
+
+		Page<AiDescriptionLog> expectedPage = new PageImpl<>(List.of(log), pageable, 1);
+
+		// Repo -> entity
+		given(aiDescriptRepository.searchLogsByCondition(any(AiSearchCondition.class), eq(pageable))).willReturn(expectedPage);
+		// when
+		Page<AiLogSummaryResponseDto> reports = aiDescriptionService.searchLogs(condition, pageable);
+		// then
+		// Dto transform?
+		assertThat(reports.getContent()).hasSize(1);
+		assertThat(reports.getContent().get(0)).isInstanceOf(AiLogSummaryResponseDto.class);
+
+		// Repo method call 제대로?
+		verify(aiDescriptRepository, times(1)).searchLogsByCondition(any(AiSearchCondition.class), eq(pageable));
+	}
+
+
+
 
 	private User createUser(Long userId) {
 		User user = User.builder()
