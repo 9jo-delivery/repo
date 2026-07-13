@@ -5,14 +5,13 @@ import com.sparta.delivery.domain.user.dto.request.UpdateUserReqDto;
 import com.sparta.delivery.domain.user.dto.response.UpdateUserResDto;
 import com.sparta.delivery.domain.user.dto.response.UserResDto;
 import com.sparta.delivery.domain.user.service.UserService;
-import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +31,7 @@ public class UserController {
 
     // 사용자 목록 검색
     @GetMapping("/admin/users")
-    @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
+    @PreAuthorize("hasRole('MASTER') or hasRole('MANAGER')")
     public ResponseEntity<Page<UserResDto>> getUsers(@RequestParam("page") int page,
                                                      @RequestParam("size") int size,
                                                      @RequestParam("sortBy") String sortBy,
@@ -45,7 +44,7 @@ public class UserController {
 
     // 사용자 상세 조회
     @GetMapping("/admin/users/{userId}")
-    @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
+    @PreAuthorize("hasRole('MASTER') or hasRole('MANAGER')")
     public ResponseEntity<UserResDto> getUserDetail(@PathVariable Long userId) {
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDetail(userId));
@@ -60,7 +59,7 @@ public class UserController {
     }
 
     @PatchMapping("/admin/users/{userId}")
-    @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
+    @PreAuthorize("hasRole('MASTER') or hasRole('MANAGER')")
     public ResponseEntity<UpdateUserResDto> adminUpdateUser(@PathVariable Long userId,
                                                             @Valid @RequestBody AdminUpdateUserReqDto reqDto) {
 
@@ -77,7 +76,7 @@ public class UserController {
     }
 
     @DeleteMapping("/admin/users/{userId}")
-    @Secured({Enums.UserRole.Authority.MASTER, Enums.UserRole.Authority.MANAGER})
+    @PreAuthorize("hasRole('MASTER') or hasRole('MANAGER')")
     public ResponseEntity<Void> AdminDeleteUser(@PathVariable Long userId) {
 
         userService.userIsDelete(userId);
