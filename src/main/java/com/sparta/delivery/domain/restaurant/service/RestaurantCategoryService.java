@@ -64,7 +64,7 @@ public class RestaurantCategoryService {
                 .map(CategorySummaryResDto::new);
     }
 
-    private int validatePageSize(int size) {
+    public int validatePageSize(int size) {
         if (size == 10 || size == 30 || size == 50) {
             return size;
         }

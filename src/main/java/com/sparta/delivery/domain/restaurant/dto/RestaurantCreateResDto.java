@@ -14,6 +14,6 @@ public class  RestaurantCreateResDto {
     public RestaurantCreateResDto(Restaurant newRestaurant) {
         this.restaurantId = newRestaurant.getId();
         this.name = newRestaurant.getName();
-        this.isOpen = newRestaurant.isOpen();
+        this.isOpen = newRestaurant.getIsOpen();
     }
 }

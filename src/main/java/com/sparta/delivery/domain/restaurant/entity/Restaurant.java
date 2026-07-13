@@ -53,7 +53,7 @@ public class Restaurant extends BaseEntity {
 	private String businessNumber;
 
 	@Column(nullable = false)
-	private boolean isOpen = true;
+	private Boolean isOpen = true;
 
 	@Column(nullable = false)
 	private Integer minOrderAmount = 0;
