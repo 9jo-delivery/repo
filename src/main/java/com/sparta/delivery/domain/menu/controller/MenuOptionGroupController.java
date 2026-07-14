@@ -37,7 +37,7 @@ public class MenuOptionGroupController {
         return ResponseEntity.ok(response);
     }
 
-    // 옵션 그룹 목록 검색
+    // 옵션 그룹 상세 조회
     @GetMapping("/api/option-groups/{groupId}")
     public ResponseEntity<MenuOptionGroupSearchResponse> getOptionGroup(@PathVariable UUID groupId) {
 
