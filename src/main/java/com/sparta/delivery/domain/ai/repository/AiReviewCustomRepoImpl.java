@@ -84,10 +84,10 @@ public class AiReviewCustomRepoImpl implements AiReviewCustomRepo {
 			return aiDescriptionLog.createdAt.goe(startDate.atStartOfDay());
 		}
 		if (startDate == null) {
-			return aiDescriptionLog.createdAt.loe(endDate.atTime(LocalTime.MAX));
+			return aiDescriptionLog.createdAt.lt(endDate.plusDays(1).atStartOfDay());
 		}
 		// 조건이 전부 부합 할때 시작과 마지막 종료일의 중간값을 구함
-		return aiDescriptionLog.createdAt.between(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
+		return aiDescriptionLog.createdAt.between(startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
 	}
 
 }
