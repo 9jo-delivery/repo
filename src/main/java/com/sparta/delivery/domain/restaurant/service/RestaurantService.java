@@ -81,10 +81,7 @@ public class RestaurantService {
 
     @Transactional(readOnly = true)
     public Page<RestaurantSummaryResDto> getAllRestaurants(Pageable pageable, RestaurantSearchReqDto restaurantSearchReqDto) {
-        // 입력값 검증
-        int vdPage = Math.max(pageable.getPageNumber(), 0);
-        int vdSize = validatePageSize(pageable.getPageSize());
-        Pageable vdPageable = PageRequest.of(vdPage, vdSize, pageable.getSort());
+
 
         String name = restaurantSearchReqDto.getName() == null ? "" : restaurantSearchReqDto.getName();
 
@@ -94,16 +91,10 @@ public class RestaurantService {
                         restaurantSearchReqDto.getRegionId(),
                         restaurantSearchReqDto.getIsOpen(),
                         name,
-                        vdPageable
+                        pageable
                 ).map(RestaurantSummaryResDto::new);
     }
 
-    private int validatePageSize(int size) {
-        if (size == 10 || size == 30 || size == 50) {
-            return size;
-        }
-        return 10;
-    }
 
     @Transactional(readOnly = true)
     public RestaurantSummaryResDto getRestaurantInfo(UUID restaurantId) {
