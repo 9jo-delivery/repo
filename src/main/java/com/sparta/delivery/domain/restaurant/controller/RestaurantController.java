@@ -43,7 +43,7 @@ public class RestaurantController {
                                                                            @PageableDefault(page=0, size=10, sort="createdAt", direction=Sort.Direction.DESC) Pageable pageable,
                                                                            @ModelAttribute RestaurantSearchReqDto restaurantSearchReqDto) {
         Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(restaurantService.getAllRestaurants(userId, pageable, restaurantSearchReqDto));
+        return ResponseEntity.ok(restaurantService.getAllRestaurants(pageable, restaurantSearchReqDto));
     }
 
     // 가게 상세 조회

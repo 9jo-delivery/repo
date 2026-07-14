@@ -82,7 +82,7 @@ class RestaurantServiceTest {
 				.willReturn(new PageImpl<>(List.of(restaurant), pageable, 1));
 
 		// when
-		Page<RestaurantSummaryResDto> result = restaurantService.getAllRestaurants(1L, pageable, condition);
+		Page<RestaurantSummaryResDto> result = restaurantService.getAllRestaurants(pageable, condition);
 
 		// then
 		assertThat(result.getContent()).hasSize(1);
@@ -104,7 +104,7 @@ class RestaurantServiceTest {
 				.willReturn(Page.empty());
 
 		// when
-		restaurantService.getAllRestaurants(1L, pageable, condition);
+		restaurantService.getAllRestaurants(pageable, condition);
 
 		// then
 		ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);

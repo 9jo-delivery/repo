@@ -80,8 +80,7 @@ public class RestaurantService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RestaurantSummaryResDto> getAllRestaurants(Long userId, Pageable pageable, RestaurantSearchReqDto restaurantSearchReqDto) {
-        // TODO: userRoles
+    public Page<RestaurantSummaryResDto> getAllRestaurants(Pageable pageable, RestaurantSearchReqDto restaurantSearchReqDto) {
         // 입력값 검증
         int vdPage = Math.max(pageable.getPageNumber(), 0);
         int vdSize = validatePageSize(pageable.getPageSize());
