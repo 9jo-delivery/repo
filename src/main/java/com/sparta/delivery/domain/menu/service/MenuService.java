@@ -51,8 +51,6 @@ public class MenuService {
                 .name(request.name())
                 .description(finalDescription)
                 .price(request.price())
-                .isHidden(false)
-                .isSoldOut(false)
                 .build();
 
         //DB 저장 후 만들어진 메뉴 ID 반환

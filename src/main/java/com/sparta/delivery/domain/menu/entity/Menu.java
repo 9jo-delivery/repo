@@ -48,9 +48,11 @@ public class Menu extends BaseEntity {
     @Column(nullable = false)
     private Integer price;
 
+    @Builder.Default
     @Column(name = "is_hidden", nullable = false)
     private boolean isHidden = false;
 
+    @Builder.Default
     @Column(name = "is_sold_out", nullable = false)
     private boolean isSoldOut = false;
 
