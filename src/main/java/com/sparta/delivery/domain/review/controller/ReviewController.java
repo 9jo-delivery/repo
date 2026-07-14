@@ -38,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ReviewController {
-	private ReviewService reviewService;
+	private final ReviewService reviewService;
 
 	// 리뷰 등록
 	@PostMapping("/orders/{orderId}/reviews")
@@ -84,13 +84,14 @@ public class ReviewController {
 
 	// 리뷰 삭제
 	@DeleteMapping("/reviews/{reviewId}")
-	public void deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+	public ResponseEntity<Void> deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 		Long customerId = userDetails.getUser().getId();
 		Enums.UserRole role = userDetails.getUser().getRole();
 		if (role == Enums.UserRole.OWNER) {
 			throw new IllegalArgumentException("삭제 권한 없음");
 		}
 		reviewService.deleteReview(reviewId, customerId);
+		return ResponseEntity.noContent().build();
 	}
 
 }
