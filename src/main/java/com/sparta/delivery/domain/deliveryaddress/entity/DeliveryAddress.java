@@ -71,4 +71,15 @@ public class DeliveryAddress extends BaseEntity {
         }
         return changedFields;
     }
+
+    public static DeliveryAddress create(User user, String address, String detailAddress, String zipcode, String alias, Boolean isDefault) {
+        return DeliveryAddress.builder()
+                .user(user)
+                .address(address)
+                .detailAddress(detailAddress)
+                .zipCode(zipcode)
+                .alias(alias)
+                .isDefault(isDefault)
+                .build();
+    }
 }

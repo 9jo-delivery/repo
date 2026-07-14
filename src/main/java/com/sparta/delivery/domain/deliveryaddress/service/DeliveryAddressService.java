@@ -1,16 +1,20 @@
 package com.sparta.delivery.domain.deliveryaddress.service;
 
-import com.sparta.delivery.domain.deliveryaddress.dto.*;
+import com.sparta.delivery.domain.deliveryaddress.dto.request.DeliveryRequestDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryDetailResponseDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryResponseDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliverySummaryDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryUpdateResponseDto;
 import com.sparta.delivery.domain.deliveryaddress.entity.DeliveryAddress;
 import com.sparta.delivery.domain.deliveryaddress.repository.DeliveryAddressRepository;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
+import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +31,7 @@ public class DeliveryAddressService {
     @Transactional
     public DeliveryResponseDto createDeliveryAddress(DeliveryRequestDto deliveryRequestDto, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()
-            -> new IllegalArgumentException("해당 유저가 없습니다."));
+            -> new ResourceNotFoundException("해당 사용자를 찾을 수 없습니다."));
 
         if(deliveryRequestDto.getIsDefault() != null && deliveryRequestDto.getIsDefault()){
             Optional<DeliveryAddress> oldDefaultAddress = deliveryAddressRepository.findByUserAndIsDefault(user, true);
@@ -38,83 +42,55 @@ public class DeliveryAddressService {
             }
         }
 
-        DeliveryAddress deliveryAddress = DeliveryAddress.builder()
-                .address(deliveryRequestDto.getAddress())
-                .detailAddress(deliveryRequestDto.getDetailAddress())
-                .zipCode(deliveryRequestDto.getZipcode())
-                .alias(deliveryRequestDto.getAlias())
-                .isDefault(deliveryRequestDto.getIsDefault())
-                .user(user)
-                .build();
+        DeliveryAddress deliveryAddress = DeliveryAddress.create(
+                user,
+                deliveryRequestDto.getAddress(),
+                deliveryRequestDto.getDetailAddress(),
+                deliveryRequestDto.getZipcode(),
+                deliveryRequestDto.getAlias(),
+                deliveryRequestDto.getIsDefault()
+        );
 
         DeliveryAddress saveAddress = deliveryAddressRepository.save(deliveryAddress);
-        return DeliveryResponseDto.builder()
-                .id(saveAddress.getId())
-                .address(saveAddress.getAddress())
-                .isDefault(saveAddress.getIsDefault())
-                .build();
+        return DeliveryResponseDto.from(saveAddress);
     }
 
     @Transactional(readOnly = true)
-    public Page<DeliverySummaryDto> findAllDeliveryAddresses(Long userId, DeliverySearchDto deliverySearchDto) {
-
-        int validatedSize = deliverySearchDto.getSize();
-        if(validatedSize != 10 && validatedSize != 30 && validatedSize != 50){
-            validatedSize = 10;
-        }
-
-        Sort sort = Sort.by("createdAt").descending();
-        Pageable pageable = PageRequest.of(deliverySearchDto.getPage(), validatedSize, sort);
+    public Page<DeliverySummaryDto> findAllDeliveryAddresses(Long userId, Pageable pageable) {
 
         Page<DeliveryAddress> addressPage = deliveryAddressRepository.findByUserId(userId, pageable);
 
-        return addressPage.map(address -> DeliverySummaryDto.builder()
-                .id(address.getId())
-                .userId(userId)
-                .address(address.getAddress())
-                .detailAddress((address.getDetailAddress()))
-                .zipcode(address.getZipCode())
-                .alias(address.getAlias())
-                .isDefault(address.getIsDefault())
-                .build());
+        return addressPage.map(DeliverySummaryDto::from);
     }
 
     @Transactional(readOnly = true)
     public DeliveryDetailResponseDto findDeliveryAddressById(UUID addressId, Long userId) {
 
         DeliveryAddress address = deliveryAddressRepository.findById(addressId).orElseThrow(()
-        -> new IllegalArgumentException("조회하고자 하는 주소가 등록되어있지 않습니다."));
+        -> new ResourceNotFoundException("배송지를 찾을 수 없습니다."));
 
         if(!address.getUser().getId().equals(userId)){
-            throw new IllegalArgumentException("본인의 배송지만 조회할 수 있습니다.");
+            throw new AccessDeniedException("본인의 배송지만 조회할 수 있습니다.");
         }
 
-        return DeliveryDetailResponseDto.builder()
-                .id(address.getId())
-                .address((address.getAddress()))
-                .detailAddress(address.getDetailAddress())
-                .isDefault(address.getIsDefault())
-                .build();
+        return DeliveryDetailResponseDto.from(address);
     }
 
     @Transactional
     public DeliveryUpdateResponseDto updateDeliveryAddress(@Valid DeliveryRequestDto deliveryRequestDto, UUID addressId, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()
-                -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
-
         DeliveryAddress address = deliveryAddressRepository.findById(addressId).orElseThrow(()
-                -> new IllegalArgumentException("조회하고자 하는 주소가 등록되어있지 않습니다."));
+                -> new ResourceNotFoundException("배송지를 찾을 수 없습니다."));
 
-        if(!address.getUser().getId().equals(user.getId())){
-            throw new IllegalArgumentException("본인의 배송지만 수정할 수 있습니다.");
+        if(!address.getUser().getId().equals(userId)){
+            throw new AccessDeniedException("본인의 배송지만 수정할 수 있습니다.");
         }
 
         if(address.getIsDefault() && (deliveryRequestDto.getIsDefault() != null && !deliveryRequestDto.getIsDefault())){
-            throw new IllegalArgumentException("기본 배송지는 단독으로 해제할 수 없습니다. 다른 주소를 기본 배송지로 지정해 주세요");
+            throw new IllegalStateException("기본 배송지는 단독으로 해제할 수 없습니다. 다른 주소를 기본 배송지로 지정해 주세요");
         }
 
         if(deliveryRequestDto.getIsDefault() != null && deliveryRequestDto.getIsDefault()){
-            Optional<DeliveryAddress> oldDefaultAddress = deliveryAddressRepository.findByUserAndIsDefault(user, true);
+            Optional<DeliveryAddress> oldDefaultAddress = deliveryAddressRepository.findByUserAndIsDefault(address.getUser(), true);
 
             if(oldDefaultAddress.isPresent()){
                 DeliveryAddress oldAddress = oldDefaultAddress.get();
@@ -128,26 +104,16 @@ public class DeliveryAddressService {
                 deliveryRequestDto.getDetailAddress(), deliveryRequestDto.getZipcode(),
                 deliveryRequestDto.getAlias(), deliveryRequestDto.getIsDefault());
 
-        DeliveryUpdateResponseDto.DeliveryUpdateResponseDtoBuilder responseBuilder = DeliveryUpdateResponseDto.builder();
-            if(changed.contains("address")) responseBuilder.address(deliveryRequestDto.getAddress());
-            if(changed.contains("detailAddress")) responseBuilder.detailAddress(deliveryRequestDto.getDetailAddress());
-            if(changed.contains("zipcode")) responseBuilder.zipCode(deliveryRequestDto.getZipcode());
-            if(changed.contains("alias")) responseBuilder.alias(deliveryRequestDto.getAlias());
-            if(changed.contains("isDefault")) responseBuilder.isDefault(deliveryRequestDto.getIsDefault());
-
-        return responseBuilder.build();
+        return buildUpdateResponse(deliveryRequestDto, changed);
     }
 
     @Transactional
     public void deleteDeliveryAddress(UUID addressId, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()
-            -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
-
         DeliveryAddress address = deliveryAddressRepository.findById(addressId).orElseThrow(()
-                -> new IllegalArgumentException("조회하고자 하는 주소가 등록되어있지 않습니다."));
+                -> new ResourceNotFoundException("배송지를 찾을 수 없습니다."));
 
-        if(!address.getUser().getId().equals(user.getId())){
-            throw new IllegalArgumentException("본인의 배송지만 삭제할 수 있습니다.");
+        if(!address.getUser().getId().equals(userId)){
+            throw new AccessDeniedException("본인의 배송지만 삭제할 수 있습니다.");
         }
 
         boolean wasDefault = address.getIsDefault();
@@ -157,12 +123,33 @@ public class DeliveryAddressService {
         address.markAsDeleted(userId);
 
         if(wasDefault){
-            Optional<DeliveryAddress> latestAddressOpt = deliveryAddressRepository.findFirstByUserOrderByCreatedAtDesc(user);
+            Optional<DeliveryAddress> latestAddressOpt = deliveryAddressRepository.findFirstByUserOrderByCreatedAtDesc(address.getUser());
 
             if(latestAddressOpt.isPresent()){
                 DeliveryAddress latestAddress = latestAddressOpt.get();
                 latestAddress.updateDefault(true);
             }
         }
+    }
+
+    private DeliveryUpdateResponseDto buildUpdateResponse(DeliveryRequestDto dto, List<String> changed){
+        DeliveryUpdateResponseDto.DeliveryUpdateResponseDtoBuilder builder = DeliveryUpdateResponseDto.builder();
+
+        if (changed.contains("address")) {
+            builder.address(dto.getAddress());
+        }
+        if (changed.contains("detailAddress")) {
+            builder.detailAddress(dto.getDetailAddress());
+        }
+        if (changed.contains("zipcode")) {
+            builder.zipCode(dto.getZipcode());
+        }
+        if (changed.contains("alias")) {
+            builder.alias(dto.getAlias());
+        }
+        if (changed.contains("isDefault")) {
+            builder.isDefault(dto.getIsDefault());
+        }
+        return builder.build();
     }
 }

@@ -1,11 +1,19 @@
 package com.sparta.delivery.domain.deliveryaddress.controller;
 
-import com.sparta.delivery.domain.deliveryaddress.dto.*;
+import com.sparta.delivery.domain.deliveryaddress.dto.request.DeliveryRequestDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryDetailResponseDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryResponseDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliverySummaryDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryUpdateResponseDto;
 import com.sparta.delivery.domain.deliveryaddress.service.DeliveryAddressService;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,39 +29,48 @@ public class DeliveryAddressController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('CUSTOMER')")
-    public DeliveryResponseDto createDeliveryAddress(@Valid @RequestBody DeliveryRequestDto deliveryRequestDto,
+    public ResponseEntity<DeliveryResponseDto> createDeliveryAddress(@Valid @RequestBody DeliveryRequestDto deliveryRequestDto,
                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.getUser().getId();
-        return deliveryAddressService.createDeliveryAddress(deliveryRequestDto, userId);
+        return ResponseEntity.ok(deliveryAddressService.createDeliveryAddress(deliveryRequestDto, userId));
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('CUSTOMER')")
-    public Page<DeliverySummaryDto> findAllDeliveryAddresses(
+    public ResponseEntity<Page<DeliverySummaryDto>> findAllDeliveryAddresses(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            DeliverySearchDto deliverySearchDto) {
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable) {
+
+        int size = pageable.getPageSize();
+        if(size != 10 && size != 30 && size != 50){
+            pageable = PageRequest.of(
+                    pageable.getPageNumber(),
+                    10,
+                    pageable.getSort()
+            );
+        }
         Long userId = userDetails.getUser().getId();
-        return deliveryAddressService.findAllDeliveryAddresses(userId, deliverySearchDto);
+        return ResponseEntity.ok(deliveryAddressService.findAllDeliveryAddresses(userId, pageable));
     }
 
     @GetMapping("/{addressId}")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
-    public DeliveryDetailResponseDto findDeliveryAddressById(
+    public ResponseEntity<DeliveryDetailResponseDto> findDeliveryAddressById(
             @PathVariable UUID addressId,
             @AuthenticationPrincipal UserDetailsImpl userDetails){
         Long userId = userDetails.getUser().getId();
-        return deliveryAddressService.findDeliveryAddressById(addressId, userId);
+        return ResponseEntity.ok(deliveryAddressService.findDeliveryAddressById(addressId, userId));
     }
 
     @PatchMapping("/{addressId}")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
-    public DeliveryUpdateResponseDto updateDeliveryAddress(
+    public ResponseEntity<DeliveryUpdateResponseDto> updateDeliveryAddress(
             @Valid @RequestBody DeliveryRequestDto deliveryRequestDto,
             @PathVariable UUID addressId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         Long userId = userDetails.getUser().getId();
-        return deliveryAddressService.updateDeliveryAddress(deliveryRequestDto, addressId, userId);
+        return ResponseEntity.ok(deliveryAddressService.updateDeliveryAddress(deliveryRequestDto, addressId, userId));
     }
 
     @DeleteMapping("/{addressId}")
