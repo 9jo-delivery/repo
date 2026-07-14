@@ -29,19 +29,19 @@ public class MenuOption extends BaseEntity {
     private String name;
 
     @Column(name = "extra_price", nullable = false)
-    private Integer extraPrice = 0;
+    private int extraPrice = 0;
 
     @Builder.Default
     @Column(name = "is_sold_out", nullable = false)
     private boolean isSoldOut = false;
 
     @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder = 0;
+    private int sortOrder = 0;
 
     public void update(String name, Integer extraPrice, Boolean isSoldOut, Integer sortOrder) {
-        this.name = name;
-        this.extraPrice = extraPrice;
-        this.isSoldOut = isSoldOut;
-        this.sortOrder = sortOrder;
+        this.name = (name != null && !name.isEmpty()) ? name : this.name;
+        this.extraPrice = (extraPrice != null) ? extraPrice : this.extraPrice;
+        this.isSoldOut = (isSoldOut != null) ? isSoldOut : this.isSoldOut;
+        this.sortOrder = (sortOrder != null) ? sortOrder : this.sortOrder;
     }
 }

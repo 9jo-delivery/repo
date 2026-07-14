@@ -90,20 +90,12 @@ public class MenuOptionService {
             throw new IllegalArgumentException("본인 가게의 메뉴 옵션만 수정할 수 있습니다.");
         }
 
-        String newName = (request.name() != null && !request.name().isEmpty())
-                ? request.name()
-                : option.getName();
-        Integer newExtraPrice = (request.extraPrice() != null)
-                ? request.extraPrice()
-                : option.getExtraPrice();
-        Boolean newIsSoldOut = (request.isSoldOut() != null)
-                ? request.isSoldOut()
-                : option.isSoldOut();
-        Integer newSortOrder = (request.sortOrder() != null)
-                ? request.sortOrder()
-                : option.getSortOrder();
-
-        option.update( newName, newExtraPrice, newIsSoldOut, newSortOrder );
+        option.update(
+                request.name(),
+                request.extraPrice(),
+                request.isSoldOut(),
+                request.sortOrder()
+        );
         return MenuOptionSearchResponse.from(option);
     }
 
