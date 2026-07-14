@@ -40,7 +40,7 @@ public class MenuOptionGroup extends BaseEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 
-    public void update(String name, boolean isRequired, Integer minSelect, Integer maxSelect, Integer sortOrder) {
+    public void update(String name, Boolean isRequired, Integer minSelect, Integer maxSelect, Integer sortOrder) {
         this.name = name;
         this.isRequired = isRequired;
         this.minSelect = minSelect;

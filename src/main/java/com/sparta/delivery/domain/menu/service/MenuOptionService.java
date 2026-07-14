@@ -104,7 +104,6 @@ public class MenuOptionService {
                 : option.getSortOrder();
 
         option.update( newName, newExtraPrice, newIsSoldOut, newSortOrder );
-
         return MenuOptionSearchResponse.from(option);
     }
 
