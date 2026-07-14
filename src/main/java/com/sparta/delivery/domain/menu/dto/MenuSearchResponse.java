@@ -4,7 +4,7 @@ import com.sparta.delivery.domain.menu.entity.Menu;
 
 import java.util.UUID;
 
-public record MenuResponse(
+public record MenuSearchResponse(
         UUID menuId,
         String name,
         String description,
@@ -13,8 +13,8 @@ public record MenuResponse(
         boolean isSoldOut
 ) {
     // 정적 팩토리 메서드
-    public static MenuResponse from(Menu menu) {
-        return new MenuResponse(
+    public static MenuSearchResponse from(Menu menu) {
+        return new MenuSearchResponse(
                 menu.getId(),
                 menu.getName(),
                 menu.getDescription(),

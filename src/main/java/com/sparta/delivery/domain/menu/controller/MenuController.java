@@ -2,7 +2,7 @@ package com.sparta.delivery.domain.menu.controller;
 
 import com.sparta.delivery.domain.menu.dto.MenuCreateRequest;
 import com.sparta.delivery.domain.menu.dto.MenuCreateResponse;
-import com.sparta.delivery.domain.menu.dto.MenuResponse;
+import com.sparta.delivery.domain.menu.dto.MenuSearchResponse;
 import com.sparta.delivery.domain.menu.dto.MenuUpdateRequest;
 import com.sparta.delivery.domain.menu.service.MenuService;
 import com.sparta.delivery.global.common.Enums;
@@ -36,24 +36,24 @@ public class MenuController {
 
     // 메뉴 목록 검색
     @GetMapping("/api/restaurants/{restaurantId}/menus")
-    public ResponseEntity<Page<MenuResponse>> getMenusByRestaurant(@PathVariable UUID restaurantId, Pageable pageable) {
-        Page<MenuResponse> response = menuService.getMenusByRestaurant(restaurantId, pageable);
+    public ResponseEntity<Page<MenuSearchResponse>> getMenusByRestaurant(@PathVariable UUID restaurantId, Pageable pageable) {
+        Page<MenuSearchResponse> response = menuService.getMenusByRestaurant(restaurantId, pageable);
         return ResponseEntity.ok(response);
     }
 
     // 메뉴 상세 조회
     @GetMapping("/api/menus/{menuId}")
-    public ResponseEntity<MenuResponse> getMenuById(@PathVariable UUID menuId) {
-        MenuResponse response = menuService.getMenuDetails(menuId);
+    public ResponseEntity<MenuSearchResponse> getMenuById(@PathVariable UUID menuId) {
+        MenuSearchResponse response = menuService.getMenuDetails(menuId);
         return ResponseEntity.ok(response);
     }
 
     // 메뉴 수정
     @PatchMapping("/api/menus/{menuId}")
-    public ResponseEntity<MenuResponse> updateMenu(@PathVariable UUID menuId, @Valid @RequestBody MenuUpdateRequest request) {
+    public ResponseEntity<MenuSearchResponse> updateMenu(@PathVariable UUID menuId, @Valid @RequestBody MenuUpdateRequest request) {
         validationOwnerRole(); // 권한 검증
 
-        MenuResponse response = menuService.updateMenu(menuId, request, userId);
+        MenuSearchResponse response = menuService.updateMenu(menuId, request, userId);
         return ResponseEntity.ok(response);
     }
 
