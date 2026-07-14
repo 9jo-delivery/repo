@@ -1,7 +1,6 @@
 package com.sparta.delivery.global.config.security.jwt;
 
 import com.sparta.delivery.global.config.security.UserDetailsServiceImpl;
-import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -51,7 +51,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 log.error("Token Error");
 
                 // HandlerExceptionResolver 활용하여 예외 처리 반환
-                exceptionResolver.resolveException(request, response, null, new ResourceNotFoundException("유효하지 않는 Token입니다."));
+                exceptionResolver.resolveException(request, response, null, new InsufficientAuthenticationException("유효하지 않는 Token입니다."));
                 return;
             }
 
@@ -63,6 +63,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 setAuthentication(info.getSubject());
             } catch (Exception e) {
                 log.error(e.getMessage());
+                exceptionResolver.resolveException(request, response, null, e);
                 return;
             }
         }
