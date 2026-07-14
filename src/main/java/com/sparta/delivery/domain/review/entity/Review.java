@@ -15,6 +15,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
+
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,6 +53,15 @@ public class Review extends BaseEntity {
 
 	@Column(columnDefinition = "TEXT")
 	private String content;
+
+	@Version
+	private Long version; // optimistic Lock
+	// 리뷰 조회할때 버전 확인 -> 수정 where id =? And version =1(업데이트 쿼리)
+	// 1 -> 2 로 수정
+	// 만약 동시에 2명? -> 먼저 0.0000001초라도 먼저 커밋이 되는쪽이 2가 되기때문에
+	// where 조건에서 걸러지면서 업데이트 실패되고 에러가 터지면서 rollback
+	// 그럼 롤백된 트랜잭션을 결국 사용자에게 알려줄것인가? 아니면 롤백된것을 궁극적으로 다시
+	// 적용되게 할지 멘토링필요
 
 	@Builder
 	public Review(Order order, Restaurant restaurant, User customer, Integer rating, String content) {
