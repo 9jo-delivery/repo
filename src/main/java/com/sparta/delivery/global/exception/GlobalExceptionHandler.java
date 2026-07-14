@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,6 +33,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
 			.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "잘못된 JSON 형식의 요청입니다."));
+	}
+
+	// 401 Unauthorized
+	@ExceptionHandler(InsufficientAuthenticationException.class)
+	public ResponseEntity<ErrorResponse> handleAccessDenied(InsufficientAuthenticationException ex) {
+		return ResponseEntity
+				.status(HttpStatus.UNAUTHORIZED)
+				.body(new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 토큰입니다."));
 	}
 
 	// 403 Forbidden (권한 부족)
