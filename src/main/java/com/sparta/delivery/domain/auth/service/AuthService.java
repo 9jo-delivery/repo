@@ -16,8 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -31,27 +29,15 @@ public class AuthService {
     public SignupResDto signup(SignupReqDto reqDto) {
 
         // 중복 유저 검증
-        Optional<User> checkUsername = userRepository.findByUsername(reqDto.getUsername());
-        if (checkUsername.isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 유저입니다.");
-        }
+        userRepository.findByUsername(reqDto.getUsername()).ifPresent(checkUser
+                -> {throw new IllegalArgumentException("이미 존재하는 유저입니다.");
+        });
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(reqDto.getPassword());
 
-        if (reqDto.isOwner()) {
-            // 유저 DB에 등록
-            User user = userRepository.save(
-                    User.builder()
-                            .username(reqDto.getUsername())
-                            .password(encodedPassword)
-                            .name(reqDto.getName())
-                            .phone(reqDto.getPhone())
-                            .role(Enums.UserRole.OWNER)
-                            .build());
-
-            return new SignupResDto(user);
-        }
+        // 삼항 연산자 활용하여 if문으로 반복되는 코드 사용 최적화
+        Enums.UserRole role = reqDto.isOwner() ? Enums.UserRole.OWNER : Enums.UserRole.CUSTOMER;
 
         // 유저 DB에 등록
         User user = userRepository.save(
@@ -60,7 +46,7 @@ public class AuthService {
                         .password(encodedPassword)
                         .name(reqDto.getName())
                         .phone(reqDto.getPhone())
-                        .role(Enums.UserRole.CUSTOMER)
+                        .role(role)
                         .build());
 
         return new SignupResDto(user);
