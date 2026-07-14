@@ -33,7 +33,7 @@ public class Menu extends BaseEntity {
     private String description;
 
     @Column(nullable = false)
-    private Integer price;
+    private int price;
 
     @Builder.Default
     @Column(name = "is_hidden", nullable = false)
@@ -44,11 +44,11 @@ public class Menu extends BaseEntity {
     private boolean isSoldOut = false;
 
     public void update(String name, String description, Integer price, Boolean isHidden, Boolean isSoldOut) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.isHidden = isHidden;
-        this.isSoldOut = isSoldOut;
+        this.name = (name != null && !name.isEmpty()) ? name : this.name;
+        this.description = (description != null) ? description : this.description;
+        this.price = (price != null) ? price : this.price;
+        this.isHidden = (isHidden != null) ? isHidden : this.isHidden;
+        this.isSoldOut = (isSoldOut != null) ? isSoldOut : this.isSoldOut;
     }
 
 }

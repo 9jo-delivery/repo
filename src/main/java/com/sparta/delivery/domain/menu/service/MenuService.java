@@ -104,28 +104,23 @@ public class MenuService {
             throw new IllegalArgumentException("본인 가게의 메뉴만 수정할 수 있습니다.");
         }
 
-        String finalDescription = request.description();
-//        if (request.aiGenerateDescription != null && request.aiGenerateDescription) {
+        String finalDescription;
+        if (request.aiGenerateDescription() != null && request.aiGenerateDescription()) {
+            // TODO: geminiService 연동 시 주석 해제
 //            finalDescription = geminiService.generate(request.aiPrompt());
-//        }
+            finalDescription = "AI가 생성한 메뉴 설명";
+        } else {
+            finalDescription = request.description();
+        }
 
-        String newName = (request.name() != null && !request.name().isEmpty())
-                ? request.name()
-                : menu.getName();
-        String newDescription = (request.description() != null)
-                ? request.description()
-                : menu.getDescription();
-        Integer newPrice = (request.price() != null)
-                ? request.price()
-                : menu.getPrice();
-        Boolean newIsHidden = (request.isHidden() != null)
-                ? request.isHidden()
-                : menu.isHidden();
-        Boolean newIsSoldOut = (request.isSoldOut() != null)
-                ? request.isSoldOut()
-                : menu.isSoldOut();
+        menu.update(
+                request.name(),
+                finalDescription,
+                request.price(),
+                request.isHidden(),
+                request.isSoldOut()
+        );
 
-        menu.update(newName, newDescription, newPrice, newIsHidden, newIsSoldOut);
         return MenuSearchResponse.from(menu);
     }
 
