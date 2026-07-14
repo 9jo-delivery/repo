@@ -8,11 +8,13 @@ import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.entity.MenuOptionGroup;
 import com.sparta.delivery.domain.menu.repository.MenuOptionGroupRepository;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
+import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,16 +36,16 @@ public class MenuOptionGroupService {
 
         // 메뉴 조회
         Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 메뉴입니다."));
 
         // 본인 가게 메뉴 검증
         if (!menu.getRestaurant().getOwner().getId().equals(userId)) {
-            throw new IllegalArgumentException("본인 가게의 옵션 그룹 메뉴만 등록할 수 있습니다.");
+            throw new AccessDeniedException("본인 가게의 옵션 그룹 메뉴만 등록할 수 있습니다.");
         }
 
         // 최소 선택 개수가 최대 선택 개수보다 크면 안된다는 비즈니스 검증
         if(request.minSelect() > request.maxSelect()) {
-            throw new IllegalArgumentException("최소 선택 개수는 최대 선택 개수보다 클 수 없습니다.");
+            throw new IllegalStateException("최소 선택 개수는 최대 선택 개수보다 클 수 없습니다.");
         }
 
         // request에서 데이터를 가져와 메뉴 옵션 그룹과 결합해 빌드
@@ -64,7 +66,7 @@ public class MenuOptionGroupService {
     public Page<MenuOptionGroupSearchResponse> getOptionGroupByMenu (UUID menuId, Pageable pageable) {
 
         if(!menuRepository.existsById(menuId)){
-            throw new IllegalArgumentException("존재하지 않는 메뉴입니다.");
+            throw new ResourceNotFoundException("존재하지 않는 메뉴입니다.");
         }
 
         // 기본 정렬값이 없을 경우 생성일자 기준 내림차순 정렬
@@ -86,7 +88,7 @@ public class MenuOptionGroupService {
 
         // DB에서 UUID 기반으로 옵션 그룹을 찾고, 없으면 예외 처리
         MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 옵션 그룹입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 옵션 그룹입니다."));
 
         return MenuOptionGroupSearchResponse.from(optionGroup);
     }
@@ -98,11 +100,11 @@ public class MenuOptionGroupService {
 
         // 존재하는 옵션 그룹인지 검증
         MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 옵션 그룹입니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 옵션 그룹입니다."));
 
         // 본인 가게 검증
         if (!optionGroup.getMenu().getRestaurant().getOwner().getId().equals(userId)) {
-            throw new IllegalArgumentException("본인 가게의 옵션 그룹만 수정할 수 있습니다.");
+            throw new AccessDeniedException("본인 가게의 옵션 그룹만 수정할 수 있습니다.");
         }
 
         // NPE 방어를 위함
@@ -111,7 +113,7 @@ public class MenuOptionGroupService {
 
         // 최소 선택 개수가 최대 선택 개수보다 크면 안된다는 비즈니스 검증
         if(finalMinSelect > finalMaxSelect) {
-            throw new IllegalArgumentException("최소 선택 개수는 최대 선택 개수보다 클 수 없습니다");
+            throw new IllegalStateException("최소 선택 개수는 최대 선택 개수보다 클 수 없습니다");
         }
 
         optionGroup.update(
@@ -130,10 +132,10 @@ public class MenuOptionGroupService {
     public void optionGroupDelete(UUID groupId, Long userId) {
 
         MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 옵션 그룹입니다"));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 옵션 그룹입니다"));
 
         if (!optionGroup.getMenu().getRestaurant().getOwner().getId().equals(userId)) {
-            throw new IllegalArgumentException("본인 가게의 옵션 그룹만 삭제할 수 있습니다.");
+            throw new AccessDeniedException("본인 가게의 옵션 그룹만 삭제할 수 있습니다.");
         }
 
         optionGroup.markAsDeleted(userId);
