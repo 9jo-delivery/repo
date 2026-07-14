@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.menu.controller;
 import com.sparta.delivery.domain.menu.dto.MenuOptionGroupCreateRequest;
 import com.sparta.delivery.domain.menu.dto.MenuOptionGroupCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuOptionGroupSearchResponse;
+import com.sparta.delivery.domain.menu.dto.MenuOptionGroupUpdateRequest;
 import com.sparta.delivery.domain.menu.service.MenuOptionGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class MenuOptionGroupController {
 
     // 옵션 그룹 수정
     @PatchMapping("/api/option-groups/{groupId}")
-    public ResponseEntity<MenuOptionGroupSearchResponse> updateOptionGroup(@PathVariable UUID groupId, @Valid @RequestBody MenuOptionGroupCreateRequest request) {
+    public ResponseEntity<MenuOptionGroupSearchResponse> updateOptionGroup(@PathVariable UUID groupId, @Valid @RequestBody MenuOptionGroupUpdateRequest request) {
 
         MenuOptionGroupSearchResponse response = menuOptionGroupService.updateOptionGroup(groupId, request, userId);
         return ResponseEntity.ok(response);

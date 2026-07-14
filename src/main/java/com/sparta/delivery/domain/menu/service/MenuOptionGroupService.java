@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.menu.service;
 import com.sparta.delivery.domain.menu.dto.MenuOptionGroupCreateRequest;
 import com.sparta.delivery.domain.menu.dto.MenuOptionGroupCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuOptionGroupSearchResponse;
+import com.sparta.delivery.domain.menu.dto.MenuOptionGroupUpdateRequest;
 import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.entity.MenuOptionGroup;
 import com.sparta.delivery.domain.menu.repository.MenuOptionGroupRepository;
@@ -90,7 +91,7 @@ public class MenuOptionGroupService {
 
     // 옵션 그룹 수정
     @Transactional
-    public MenuOptionGroupSearchResponse updateOptionGroup(UUID groupId, MenuOptionGroupCreateRequest request, Long userId) {
+    public MenuOptionGroupSearchResponse updateOptionGroup(UUID groupId, MenuOptionGroupUpdateRequest request, Long userId) {
 
         // 존재하는 옵션 그룹인지 검증
         MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(groupId)
