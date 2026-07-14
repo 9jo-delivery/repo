@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class MenuOptionService {
 
     // 옵션 항목 등록
     @Transactional
+    @PreAuthorize("hasRole('OWNER')")
     public MenuOptionCreateResponse createMenuOption(UUID groupId, MenuOptionCreateRequest request, Long userId) {
 
         // 메뉴 옵션 그룹 조회
@@ -81,6 +83,7 @@ public class MenuOptionService {
 
     // 옵션 항목 수정
     @Transactional
+    @PreAuthorize("hasRole('OWNER')")
     public MenuOptionSearchResponse updateOption(UUID optionId, MenuOptionUpdateRequest request, Long userId) {
 
         MenuOption option = menuOptionRepository.findById(optionId)
@@ -101,6 +104,7 @@ public class MenuOptionService {
 
     // 옵션 항목 삭제
     @Transactional
+    @PreAuthorize("hasRole('OWNER')")
     public void deleteOption(UUID optionId, Long userId) {
 
         MenuOption option = menuOptionRepository.findById(optionId)
