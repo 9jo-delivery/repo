@@ -30,7 +30,7 @@ public class AiDescriptionController {
 	private final AiDescriptionService aiDescriptionService;
 
 	// 로그 전체 조회(page 별) + 조건 별(자세한건 명세서참고)
-	@PreAuthorize("hasAnyAuthority('MANAGER')")
+	@PreAuthorize("hasRole('MANAGER')")
 	@GetMapping("/ai-description-logs")
 	public ResponseEntity<Page<AiLogSummaryResponseDto>> getAiLog(@ModelAttribute AiSearchCondition condition,
 		@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -51,7 +51,7 @@ public class AiDescriptionController {
 
 	// AI 요청 로그 상세 조회
 	@GetMapping("/ai-description-logs/{logId}")
-	@PreAuthorize("hasAnyAuthority('MANAGER')")
+	@PreAuthorize("hasRole('MANAGER')")
 	public ResponseEntity<AiLogDetailResponseDto> getAiLogDetail(
 		@PathVariable("logId") UUID logId) {
 		AiLogDetailResponseDto response = aiDescriptionService.searchDetails(logId);

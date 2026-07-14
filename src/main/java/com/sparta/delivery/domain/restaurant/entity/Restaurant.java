@@ -119,9 +119,21 @@ public class Restaurant extends BaseEntity {
 			this.deliveryFee = deliveryFee;
 	}
 
+
+
 	@Builder
-	public Restaurant(String name) { // TODO: test 사용 확인
+	public Restaurant(User owner, RestaurantCategory category, Region region ,String name, String description, String phone, String address, String detailAddress, String businessNumber, Integer minOrderAmount, Integer deliveryFee) {
+		this.owner = owner;
+		this.category = category;
+		this.region = region;
 		this.name = name;
+		this.description = description;
+		this.phone = phone;
+		this.address = address;
+		this.detailAddress = detailAddress;
+		this.businessNumber = businessNumber;
+		this.minOrderAmount = minOrderAmount;
+		this.deliveryFee = deliveryFee;
 	}
 
 	public void updateRatingAndCount(double averageRating, Long reviewCount) {
