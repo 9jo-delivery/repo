@@ -72,12 +72,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String accessToken = jwtUtil.createAccessToken(username, role);
         String refreshToken = jwtUtil.createRefreshToken(username);
 
-        // RefreshToken DB에 저장
+        // RefreshToken Redis에 저장
         authService.saveRefreshToken(username, refreshToken);
 
         // 생성된 토큰을 Cookie에 저장
         jwtUtil.addAccessTokenToCookie(accessToken, response);
-        jwtUtil.addAccessTokenToCookie(refreshToken, response);
+        jwtUtil.addRefreshTokenToCookie(refreshToken, response);
 
         LoginResDto resLoginDto = new LoginResDto(userId, username, accessToken, role);
 
@@ -100,6 +100,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                               AuthenticationException failed
     ) throws IOException, ServletException {
         log.info("로그인 실패");
-        response.setStatus(401);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }
