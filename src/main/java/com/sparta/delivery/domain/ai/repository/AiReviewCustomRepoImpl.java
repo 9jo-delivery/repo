@@ -33,6 +33,7 @@ public class AiReviewCustomRepoImpl implements AiReviewCustomRepo {
 
 		List<AiDescriptionLog> logs = queryFactory
 			.selectFrom(aiDescriptionLog)
+			.leftJoin(aiDescriptionLog.restaurant).fetchJoin()
 			.where(
 				restaurantIdEq(condition.getRestaurantId()),
 				isSuccessEq(condition.getIsSuccess()),
