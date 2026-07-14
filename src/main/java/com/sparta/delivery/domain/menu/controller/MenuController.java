@@ -5,12 +5,10 @@ import com.sparta.delivery.domain.menu.dto.MenuCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuSearchResponse;
 import com.sparta.delivery.domain.menu.dto.MenuUpdateRequest;
 import com.sparta.delivery.domain.menu.service.MenuService;
-import com.sparta.delivery.global.common.Enums;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
