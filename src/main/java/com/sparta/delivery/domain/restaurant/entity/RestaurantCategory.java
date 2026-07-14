@@ -13,7 +13,6 @@ import java.util.UUID;
 @Table(name = "p_restaurant_categories")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE p_restaurant_categories SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class RestaurantCategory extends BaseEntity {
 
