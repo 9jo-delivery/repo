@@ -79,10 +79,10 @@ public class MenuOptionGroupService {
     }
 
     // 옵션 그룹 상세 조회
-    public MenuOptionGroupSearchResponse getOptionGroupDetails(UUID menuId) {
+    public MenuOptionGroupSearchResponse getOptionGroupDetails(UUID groupId) {
 
         // DB에서 UUID 기반으로 옵션 그룹을 찾고, 없으면 예외 처리
-        MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(menuId)
+        MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 옵션 그룹입니다."));
 
         return MenuOptionGroupSearchResponse.from(optionGroup);
@@ -90,10 +90,10 @@ public class MenuOptionGroupService {
 
     // 옵션 그룹 수정
     @Transactional
-    public MenuOptionGroupSearchResponse updateOptionGroup(UUID optionGroupId, MenuOptionGroupCreateRequest request, Long userId) {
+    public MenuOptionGroupSearchResponse updateOptionGroup(UUID groupId, MenuOptionGroupCreateRequest request, Long userId) {
 
         // 존재하는 옵션 그룹인지 검증
-        MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(optionGroupId)
+        MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 옵션 그룹입니다."));
 
         // 본인 가게 검증
@@ -119,9 +119,9 @@ public class MenuOptionGroupService {
 
     // 옵션 그룹 삭제
     @Transactional
-    public void optionGroupDelete(UUID optionGroupId, Long userId) {
+    public void optionGroupDelete(UUID groupId, Long userId) {
 
-        MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(optionGroupId)
+        MenuOptionGroup optionGroup = menuOptionGroupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 옵션 그룹입니다"));
 
         if (!optionGroup.getMenu().getRestaurant().getOwner().getId().equals(userId)) {

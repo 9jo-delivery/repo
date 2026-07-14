@@ -3,7 +3,6 @@ package com.sparta.delivery.domain.menu.entity;
 import com.sparta.delivery.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.util.UUID;
@@ -32,9 +31,16 @@ public class MenuOption extends BaseEntity {
     @Column(name = "extra_price", nullable = false)
     private Integer extraPrice = 0;
 
+    @Builder.Default
     @Column(name = "is_sold_out", nullable = false)
     private boolean isSoldOut = false;
 
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
+
+    public void update(String name, Integer extraPrice, Integer sortOrder) {
+        this.name = name;
+        this.extraPrice = extraPrice;
+        this.sortOrder = sortOrder;
+    }
 }
