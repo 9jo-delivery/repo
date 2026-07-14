@@ -24,11 +24,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.sparta.delivery.domain.restaurant.dto.CategoryCreateReqDto;
-import com.sparta.delivery.domain.restaurant.dto.CategoryCreateResDto;
-import com.sparta.delivery.domain.restaurant.dto.CategorySearchReqDto;
-import com.sparta.delivery.domain.restaurant.dto.CategorySummaryResDto;
-import com.sparta.delivery.domain.restaurant.dto.CategoryUpdateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.CategoryCreateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.CategoryCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.request.CategorySearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.CategorySummaryResDto;
+import com.sparta.delivery.domain.restaurant.dto.request.CategoryUpdateReqDto;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
 import com.sparta.delivery.domain.restaurant.service.RestaurantCategoryService;

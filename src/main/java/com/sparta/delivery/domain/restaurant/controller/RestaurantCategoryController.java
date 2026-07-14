@@ -1,6 +1,10 @@
 package com.sparta.delivery.domain.restaurant.controller;
 
-import com.sparta.delivery.domain.restaurant.dto.*;
+import com.sparta.delivery.domain.restaurant.dto.request.CategoryCreateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.CategorySearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.CategoryUpdateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.CategoryCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.response.CategorySummaryResDto;
 import com.sparta.delivery.domain.restaurant.service.RestaurantCategoryService;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;

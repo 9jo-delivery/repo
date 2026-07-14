@@ -2,7 +2,11 @@ package com.sparta.delivery.domain.restaurant.service;
 
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.region.repository.RegionRepository;
-import com.sparta.delivery.domain.restaurant.dto.*;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantCreateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantSearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantUpdateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.RestaurantCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.response.RestaurantSummaryResDto;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;

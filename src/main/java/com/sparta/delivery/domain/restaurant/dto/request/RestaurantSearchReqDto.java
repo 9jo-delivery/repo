@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.restaurant.dto;
+package com.sparta.delivery.domain.restaurant.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
