@@ -85,7 +85,17 @@ public class Payment extends BaseEntity {
 	}
 
 	//결제 승인 (ready -> paid)
+	public void confirm(String cardCompany, String cardNumberMasked, String transactionId){
+		if (this.paymentStatus != PaymentStatus.READY){
+			throw new IllegalStateException("결제 대기 상태에서만 승인 처리할 수 있습니다.");
+		}
+		this.paymentStatus = PaymentStatus.PAID;
+		this.paidAt = LocalDateTime.now();
+		this.cardCompany = cardCompany;
+		this.cardNumberMasked = cardNumberMasked;
+		this.transactionId = transactionId;
 
+	}
 
 	//결제 실패 (ready -> failed)
 	public void fail(){
