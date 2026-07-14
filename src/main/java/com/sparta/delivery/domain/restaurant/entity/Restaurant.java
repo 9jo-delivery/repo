@@ -16,7 +16,6 @@ import com.sparta.delivery.domain.region.entity.Region;
 @Table(name = "p_restaurants")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE p_restaurants SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class Restaurant extends BaseEntity {
 
@@ -53,7 +52,7 @@ public class Restaurant extends BaseEntity {
 	private String businessNumber;
 
 	@Column(nullable = false)
-	private boolean isOpen = true;
+	private Boolean isOpen = true;
 
 	@Column(nullable = false)
 	private Integer minOrderAmount = 0;
@@ -94,6 +93,33 @@ public class Restaurant extends BaseEntity {
 		restaurant.deliveryFee = deliveryFee;
 		return restaurant;
 	}
+
+	public void update(
+			String name,
+			String description,
+			String phone,
+			String address,
+			Boolean isOpen,
+			Integer minOrderAmount,
+			Integer deliveryFee
+	) {
+		if (name != null)
+			this.name = name;
+		if (description != null)
+			this.description = description;
+		if (phone != null)
+			this.phone = phone;
+		if (address != null)
+			this.address = address;
+		if (isOpen != null)
+			this.isOpen = isOpen;
+		if (minOrderAmount != null)
+			this.minOrderAmount = minOrderAmount;
+		if (deliveryFee != null)
+			this.deliveryFee = deliveryFee;
+	}
+
+
 
 	@Builder
 	public Restaurant(User owner, RestaurantCategory category, Region region ,String name, String description, String phone, String address, String detailAddress, String businessNumber, Integer minOrderAmount, Integer deliveryFee) {
