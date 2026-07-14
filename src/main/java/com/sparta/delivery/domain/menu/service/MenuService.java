@@ -109,14 +109,23 @@ public class MenuService {
 //            finalDescription = geminiService.generate(request.aiPrompt());
 //        }
 
-        menu.update(
-                request.name(),
-                finalDescription,
-                request.price(),
-                request.isHidden(),
-                request.isSoldOut()
-        );
+        String newName = (request.name() != null && !request.name().isEmpty())
+                ? request.name()
+                : menu.getName();
+        String newDescription = (request.description() != null)
+                ? request.description()
+                : menu.getDescription();
+        Integer newPrice = (request.price() != null)
+                ? request.price()
+                : menu.getPrice();
+        Boolean newIsHidden = (request.isHidden() != null)
+                ? request.isHidden()
+                : menu.isHidden();
+        Boolean newIsSoldOut = (request.isSoldOut() != null)
+                ? request.isSoldOut()
+                : menu.isSoldOut();
 
+        menu.update(newName, newDescription, newPrice, newIsHidden, newIsSoldOut);
         return MenuSearchResponse.from(menu);
     }
 
