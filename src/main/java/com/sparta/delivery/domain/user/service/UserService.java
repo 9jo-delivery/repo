@@ -8,9 +8,7 @@ import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.common.Enums;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,12 +33,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResDto> getUsers(int page, int size, String sortBy, boolean isAsc, String keyword) {
-
-        // 페이징 처리
-        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public Page<UserResDto> getUsers(String keyword, Pageable pageable) {
 
         Page<User> userPage;
         if (keyword != null && !keyword.isBlank()) {
