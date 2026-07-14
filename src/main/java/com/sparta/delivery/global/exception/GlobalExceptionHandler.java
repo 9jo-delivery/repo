@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleAccessDenied(InsufficientAuthenticationException ex) {
 		return ResponseEntity
 				.status(HttpStatus.UNAUTHORIZED)
-				.body(new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 토큰입니다."));
+				.body(new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "인증 정보가 없거나 유효하지 않습니다. 다시 로그인해 주세요."));
 	}
 
 	// 403 Forbidden (권한 부족)
