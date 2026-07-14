@@ -1,9 +1,5 @@
 package com.sparta.delivery.domain.ai.service;
-
-import com.sparta.delivery.domain.ai.dto.Gemini.GeminiRequestDto;
-import com.sparta.delivery.domain.ai.dto.Gemini.GeminiResponseDto;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,8 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
+import com.sparta.delivery.domain.ai.dto.Gemini.GeminiRequestDto;
+import com.sparta.delivery.domain.ai.dto.Gemini.GeminiResponseDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "AI Connect Api")
 @Service
@@ -57,12 +55,11 @@ public class AiService {
 
 	private String extractTextFromResponse(GeminiResponseDto body) {
 		if (body == null || body.getCandidates() == null || body.getCandidates().isEmpty()) {
-			throw new RuntimeException("AI 응답하지 않음");
+			throw new RuntimeException("AI 응답 하지 않음");
 		}
 		return body.getCandidates().get(0)
 			.getContent()
 			.getParts().get(0)
 			.getText();
 	}
-
 }

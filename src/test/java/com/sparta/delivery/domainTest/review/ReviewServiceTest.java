@@ -1,9 +1,11 @@
 package com.sparta.delivery.domainTest.review;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,28 +24,20 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sparta.delivery.domain.order.entity.Order;
-
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.review.repository.TempOrderRepository;
-import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
-
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.Enums;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(MockitoExtension.class)
-public class ReviewServiceTest {
+class ReviewServiceTest {
 	@InjectMocks
 	private ReviewService reviewService;
 
@@ -66,8 +60,8 @@ public class ReviewServiceTest {
 		User customer = createFakeUser(customerId);
 
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
-		Order order = createFakeOrder(orderId,customer,restaurant);
-		ReviewRequestDto  requestDto = new ReviewRequestDto(5, "Good");
+		Order order = createFakeOrder(orderId, customer, restaurant);
+		ReviewRequestDto requestDto = new ReviewRequestDto(5, "Good");
 
 		// When
 		given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
@@ -88,13 +82,13 @@ public class ReviewServiceTest {
 
 		User customer = createFakeUser(orderOwnerId);
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
-		Order order = createFakeOrder(orderId,customer,restaurant);
-		ReviewRequestDto  requestDto = new ReviewRequestDto(5, "Good");
-
+		Order order = createFakeOrder(orderId, customer, restaurant);
+		ReviewRequestDto requestDto = new ReviewRequestDto(5, "Good");
 
 		given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
 
-		org.assertj.core.api.Assertions.assertThatThrownBy(() -> reviewService.createReview(orderId, requestDto, falseOwnerId))
+		org.assertj.core.api.Assertions.assertThatThrownBy(
+				() -> reviewService.createReview(orderId, requestDto, falseOwnerId))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("자신의 주문에서만 리뷰 작성 가능");
 	}
@@ -108,16 +102,16 @@ public class ReviewServiceTest {
 
 		User customer = createFakeUser(customerId);
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
-		Order order = createFakeOrder(orderId,customer,restaurant);
-		ReviewRequestDto  requestDto = new ReviewRequestDto(5, "Good");
+		Order order = createFakeOrder(orderId, customer, restaurant);
+		ReviewRequestDto requestDto = new ReviewRequestDto(5, "Good");
 
 		given(orderRepository.findById(orderId)).willReturn(Optional.of(order)); // optional로 감싼 객체(Order)가 반환
-		given(reviewRepository.existsByOrderId(orderId)).willReturn(true); // 서비스 로직에서 reviewRepo에 exist 조건을 걸었는데 엉뚱한데서 찾음
+		given(reviewRepository.existsByOrderId(orderId)).willReturn(
+			true); // 서비스 로직에서 reviewRepo에 exist 조건을 걸었는데 엉뚱한데서 찾음
 		// 그럼 당연히 false 뱉음
 
-
 		org.assertj.core.api.Assertions.assertThatThrownBy(() ->
-			reviewService.createReview(orderId, requestDto, customerId)
+				reviewService.createReview(orderId, requestDto, customerId)
 			).isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("해당 주문에 이미 작성한 리뷰 존재"); // 테스트에선 반드시 서비스 코드에서 던지는 예외 메시지 일치시켜야함
 	}
@@ -132,13 +126,12 @@ public class ReviewServiceTest {
 
 		User customer = createFakeUser(customerId);
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
-		Order order = createFakeOrder(orderId,customer,restaurant);
+		Order order = createFakeOrder(orderId, customer, restaurant);
 
 		Review existReview = Review.create(order, 3, "so so");
 		ReflectionTestUtils.setField(existReview, "id", reviewId);
 		ReviewRequestDto newRequest = new ReviewRequestDto(5, "Good");
 		given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existReview));
-
 
 		// when
 		ReviewResponseDto newResponse = reviewService.updateReview(reviewId, newRequest, customerId);
@@ -153,47 +146,99 @@ public class ReviewServiceTest {
 	void getRestaurantReviews_Success() {
 		// Given
 		Long customerId = 1L;
-		UUID orderId = UUID.randomUUID();
 		UUID restaurantId = UUID.randomUUID();
+
 		User customer = createFakeUser(customerId);
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
-		Order order = createFakeOrder(orderId, customer, restaurant);
 
-		// 💡 1. 검색 조건을 담을 DTO (주문서) 생성
-		// (조건이 없는 전체 조회 상황을 가정 생성자 파라미터에 null
+		List<Review> reviews = new ArrayList<>();
+		for (int i=0; i<4; i++){
+			UUID oredrId = UUID.randomUUID();
+			Order order = createFakeOrder(oredrId, customer, restaurant);
+			Review review = Review.create(order, 3, "so so");
+			reviews.add(review);
+		}
+
+		// 검색 조건을 담을 DTO (주문서) 생성
+		// (조건이 없는 전체 조회 상황을 가정) 생성자 파라미터에 null
 		ReviewSearchCondition condition = new ReviewSearchCondition(null);
 
 		Pageable pageable = PageRequest.of(0, 10,
 			Sort.by(Sort.Direction.DESC, "createdAt"));
 
-		List<Review> reviews = List.of(
-			Review.create(order, 3, "so so"),
-			Review.create(order, 4, "not bad")
-		);
+
 		Page<Review> page = new PageImpl<>(reviews, pageable, reviews.size());
 
 		given(restaurantRepository.existsById(restaurantId)).willReturn(true);
 
-		// 핵심 변경점: 기존 findAllByRestaurantId 대신 새로 만든 QueryDSL 메서드로 변경
-		given(reviewRepository.searchRestaurantReviews(eq(restaurantId), any(ReviewSearchCondition.class), eq(pageable)))
+		given(
+			reviewRepository.searchRestaurantReviews(eq(restaurantId), any(ReviewSearchCondition.class), eq(pageable)))
 			.willReturn(page);
-
 
 		// When
 		Page<ReviewResponseDto> result = reviewService.getRestaurantReviews(restaurantId, condition, pageable);
 
-
 		// Then
 		assertThat(result).isNotNull();
-		assertThat(result.getContent()).hasSize(2);
+		assertThat(result.getContent()).hasSize(4);
 
 		assertThat(result.getContent().get(0))
 			.returns("so so", ReviewResponseDto::getContent)
 			.returns(3, ReviewResponseDto::getRating);
+
+		assertThat(result.getContent().get(1))
+			.returns("not bad", ReviewResponseDto::getContent)
+			.returns(4, ReviewResponseDto::getRating);
 	}
 
+	@Test
+	@DisplayName("식당 별 별점 조회 실패 테스트: 특정 별점이 조회가 안되는 경우")
+	void getRestaurantReviews_Fail() {
+		Long customerId = 1L;
+		UUID orderId = UUID.randomUUID();
+		UUID orderId2 = UUID.randomUUID();
+		UUID orderId3 = UUID.randomUUID();
+		UUID orderId4 = UUID.randomUUID();
 
+		UUID restaurantId = UUID.randomUUID();
 
+		User customer = createFakeUser(customerId);
+		Restaurant restaurant = createFakeRestaurant(restaurantId);
+
+		Order order = createFakeOrder(orderId, customer, restaurant);
+		Order order2 = createFakeOrder(orderId2, customer, restaurant);
+		Order order3 = createFakeOrder(orderId3, customer, restaurant);
+		Order order4 = createFakeOrder(orderId4, customer, restaurant);
+
+		ReviewSearchCondition condition = new ReviewSearchCondition(1);
+
+		// 오더 하나당 리뷰 하나
+		Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+		List<Review> reviews = List.of(
+			Review.create(order, 1, "too bad"),
+			Review.create(order2, 3, "so so"),
+			Review.create(order3, 3, "not bad"),
+			Review.create(order4, 1, "bad")
+			);
+		Page<Review> page = new PageImpl<>(reviews, pageable, reviews.size());
+		// 여기까지가 객체 생성 및 세팅단계
+		// 아래가 서비스에서 다루는 영역
+		given(restaurantRepository.existsById(restaurantId)).willReturn(true);
+		given(reviewRepository.searchRestaurantReviews(eq(restaurantId), any(ReviewSearchCondition.class), eq(pageable)))
+		.willReturn(page);
+
+		// when
+		Page<ReviewResponseDto> result = reviewService.getRestaurantReviews(restaurantId, condition, pageable);
+
+		// that
+		assertThat(result).isNotNull();
+		assertThat(result.getContent()).hasSize(4);
+		assertThat(result.getContent().get(1))
+		.returns(1 , ReviewResponseDto::getRating);
+		assertThat(result.getContent().get(2))
+		.returns(1, ReviewResponseDto::getContent);
+
+	}
 
 	// 테스트 코드 의존성 분리 User, Restaurant, Order
 	private User createFakeUser(Long userId) {

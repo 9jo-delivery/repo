@@ -2,8 +2,7 @@ package com.sparta.delivery.domain.restaurant.service;
 
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.region.repository.RegionRepository;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateReqDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.*;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
@@ -12,8 +11,15 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class RestaurantService {
@@ -67,5 +73,81 @@ public class RestaurantService {
         Restaurant savedRestaurant = restaurantRepository.save(newRestaurant);
         // 가게 정보 반환
         return new RestaurantCreateResDto(savedRestaurant);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RestaurantSummaryResDto> getAllRestaurants(Long userId, Pageable pageable, RestaurantSearchReqDto restaurantSearchReqDto) {
+        // TODO: userRoles
+        // 입력값 검증
+        int vdPage = Math.max(pageable.getPageNumber(), 0);
+        int vdSize = validatePageSize(pageable.getPageSize());
+        Pageable vdPageable = PageRequest.of(vdPage, vdSize, pageable.getSort());
+
+        String name = restaurantSearchReqDto.getName() == null ? "" : restaurantSearchReqDto.getName();
+
+
+        return restaurantRepository.searchRestaurants(
+                        restaurantSearchReqDto.getCategoryId(),
+                        restaurantSearchReqDto.getRegionId(),
+                        restaurantSearchReqDto.getIsOpen(),
+                        name,
+                        vdPageable
+                ).map(RestaurantSummaryResDto::new);
+    }
+
+    private int validatePageSize(int size) {
+        if (size == 10 || size == 30 || size == 50) {
+            return size;
+        }
+        return 10;
+    }
+
+    @Transactional(readOnly = true)
+    public RestaurantSummaryResDto getRestaurantInfo(UUID restaurantId) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 가게입니다."));
+
+        return new RestaurantSummaryResDto(restaurant);
+    }
+
+    @Transactional
+    public RestaurantSummaryResDto updateRestaurant(Long userId, UUID restaurantId, RestaurantUpdateReqDto restaurantUpdateReqDto) { // TODO: 권한 분기
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 가게입니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
+
+        // 수정 권한 검증
+        if (user.getRole() == Enums.UserRole.CUSTOMER ||
+                user.getRole() == Enums.UserRole.OWNER && !Objects.equals(userId, restaurant.getOwner().getId()))
+            throw new AccessDeniedException("수정 권한이 없습니다. 가게 정보를 수정하려면 해당 가게의 주인이어야 합니다.");
+
+
+        restaurant.update(
+                restaurantUpdateReqDto.getName(),
+                restaurantUpdateReqDto.getDescription(),
+                restaurantUpdateReqDto.getPhone(),
+                restaurantUpdateReqDto.getAddress(),
+                restaurantUpdateReqDto.getIsOpen(),
+                restaurantUpdateReqDto.getMinOrderAmount(),
+                restaurantUpdateReqDto.getDeliveryFee()
+        );
+
+        return new RestaurantSummaryResDto(restaurant);
+    }
+
+    @Transactional
+    public void deleteRestaurant(Long userId, UUID restaurantId) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 가게입니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
+
+        // 수정 권한 검증
+        if (user.getRole() == Enums.UserRole.CUSTOMER ||
+                user.getRole() == Enums.UserRole.OWNER && !Objects.equals(userId, restaurant.getOwner().getId()))
+            throw new AccessDeniedException("삭제 권한이 없습니다. 가게 정보를 삭제하려면 해당 가게의 주인이어야 합니다.");
+
+        restaurant.markAsDeleted(userId);
     }
 }

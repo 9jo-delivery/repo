@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.restaurant.service;
 import com.sparta.delivery.domain.restaurant.dto.*;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
+import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,9 +18,11 @@ import java.util.UUID;
 @Service
 public class RestaurantCategoryService {
     private final RestaurantCategoryRepository rcRepository;
+    private final UserRepository userRepository;
 
-    public RestaurantCategoryService(RestaurantCategoryRepository rcRepository) {
+    public RestaurantCategoryService(RestaurantCategoryRepository rcRepository, UserRepository userRepository) {
         this.rcRepository = rcRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -64,7 +67,7 @@ public class RestaurantCategoryService {
                 .map(CategorySummaryResDto::new);
     }
 
-    private int validatePageSize(int size) {
+    public int validatePageSize(int size) {
         if (size == 10 || size == 30 || size == 50) {
             return size;
         }
@@ -101,11 +104,13 @@ public class RestaurantCategoryService {
         return new CategorySummaryResDto(category);
     }
 
+    // MASTER (현재 정책상 manager도 추가)
     @Transactional
-    public void deleteCategory(UUID id) {
-        RestaurantCategory category = rcRepository.findById(id)
+    public void deleteCategory(Long userId, UUID categoryId) {
+        RestaurantCategory category = rcRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 카테고리입니다."));
+        userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
 
-        rcRepository.delete(category);
+        category.markAsDeleted(userId);
     }
 }

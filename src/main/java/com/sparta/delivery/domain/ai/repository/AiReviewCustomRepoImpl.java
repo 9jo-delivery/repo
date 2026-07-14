@@ -86,6 +86,7 @@ public class AiReviewCustomRepoImpl implements AiReviewCustomRepo {
 		if (startDate == null) {
 			return aiDescriptionLog.createdAt.loe(endDate.atTime(LocalTime.MAX));
 		}
+		// 조건이 전부 부합 할때 시작과 마지막 종료일의 중간값을 구함
 		return aiDescriptionLog.createdAt.between(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
 	}
 

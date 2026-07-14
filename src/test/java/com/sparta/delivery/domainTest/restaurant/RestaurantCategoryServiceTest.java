@@ -32,16 +32,22 @@ import com.sparta.delivery.domain.restaurant.dto.CategoryUpdateReqDto;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
 import com.sparta.delivery.domain.restaurant.service.RestaurantCategoryService;
+import com.sparta.delivery.domain.user.entity.User;
+import com.sparta.delivery.domain.user.repository.UserRepository;
+import com.sparta.delivery.global.common.Enums;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-class RestaurantCategoryServiceTest {
+public class RestaurantCategoryServiceTest {
 
 	@InjectMocks
 	private RestaurantCategoryService restaurantCategoryService;
 
 	@Mock
 	private RestaurantCategoryRepository restaurantCategoryRepository;
+
+	@Mock
+	private UserRepository userRepository;
 
 	@Test
 	@DisplayName("카테고리 생성 성공 - sortOrder, isActive 기본값 적용")
@@ -238,29 +244,51 @@ class RestaurantCategoryServiceTest {
 	@DisplayName("카테고리 삭제 성공")
 	void deleteCategory_Success() {
 		// given
+		Long userId = 1L;
 		UUID categoryId = UUID.randomUUID();
 		RestaurantCategory category = createCategory(categoryId, "치킨", "치킨 카테고리", 1, true);
+		User user = createUser();
 
 		given(restaurantCategoryRepository.findById(categoryId)).willReturn(Optional.of(category));
+		given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
 		// when
-		restaurantCategoryService.deleteCategory(categoryId);
+		restaurantCategoryService.deleteCategory(userId, categoryId);
 
 		// then
-		verify(restaurantCategoryRepository).delete(category);
+		assertThat(category.isDeleted()).isTrue();
+		assertThat(category.getDeletedBy()).isEqualTo(userId);
+		assertThat(category.getDeletedAt()).isNotNull();
 	}
 
 	@Test
 	@DisplayName("카테고리 삭제 실패 - 존재하지 않는 id")
 	void deleteCategory_Fail_NotFound() {
 		// given
+		Long userId = 1L;
 		UUID categoryId = UUID.randomUUID();
 		given(restaurantCategoryRepository.findById(categoryId)).willReturn(Optional.empty());
 
 		// when & then
-		assertThatThrownBy(() -> restaurantCategoryService.deleteCategory(categoryId))
+		assertThatThrownBy(() -> restaurantCategoryService.deleteCategory(userId, categoryId))
 				.isInstanceOf(ResourceNotFoundException.class);
 		verify(restaurantCategoryRepository, never()).delete(any(RestaurantCategory.class));
+	}
+
+	@Test
+	@DisplayName("카테고리 삭제 실패 - 존재하지 않는 사용자")
+	void deleteCategory_Fail_UserNotFound() {
+		// given
+		Long userId = 1L;
+		UUID categoryId = UUID.randomUUID();
+		RestaurantCategory category = createCategory(categoryId, "치킨", "치킨 카테고리", 1, true);
+
+		given(restaurantCategoryRepository.findById(categoryId)).willReturn(Optional.of(category));
+		given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> restaurantCategoryService.deleteCategory(userId, categoryId))
+				.isInstanceOf(ResourceNotFoundException.class);
 	}
 
 	private CategoryCreateReqDto createCategoryCreateReqDto(String name, String description, Integer sortOrder) {
@@ -289,5 +317,15 @@ class RestaurantCategoryServiceTest {
 				.build();
 		ReflectionTestUtils.setField(category, "id", id);
 		return category;
+	}
+
+	private User createUser() {
+		return User.builder()
+				.username("user")
+				.password("password")
+				.name("user")
+				.phone("010-0000-0000")
+				.role(Enums.UserRole.MASTER)
+				.build();
 	}
 }
