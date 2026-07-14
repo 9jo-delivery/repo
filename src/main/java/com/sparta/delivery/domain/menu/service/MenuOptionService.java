@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.menu.service;
 import com.sparta.delivery.domain.menu.dto.MenuOptionCreateRequest;
 import com.sparta.delivery.domain.menu.dto.MenuOptionCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuOptionSearchResponse;
+import com.sparta.delivery.domain.menu.dto.MenuOptionUpdateRequest;
 import com.sparta.delivery.domain.menu.entity.MenuOption;
 import com.sparta.delivery.domain.menu.entity.MenuOptionGroup;
 import com.sparta.delivery.domain.menu.repository.MenuOptionGroupRepository;
@@ -79,7 +80,8 @@ public class MenuOptionService {
     }
 
     // 옵션 항목 수정
-    public MenuOptionSearchResponse updateOption(UUID optionId, MenuOptionCreateRequest request, Long userId) {
+    @Transactional
+    public MenuOptionSearchResponse updateOption(UUID optionId, MenuOptionUpdateRequest request, Long userId) {
 
         MenuOption option = menuOptionRepository.findById(optionId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴 옵션입니다."));
@@ -88,16 +90,26 @@ public class MenuOptionService {
             throw new IllegalArgumentException("본인 가게의 메뉴 옵션만 수정할 수 있습니다.");
         }
 
-        option.update(
-                request.name(),
-                request.extraPrice(),
-                request.sortOrder()
-        );
+        String newName = (request.name() != null && !request.name().isEmpty())
+                ? request.name()
+                : option.getName();
+        Integer newExtraPrice = (request.extraPrice() != null)
+                ? request.extraPrice()
+                : option.getExtraPrice();
+        Boolean newIsSoldOut = (request.isSoldOut() != null)
+                ? request.isSoldOut()
+                : option.isSoldOut();
+        Integer newSortOrder = (request.sortOrder() != null)
+                ? request.sortOrder()
+                : option.getSortOrder();
+
+        option.update( newName, newExtraPrice, newIsSoldOut, newSortOrder );
 
         return MenuOptionSearchResponse.from(option);
     }
 
     // 옵션 항목 삭제
+    @Transactional
     public void deleteOption(UUID optionId, Long userId) {
 
         MenuOption option = menuOptionRepository.findById(optionId)

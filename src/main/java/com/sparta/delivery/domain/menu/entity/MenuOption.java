@@ -38,9 +38,10 @@ public class MenuOption extends BaseEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 
-    public void update(String name, Integer extraPrice, Integer sortOrder) {
+    public void update(String name, Integer extraPrice, Boolean isSoldOut, Integer sortOrder) {
         this.name = name;
         this.extraPrice = extraPrice;
+        this.isSoldOut = isSoldOut;
         this.sortOrder = sortOrder;
     }
 }
