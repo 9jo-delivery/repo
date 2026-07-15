@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.restaurant.dto;
+package com.sparta.delivery.domain.restaurant.dto.response;
 
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import lombok.Getter;

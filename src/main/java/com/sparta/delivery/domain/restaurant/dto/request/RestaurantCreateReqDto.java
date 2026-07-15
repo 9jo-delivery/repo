@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.restaurant.dto;
+package com.sparta.delivery.domain.restaurant.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
