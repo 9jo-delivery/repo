@@ -26,7 +26,7 @@ import org.hibernate.annotations.SQLRestriction;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE p_menus SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+//@SQLDelete(sql = "UPDATE p_menus SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false") // WHERE is deleted_ai = false
 public class Menu extends BaseEntity {
 
