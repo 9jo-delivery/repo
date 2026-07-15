@@ -100,9 +100,12 @@ public class DeliveryAddressService {
             }
         }
 
-        List<String> changed = address.updateFields(deliveryRequestDto.getAddress(),
-                deliveryRequestDto.getDetailAddress(), deliveryRequestDto.getZipcode(),
-                deliveryRequestDto.getAlias(), deliveryRequestDto.getIsDefault());
+        List<String> changed = address.updateFields(
+                deliveryRequestDto.getAddress(),
+                deliveryRequestDto.getDetailAddress(),
+                deliveryRequestDto.getZipcode(),
+                deliveryRequestDto.getAlias(),
+                deliveryRequestDto.getIsDefault());
 
         return buildUpdateResponse(deliveryRequestDto, changed);
     }

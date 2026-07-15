@@ -46,7 +46,21 @@ public class DeliveryAddress extends BaseEntity {
         this.isDefault = b;
     }
 
-    public List<String> updateFields(String address, String detailAddress, String zipcode, String alias, Boolean isDefault) {
+    public static DeliveryAddress create(User user, String address, String detailAddress, String zipcode, String alias, Boolean isDefault) {
+        return DeliveryAddress.builder()
+                .user(user)
+                .address(address)
+                .detailAddress(detailAddress)
+                .zipCode(zipcode)
+                .alias(alias)
+                .isDefault(isDefault)
+                .build();
+    }
+
+    public List<String> updateFields(
+            String address, String detailAddress,
+            String zipcode, String alias, Boolean isDefault) {
+
         List<String> changedFields = new ArrayList<>();
 
         if(address != null && !address.equals(this.address)){
@@ -70,16 +84,5 @@ public class DeliveryAddress extends BaseEntity {
             changedFields.add("isDefault");
         }
         return changedFields;
-    }
-
-    public static DeliveryAddress create(User user, String address, String detailAddress, String zipcode, String alias, Boolean isDefault) {
-        return DeliveryAddress.builder()
-                .user(user)
-                .address(address)
-                .detailAddress(detailAddress)
-                .zipCode(zipcode)
-                .alias(alias)
-                .isDefault(isDefault)
-                .build();
     }
 }
