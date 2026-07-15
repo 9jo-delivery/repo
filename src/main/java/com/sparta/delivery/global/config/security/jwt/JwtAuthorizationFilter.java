@@ -26,7 +26,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
-    private final HandlerExceptionResolver exceptionResolver;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
@@ -51,7 +51,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 log.error("Token Error");
 
                 // HandlerExceptionResolver 활용하여 예외 처리 반환
-                exceptionResolver.resolveException(request, response, null, new InsufficientAuthenticationException("유효하지 않는 Token입니다."));
+                handlerExceptionResolver.resolveException(request, response, null, new InsufficientAuthenticationException("유효하지 않는 Token입니다."));
                 return;
             }
 
@@ -63,7 +63,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 setAuthentication(info.getSubject());
             } catch (Exception e) {
                 log.error(e.getMessage());
-                exceptionResolver.resolveException(request, response, null, e);
+                handlerExceptionResolver.resolveException(request, response, null, e);
                 return;
             }
         }
