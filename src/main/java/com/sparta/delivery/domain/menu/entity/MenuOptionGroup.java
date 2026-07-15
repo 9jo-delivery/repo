@@ -40,6 +40,9 @@ public class MenuOptionGroup extends BaseEntity {
     @Column(name = "sort_order", nullable = false)
     private int sortOrder = 0;
 
+    @Version
+    private Long version;
+
     public void update(String name, Boolean isRequired, Integer minSelect, Integer maxSelect, Integer sortOrder) {
         this.name = (name != null && !name.isEmpty()) ? name : this.name;
         this.isRequired = (isRequired != null) ? isRequired : this.isRequired;

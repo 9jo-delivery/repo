@@ -43,6 +43,9 @@ public class Menu extends BaseEntity {
     @Column(name = "is_sold_out", nullable = false)
     private boolean isSoldOut = false;
 
+    @Version
+    private Long version;
+
     public void update(String name, String description, Integer price, Boolean isHidden, Boolean isSoldOut) {
         this.name = (name != null && !name.isEmpty()) ? name : this.name;
         this.description = (description != null) ? description : this.description;

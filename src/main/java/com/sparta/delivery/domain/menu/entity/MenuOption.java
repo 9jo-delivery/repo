@@ -38,6 +38,9 @@ public class MenuOption extends BaseEntity {
     @Column(name = "sort_order", nullable = false)
     private int sortOrder = 0;
 
+    @Version
+    private Long version;
+
     public void update(String name, Integer extraPrice, Boolean isSoldOut, Integer sortOrder) {
         this.name = (name != null && !name.isEmpty()) ? name : this.name;
         this.extraPrice = (extraPrice != null) ? extraPrice : this.extraPrice;
