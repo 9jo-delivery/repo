@@ -19,7 +19,7 @@ public class DeliveryDetailResponseDto {
                 .id(address.getId())
                 .address(address.getAddress())
                 .detailAddress(address.getDetailAddress())
-                .isDefault(address.getIsDefault())
+                .isDefault(address.isDefault())
                 .build();
     }
 }

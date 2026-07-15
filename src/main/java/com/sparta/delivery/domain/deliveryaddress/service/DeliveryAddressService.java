@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.deliveryaddress.service;
 
 import com.sparta.delivery.domain.deliveryaddress.dto.request.DeliveryRequestDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.request.DeliveryUpdateRequestDto;
 import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryDetailResponseDto;
 import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryResponseDto;
 import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliverySummaryDto;
@@ -10,7 +11,6 @@ import com.sparta.delivery.domain.deliveryaddress.repository.DeliveryAddressRepo
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -77,7 +77,7 @@ public class DeliveryAddressService {
     }
 
     @Transactional
-    public DeliveryUpdateResponseDto updateDeliveryAddress(@Valid DeliveryRequestDto deliveryRequestDto, UUID addressId, Long userId) {
+    public DeliveryUpdateResponseDto updateDeliveryAddress(DeliveryUpdateRequestDto deliveryUpdateRequestDto, UUID addressId, Long userId) {
         DeliveryAddress address = deliveryAddressRepository.findById(addressId).orElseThrow(()
                 -> new ResourceNotFoundException("배송지를 찾을 수 없습니다."));
 
@@ -85,11 +85,11 @@ public class DeliveryAddressService {
             throw new AccessDeniedException("본인의 배송지만 수정할 수 있습니다.");
         }
 
-        if(address.getIsDefault() && (deliveryRequestDto.getIsDefault() != null && !deliveryRequestDto.getIsDefault())){
+        if(address.isDefault() && (deliveryUpdateRequestDto.getIsDefault() != null && !deliveryUpdateRequestDto.getIsDefault())){
             throw new IllegalStateException("기본 배송지는 단독으로 해제할 수 없습니다. 다른 주소를 기본 배송지로 지정해 주세요");
         }
 
-        if(deliveryRequestDto.getIsDefault() != null && deliveryRequestDto.getIsDefault()){
+        if(deliveryUpdateRequestDto.getIsDefault() != null && deliveryUpdateRequestDto.getIsDefault()){
             Optional<DeliveryAddress> oldDefaultAddress = deliveryAddressRepository.findByUserAndIsDefault(address.getUser(), true);
 
             if(oldDefaultAddress.isPresent()){
@@ -101,13 +101,13 @@ public class DeliveryAddressService {
         }
 
         List<String> changed = address.updateFields(
-                deliveryRequestDto.getAddress(),
-                deliveryRequestDto.getDetailAddress(),
-                deliveryRequestDto.getZipcode(),
-                deliveryRequestDto.getAlias(),
-                deliveryRequestDto.getIsDefault());
+                deliveryUpdateRequestDto.getAddress(),
+                deliveryUpdateRequestDto.getDetailAddress(),
+                deliveryUpdateRequestDto.getZipcode(),
+                deliveryUpdateRequestDto.getAlias(),
+                deliveryUpdateRequestDto.getIsDefault());
 
-        return buildUpdateResponse(deliveryRequestDto, changed);
+        return buildUpdateResponse(deliveryUpdateRequestDto, changed);
     }
 
     @Transactional
@@ -119,7 +119,7 @@ public class DeliveryAddressService {
             throw new AccessDeniedException("본인의 배송지만 삭제할 수 있습니다.");
         }
 
-        boolean wasDefault = address.getIsDefault();
+        boolean wasDefault = address.isDefault();
         if(wasDefault){
             address.updateDefault(false);
         }
@@ -135,7 +135,7 @@ public class DeliveryAddressService {
         }
     }
 
-    private DeliveryUpdateResponseDto buildUpdateResponse(DeliveryRequestDto dto, List<String> changed){
+    private DeliveryUpdateResponseDto buildUpdateResponse(DeliveryUpdateRequestDto dto, List<String> changed){
         DeliveryUpdateResponseDto.DeliveryUpdateResponseDtoBuilder builder = DeliveryUpdateResponseDto.builder();
 
         if (changed.contains("address")) {

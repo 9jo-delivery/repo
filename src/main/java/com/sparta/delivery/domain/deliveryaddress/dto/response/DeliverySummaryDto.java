@@ -25,7 +25,7 @@ public class DeliverySummaryDto {
                 .detailAddress(address.getDetailAddress())
                 .zipcode(address.getZipCode())
                 .alias(address.getAlias())
-                .isDefault(address.getIsDefault())
+                .isDefault(address.isDefault())
                 .build();
     }
 }

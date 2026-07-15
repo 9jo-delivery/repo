@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.deliveryaddress.controller;
 
 import com.sparta.delivery.domain.deliveryaddress.dto.request.DeliveryRequestDto;
+import com.sparta.delivery.domain.deliveryaddress.dto.request.DeliveryUpdateRequestDto;
 import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryDetailResponseDto;
 import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliveryResponseDto;
 import com.sparta.delivery.domain.deliveryaddress.dto.response.DeliverySummaryDto;
@@ -65,12 +66,12 @@ public class DeliveryAddressController {
     @PatchMapping("/{addressId}")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<DeliveryUpdateResponseDto> updateDeliveryAddress(
-            @Valid @RequestBody DeliveryRequestDto deliveryRequestDto,
+            @RequestBody DeliveryUpdateRequestDto deliveryUpdateRequestDto,
             @PathVariable UUID addressId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(deliveryAddressService.updateDeliveryAddress(deliveryRequestDto, addressId, userId));
+        return ResponseEntity.ok(deliveryAddressService.updateDeliveryAddress(deliveryUpdateRequestDto, addressId, userId));
     }
 
     @DeleteMapping("/{addressId}")

@@ -17,8 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE p_delivery_addresses SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
-@AllArgsConstructor
-@Builder
+
 public class DeliveryAddress extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -40,10 +39,20 @@ public class DeliveryAddress extends BaseEntity {
     private String alias; // 배송지 별칭
 
     @Column(nullable = false)
-    private Boolean isDefault = false;
+    private boolean isDefault = false;
 
     public void updateDefault(boolean b) {
         this.isDefault = b;
+    }
+
+    @Builder
+    private DeliveryAddress(User user, String address, String detailAddress, String zipCode, String alias, boolean isDefault) {
+        this.user = user;
+        this.address = address;
+        this.detailAddress = detailAddress;
+        this.zipCode = zipCode;
+        this.alias = alias;
+        this.isDefault = isDefault;
     }
 
     public static DeliveryAddress create(User user, String address, String detailAddress, String zipcode, String alias, Boolean isDefault) {
@@ -53,7 +62,7 @@ public class DeliveryAddress extends BaseEntity {
                 .detailAddress(detailAddress)
                 .zipCode(zipcode)
                 .alias(alias)
-                .isDefault(isDefault)
+                .isDefault(isDefault != null && isDefault)
                 .build();
     }
 

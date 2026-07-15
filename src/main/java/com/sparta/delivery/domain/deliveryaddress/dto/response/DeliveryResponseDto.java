@@ -17,7 +17,7 @@ public class DeliveryResponseDto {
         return DeliveryResponseDto.builder()
                 .id(address.getId())
                 .address(address.getAddress())
-                .isDefault(address.getIsDefault())
+                .isDefault(address.isDefault())
                 .build();
     }
 }
