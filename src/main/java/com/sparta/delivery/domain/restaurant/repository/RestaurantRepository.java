@@ -1,8 +1,6 @@
 package com.sparta.delivery.domain.restaurant.repository;
 
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -15,25 +13,9 @@ import jakarta.persistence.LockModeType;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, UUID> {
 
-    @Query("""
-           SELECT r
-           FROM Restaurant r
-           WHERE r.name LIKE CONCAT('%', :name, '%')
-           AND (:categoryId IS NULL OR r.category.id = :categoryId)
-           AND (:regionId IS NULL OR r.region.id = :regionId)
-           AND (:isOpen IS NULL OR r.isOpen = :isOpen)
-           """)
-    Page<Restaurant> searchRestaurants(
-            @Param("categoryId") UUID categoryId,
-            @Param("regionId") UUID regionId,
-            @Param("isOpen") Boolean isOpen,
-            @Param("name") String name,
-            Pageable pageable
-    );
-
     // for update 쿼리 날라감(데이터베이스 행 수준의 배타적 잠금)
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r from  Restaurant r where r.id = :id")
-    Optional<Restaurant> findByIdWithPessimisticLock(@Param("id") UUID id);
+    Optional<Restaurant> findByIdWithPessimisticLock(@Param("id") UUID id);}
 
-}
+
