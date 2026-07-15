@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,11 @@ public class PaymentServiceImpl implements PaymentService{
 
         Order order = orderRepository.findById(requestDto.getOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
+
+        // 본인주문 맞음?
+        if (!order.getCustomer().getId().equals(customerId)) {
+            throw new AccessDeniedException("본인이 주문한 건에 대해서만 결제를 생성할 수 있습니다.");
+        }
 
         paymentRepository.findByOrder_Id(order.getId()).ifPresent(existing -> {
             throw new IllegalStateException("이미 결제가 생성된 주문입니다.");
