@@ -5,6 +5,8 @@ package com.sparta.delivery.domain.ai.repository;
 // where(qAiDescriptionLog.menuId.eq(1)) 처럼 자바 객체 접근 방식으로 쓰면,
 // 오타가 났을 때 컴파일 에러를 띄워줘서 안전하게 코드 짤수있음
 import static com.sparta.delivery.domain.ai.entity.QAiDescriptionLog.aiDescriptionLog;
+import static com.sparta.delivery.domain.restaurant.entity.QRestaurant.*;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -33,7 +35,7 @@ public class AiReviewCustomRepoImpl implements AiReviewCustomRepo {
 
 		List<AiDescriptionLog> logs = queryFactory
 			.selectFrom(aiDescriptionLog)
-			.leftJoin(aiDescriptionLog.restaurant).fetchJoin()
+			.leftJoin(aiDescriptionLog.restaurant, restaurant).fetchJoin()
 			.where(
 				restaurantIdEq(condition.getRestaurantId()),
 				isSuccessEq(condition.getIsSuccess()),
