@@ -95,7 +95,7 @@ public class AuthService {
         String newAccessToken = jwtUtil.createAccessToken(user.getUsername(), user.getRole());
         String newRefreshToken = jwtUtil.createRefreshToken(user.getUsername());
 
-        // 6. DB 갱신 및 클라이언트 쿠키 세팅
+        // 6. Redis 갱신 및 클라이언트 쿠키 세팅
         savedRefreshToken.updateRefreshToken(newRefreshToken);
         jwtUtil.addAccessTokenToCookie(newAccessToken, response);
         jwtUtil.addRefreshTokenToCookie(newRefreshToken, response);
