@@ -34,11 +34,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.region.repository.RegionRepository;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateReqDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantCreateResDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantSearchReqDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantSummaryResDto;
-import com.sparta.delivery.domain.restaurant.dto.RestaurantUpdateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantCreateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.RestaurantCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantSearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.RestaurantSummaryResDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantUpdateReqDto;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
@@ -82,7 +82,7 @@ class RestaurantServiceTest {
 				.willReturn(new PageImpl<>(List.of(restaurant), pageable, 1));
 
 		// when
-		Page<RestaurantSummaryResDto> result = restaurantService.getAllRestaurants(1L, pageable, condition);
+		Page<RestaurantSummaryResDto> result = restaurantService.getAllRestaurants(pageable, condition);
 
 		// then
 		assertThat(result.getContent()).hasSize(1);
@@ -104,7 +104,7 @@ class RestaurantServiceTest {
 				.willReturn(Page.empty());
 
 		// when
-		restaurantService.getAllRestaurants(1L, pageable, condition);
+		restaurantService.getAllRestaurants(pageable, condition);
 
 		// then
 		ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);

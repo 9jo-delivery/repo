@@ -2,7 +2,11 @@ package com.sparta.delivery.domain.restaurant.service;
 
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.region.repository.RegionRepository;
-import com.sparta.delivery.domain.restaurant.dto.*;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantCreateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantSearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantUpdateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.RestaurantCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.response.RestaurantSummaryResDto;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
@@ -76,12 +80,8 @@ public class RestaurantService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RestaurantSummaryResDto> getAllRestaurants(Long userId, Pageable pageable, RestaurantSearchReqDto restaurantSearchReqDto) {
-        // TODO: userRoles
-        // 입력값 검증
-        int vdPage = Math.max(pageable.getPageNumber(), 0);
-        int vdSize = validatePageSize(pageable.getPageSize());
-        Pageable vdPageable = PageRequest.of(vdPage, vdSize, pageable.getSort());
+    public Page<RestaurantSummaryResDto> getAllRestaurants(Pageable pageable, RestaurantSearchReqDto restaurantSearchReqDto) {
+
 
         String name = restaurantSearchReqDto.getName() == null ? "" : restaurantSearchReqDto.getName();
 
@@ -91,16 +91,10 @@ public class RestaurantService {
                         restaurantSearchReqDto.getRegionId(),
                         restaurantSearchReqDto.getIsOpen(),
                         name,
-                        vdPageable
+                        pageable
                 ).map(RestaurantSummaryResDto::new);
     }
 
-    private int validatePageSize(int size) {
-        if (size == 10 || size == 30 || size == 50) {
-            return size;
-        }
-        return 10;
-    }
 
     @Transactional(readOnly = true)
     public RestaurantSummaryResDto getRestaurantInfo(UUID restaurantId) {
