@@ -1,10 +1,15 @@
 package com.sparta.delivery.domain.restaurant.controller;
 
-import com.sparta.delivery.domain.restaurant.dto.*;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantCreateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantSearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.RestaurantUpdateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.RestaurantCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.response.RestaurantSummaryResDto;
 import com.sparta.delivery.domain.restaurant.service.RestaurantService;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -35,11 +40,16 @@ public class RestaurantController {
 
     // 가게 목록 검색
     @GetMapping
-    public ResponseEntity<Page<RestaurantSummaryResDto>> getAllRestaurants(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                           @PageableDefault(page=0, size=10, sort="createdAt", direction=Sort.Direction.DESC) Pageable pageable,
-                                                                           @ModelAttribute RestaurantSearchReqDto restaurantSearchReqDto) {
-        Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(restaurantService.getAllRestaurants(userId, pageable, restaurantSearchReqDto));
+    public ResponseEntity<Page<RestaurantSummaryResDto>> getAllRestaurants(
+            @PageableDefault(page=0, size=10, sort="createdAt", direction=Sort.Direction.DESC) Pageable pageable,
+            @ModelAttribute RestaurantSearchReqDto restaurantSearchReqDto) {
+
+        // 입력값 검증
+        int vdPage = Math.max(pageable.getPageNumber(), 0);
+        int vdSize = validatePageSize(pageable.getPageSize());
+        Pageable vdPageable = PageRequest.of(vdPage, vdSize, pageable.getSort());
+
+        return ResponseEntity.ok(restaurantService.getAllRestaurants(vdPageable, restaurantSearchReqDto));
     }
 
     // 가게 상세 조회
@@ -65,5 +75,12 @@ public class RestaurantController {
         Long userId = userDetails.getUser().getId();
         restaurantService.deleteRestaurant(userId, restaurantId);
         return ResponseEntity.noContent().build();
+    }
+
+    private int validatePageSize(int size) {
+        if (size == 10 || size == 30 || size == 50) {
+            return size;
+        }
+        return 10;
     }
 }
