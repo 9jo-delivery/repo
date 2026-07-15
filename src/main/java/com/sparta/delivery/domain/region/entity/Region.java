@@ -35,8 +35,21 @@ public class Region extends BaseEntity {
 	@Column(nullable = false)
 	private boolean isServiceAvailable = false;
 
-	public void updateRegion(String name, boolean isServiceAvailable) {
-		this.name = name;
-		this.isServiceAvailable = isServiceAvailable;
+	public static Region create(Region parentRegion, String name, Enums.RegionType regionType, boolean isServiceAvailable) {
+		return Region.builder()
+				.parentRegion(parentRegion)
+				.name(name)
+				.regionType(regionType)
+				.isServiceAvailable(isServiceAvailable)
+				.build();
+	}
+
+	public void update(String name, Boolean isServiceAvailable) {
+		if(name != null){
+			this.name = name;
+		}
+		if(isServiceAvailable != null){
+			this.isServiceAvailable = isServiceAvailable;
+		}
 	}
 }
