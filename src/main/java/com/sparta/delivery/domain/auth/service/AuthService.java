@@ -13,6 +13,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Transactional
     public SignupResDto signup(SignupReqDto reqDto) {
@@ -99,5 +101,40 @@ public class AuthService {
         savedRefreshToken.updateRefreshToken(newRefreshToken);
         jwtUtil.addAccessTokenToCookie(newAccessToken, response);
         jwtUtil.addRefreshTokenToCookie(newRefreshToken, response);
+    }
+
+    @Transactional
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+
+        // 1. 요청(쿠키)에서 토큰들 꺼내기
+        String accessTokenValue = jwtUtil.getTokenFromRequest(request);
+        String refreshTokenValue = jwtUtil.getRefreshTokenFromRequest(request);
+
+        // 2. 만료되지 않은 안전한 토큰 추출 및 유저 이름 추출
+        if (accessTokenValue != null) {
+            String cleanAccessToken = jwtUtil.substringToken(accessTokenValue);
+
+            // 토큰이 구조적으로 올바르고 만료되지 않았을 때만 블랙리스트 및 Redis 가동
+            if (jwtUtil.validateToken(cleanAccessToken)) {
+                Claims claims = jwtUtil.getUserInfoFromToken(cleanAccessToken); // 만료 안 된 토큰용 메서드 사용
+                String username = claims.getSubject();
+
+                // 3. Redis에서 해당 유저의 Refresh Token 삭제
+                refreshTokenRepository.deleteById(username);
+
+                // 4. Access Token 남은 유효시간 계산 후 Redis 블랙리스트 등록
+                long expiration = claims.getExpiration().getTime(); // 만료 시각(ms)
+                long remainTime = expiration - System.currentTimeMillis(); // 남은 시간(ms)
+
+                if (remainTime > 0) {
+                    // key: "BL:" + token, value: "logout", TTL: remainTime
+                    jwtUtil.registerBlacklist(cleanAccessToken, remainTime);
+                }
+            }
+        }
+
+        // 5. 클라이언트 쿠키 만료(삭제) 처리
+        jwtUtil.expireCookie(response, "AccessToken");
+        jwtUtil.expireCookie(response, "RefreshToken");
     }
 }
