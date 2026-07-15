@@ -34,6 +34,14 @@ public class GlobalExceptionHandler {
 			.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "잘못된 JSON 형식의 요청입니다."));
 	}
 
+	// 잘못된 값 입력 시 예외 처리
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
+	}
+
 	// 403 Forbidden (권한 부족)
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
