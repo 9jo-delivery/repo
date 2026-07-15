@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.deliveryaddress.dto;
+package com.sparta.delivery.domain.deliveryaddress.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -14,5 +14,4 @@ public class DeliveryUpdateResponseDto {
     private String zipCode;
     private String alias;
     private Boolean isDefault;
-
 }
