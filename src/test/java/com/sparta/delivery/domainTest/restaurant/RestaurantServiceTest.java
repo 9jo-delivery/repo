@@ -95,7 +95,7 @@ class RestaurantServiceTest {
 
 	@Test
 	@DisplayName("가게 목록 조회 - name, size 보정")
-	void getAllRestaurants_NormalizeNameAndSize() {
+	void getAllRestaurants_NormalizeNameAndPassPageable() {
 		// given
 		RestaurantSearchReqDto condition = createSearchReqDto(null, null, null, null);
 		Pageable pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -111,7 +111,7 @@ class RestaurantServiceTest {
 		verify(restaurantRepository).searchRestaurants(eq(null), eq(null), eq(null), eq(""), captor.capture());
 		Pageable capturedPageable = captor.getValue();
 		assertThat(capturedPageable.getPageNumber()).isZero();
-		assertThat(capturedPageable.getPageSize()).isEqualTo(10);
+		assertThat(capturedPageable.getPageSize()).isEqualTo(15);
 		assertThat(capturedPageable.getSort().getOrderFor("createdAt").getDirection()).isEqualTo(Sort.Direction.DESC);
 	}
 
