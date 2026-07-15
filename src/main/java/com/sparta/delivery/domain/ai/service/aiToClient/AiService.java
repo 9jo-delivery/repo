@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.ai.service;
+package com.sparta.delivery.domain.ai.service.aiToClient;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

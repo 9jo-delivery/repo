@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.ai.service;
+package com.sparta.delivery.domain.ai.service.aiToClient;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;

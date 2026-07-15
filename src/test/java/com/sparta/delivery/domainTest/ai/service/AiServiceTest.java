@@ -6,7 +6,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sparta.delivery.domain.ai.repository.AiDescriptRepository;
-import com.sparta.delivery.domain.ai.service.AiService;
+import com.sparta.delivery.domain.ai.service.aiToClient.AiService;
 
 @ExtendWith(MockitoExtension.class)
 class AiServiceTest {
