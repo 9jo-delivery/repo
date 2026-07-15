@@ -31,7 +31,6 @@ public class MenuService {
 
     // 메뉴 등록
     @Transactional
-    @PreAuthorize("hasRole('OWNER')")
     public MenuCreateResponse createMenu(UUID restaurantId, MenuCreateRequest request, Long userId) {
 
         // RestaurantRepository를 통해 가게 조회
@@ -98,7 +97,6 @@ public class MenuService {
 
     // 메뉴 수정
     @Transactional
-    @PreAuthorize("hasRole('OWNER')")
     public MenuSearchResponse updateMenu(UUID menuId, MenuUpdateRequest request, Long userId) {
         // 존재하는 메뉴인지 검증
         Menu menu = menuRepository.findById(menuId)
@@ -131,7 +129,6 @@ public class MenuService {
 
     // 메뉴 삭제
     @Transactional
-    @PreAuthorize("hasRole('OWNER')")
     public void deleteMenu(UUID menuId, Long userId) {
 
         Menu menu = menuRepository.findById(menuId)

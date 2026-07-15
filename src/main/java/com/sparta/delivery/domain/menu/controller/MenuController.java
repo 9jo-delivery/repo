@@ -9,7 +9,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -24,8 +27,8 @@ public class MenuController {
 
     // 메뉴 등록
     @PostMapping("/api/restaurants/{restaurantId}/menus")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<MenuCreateResponse> createMenu(@PathVariable UUID restaurantId, @Valid @RequestBody MenuCreateRequest request) {
-//        validationOwnerRole(); // 권한 검증
 
         MenuCreateResponse response = menuService.createMenu(restaurantId, request, userId);
         // 생성된 메뉴의 상세 조회 URI를 Location 헤더에 담아 201 Created 응답
@@ -48,8 +51,8 @@ public class MenuController {
 
     // 메뉴 수정
     @PatchMapping("/api/menus/{menuId}")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<MenuSearchResponse> updateMenu(@PathVariable UUID menuId, @Valid @RequestBody MenuUpdateRequest request) {
-//        validationOwnerRole(); // 권한 검증
 
         MenuSearchResponse response = menuService.updateMenu(menuId, request, userId);
         return ResponseEntity.ok(response);
@@ -57,20 +60,10 @@ public class MenuController {
 
     // 메뉴 삭제
     @DeleteMapping("/api/menus/{menuId}")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> deleteMenu(@PathVariable UUID menuId) {
-//        validationOwnerRole(); // OWNER 권한 검증
 
         menuService.deleteMenu(menuId, userId);
         return ResponseEntity.noContent().build();
     }
-
-    // 권한 검증 메서드: 임시 구현
-//    private void validationOwnerRole() {
-//        Enums.UserRole userRole = Enums.UserRole.OWNER;
-//        if (userRole != Enums.UserRole.OWNER) {
-//            throw new org.springframework.web.server.ResponseStatusException(
-//                    HttpStatus.FORBIDDEN, "OWNER 권한이 필요합니다."
-//            );
-//        }
-//    }
 }

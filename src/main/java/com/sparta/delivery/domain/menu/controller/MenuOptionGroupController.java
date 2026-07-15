@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -24,6 +25,7 @@ public class MenuOptionGroupController {
 
     // 옵션 그룹 등록
     @PostMapping("/api/menus/{menuId}/option-groups")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<MenuOptionGroupCreateResponse> createOptionGroup(@PathVariable UUID menuId, @Valid @RequestBody MenuOptionGroupCreateRequest request) {
 
         MenuOptionGroupCreateResponse response = menuOptionGroupService.createMenuOptionGroup(menuId, request, userId);
@@ -48,6 +50,7 @@ public class MenuOptionGroupController {
 
     // 옵션 그룹 수정
     @PatchMapping("/api/option-groups/{groupId}")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<MenuOptionGroupSearchResponse> updateOptionGroup(@PathVariable UUID groupId, @Valid @RequestBody MenuOptionGroupUpdateRequest request) {
 
         MenuOptionGroupSearchResponse response = menuOptionGroupService.updateOptionGroup(groupId, request, userId);
@@ -56,6 +59,7 @@ public class MenuOptionGroupController {
 
     // 옵션 그룹 삭제
     @DeleteMapping("/api/option-groups/{groupId}")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> deleteOptionGroup(@PathVariable UUID groupId) {
 
         menuOptionGroupService.optionGroupDelete(groupId, userId);

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,6 +23,7 @@ public class MenuOptionController {
     private final Long userId = 1L; // 임시 유저 ID
 
     @PostMapping("/api/option-groups/{groupId}/options")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<MenuOptionCreateResponse> createOption(@PathVariable UUID groupId, @Valid @RequestBody MenuOptionCreateRequest request) {
 
         MenuOptionCreateResponse response = menuOptionService.createMenuOption(groupId, request, userId);
@@ -43,6 +45,7 @@ public class MenuOptionController {
     }
 
     @PatchMapping("/api/options/{optionId}")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<MenuOptionSearchResponse> updateOption(@PathVariable UUID optionId, @Valid @RequestBody MenuOptionUpdateRequest request) {
 
         MenuOptionSearchResponse response = menuOptionService.updateOption(optionId, request, userId);
@@ -50,6 +53,7 @@ public class MenuOptionController {
     }
 
     @DeleteMapping("/api/options/{optionId}")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<Void> deleteOption(@PathVariable UUID optionId) {
 
         menuOptionService.deleteOption(optionId, userId);
