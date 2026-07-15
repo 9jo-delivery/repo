@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             LoginReqDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginReqDto.class);
 
+            // LoginReqDto 필드 검증
             if (requestDto.getUsername() == null || requestDto.getUsername().isBlank() ||
                     requestDto.getPassword() == null || requestDto.getPassword().isBlank()) {
                 throw new AuthenticationServiceException("닉네임과 비밀번호는 필수 입력 항목입니다.");

@@ -1,16 +1,15 @@
 package com.sparta.delivery.global.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -32,6 +31,22 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
 			.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "잘못된 JSON 형식의 요청입니다."));
+	}
+
+	// 401 Unauthorized
+	@ExceptionHandler(InsufficientAuthenticationException.class)
+	public ResponseEntity<ErrorResponse> handleAccessDenied(InsufficientAuthenticationException ex) {
+		return ResponseEntity
+				.status(HttpStatus.UNAUTHORIZED)
+				.body(new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "인증 정보가 없거나 유효하지 않습니다. 다시 로그인해 주세요."));
+	}
+
+	// 잘못된 값 입력 시 예외 처리
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
 	}
 
 	// 403 Forbidden (권한 부족)

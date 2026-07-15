@@ -1,17 +1,17 @@
 package com.sparta.delivery.domainTest.restaurant;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.sparta.delivery.domain.restaurant.dto.request.CategoryCreateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.CategorySearchReqDto;
+import com.sparta.delivery.domain.restaurant.dto.request.CategoryUpdateReqDto;
+import com.sparta.delivery.domain.restaurant.dto.response.CategoryCreateResDto;
+import com.sparta.delivery.domain.restaurant.dto.response.CategorySummaryResDto;
+import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
+import com.sparta.delivery.domain.restaurant.service.RestaurantCategoryService;
+import com.sparta.delivery.domain.user.entity.User;
+import com.sparta.delivery.domain.user.repository.UserRepository;
+import com.sparta.delivery.global.common.Enums;
+import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,18 +24,17 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.sparta.delivery.domain.restaurant.dto.CategoryCreateReqDto;
-import com.sparta.delivery.domain.restaurant.dto.CategoryCreateResDto;
-import com.sparta.delivery.domain.restaurant.dto.CategorySearchReqDto;
-import com.sparta.delivery.domain.restaurant.dto.CategorySummaryResDto;
-import com.sparta.delivery.domain.restaurant.dto.CategoryUpdateReqDto;
-import com.sparta.delivery.domain.restaurant.entity.RestaurantCategory;
-import com.sparta.delivery.domain.restaurant.repository.RestaurantCategoryRepository;
-import com.sparta.delivery.domain.restaurant.service.RestaurantCategoryService;
-import com.sparta.delivery.domain.user.entity.User;
-import com.sparta.delivery.domain.user.repository.UserRepository;
-import com.sparta.delivery.global.common.Enums;
-import com.sparta.delivery.global.exception.ResourceNotFoundException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class RestaurantCategoryServiceTest {

@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.user.repository;
 
 import com.sparta.delivery.domain.user.entity.User;
+import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     default User findByIdOrElseThrow(Long id) {
-        return findById(id).orElseThrow(() -> new NullPointerException("등록된 사용자가 없습니다."));
+        return findById(id).orElseThrow(() -> new ResourceNotFoundException("등록된 사용자가 없습니다."));
     }
 
     @Query("SELECT u FROM User u WHERE u.username LIKE %:keyword% OR str(u.role) LIKE %:keyword%")
