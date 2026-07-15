@@ -37,7 +37,6 @@ public class AiTotalService {
 		} finally {
 			releaseLock(lockKey);
 		}
-
 	}
 
 	private void releaseLock(String lockKey) {

@@ -9,16 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.sparta.delivery.domain.order.entity.Order;
+import com.sparta.delivery.domain.order.repository.OrderRepository;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
+import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
-import com.sparta.delivery.domain.review.repository.TempOrderRepository;
-import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.global.common.Enums;
-
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
 
 import jakarta.validation.Valid;
@@ -32,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
-	private final TempOrderRepository orderRepository;
+	private final OrderRepository orderRepository;
 	private final RestaurantRepository restaurantRepository;
 
 	@Transactional
@@ -53,7 +52,7 @@ public class ReviewService {
 		}
 
 		// 리류 중복 작성 검증
-		if (reviewRepository.existsByOrderId(orderId)){
+		if (reviewRepository.existsByOrderId(orderId)) {
 			throw new IllegalArgumentException("해당 주문에 이미 작성한 리뷰 존재");
 		}
 
@@ -74,11 +73,12 @@ public class ReviewService {
 
 	public ReviewResponseDto getReview(UUID reviewId) {
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
-		-> new IllegalArgumentException("해당리뷰 없음"));
+			-> new IllegalArgumentException("해당리뷰 없음"));
 		return ReviewResponseDto.from(review);
 	}
 
-	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, ReviewSearchCondition condition, Pageable pageable) {
+	public Page<ReviewResponseDto> getRestaurantReviews(UUID restaurantId, ReviewSearchCondition condition,
+		Pageable pageable) {
 		if (!restaurantRepository.existsById(restaurantId)) {
 			throw new IllegalArgumentException("해당 레스토랑없음");
 		}
@@ -91,17 +91,16 @@ public class ReviewService {
 	public ReviewResponseDto updateReview(UUID reviewId, ReviewRequestDto request, Long customerId) {
 		// 검증 (리뷰 유뮤, 작성자 확인)
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
-		-> new IllegalArgumentException("작성한 리뷰내역 없음"));
+			-> new IllegalArgumentException("작성한 리뷰내역 없음"));
 
-
-		if(!review.getCustomer().getId().equals(customerId)) {
+		if (!review.getCustomer().getId().equals(customerId)) {
 			throw new IllegalArgumentException("자신의 리뷰만 업데이트 가능");
 		}
 
 		// 값 수정(Dirty Check)
 		// 엔티티 내부의 값을 변경하면, 이 메서드가 끝날 때 JPA가 알아서 UPDATE 쿼리 날림
 		// updatedAt 역시 BaseEntity가 알아서 현재 시간으로 업데이트함..
-		review.updateContentAndRating(request.getContent(),request.getRating());
+		review.updateContentAndRating(request.getContent(), request.getRating());
 		// 비관적 락 적용 평점/개수 업데이트 처리
 		updateRestaurantRatingWithLock(review.getRestaurant().getId());
 
@@ -112,7 +111,7 @@ public class ReviewService {
 	@Transactional
 	public void deleteReview(UUID reviewId, Long customerId) {
 		Review review = reviewRepository.findById(reviewId).orElseThrow(()
-		-> new ResourceNotFoundException("삭제 가능한 리뷰 존재하지않음"));
+			-> new ResourceNotFoundException("삭제 가능한 리뷰 존재하지않음"));
 
 		if (!review.getCustomer().getId().equals(customerId)) {
 			throw new IllegalArgumentException("자신의 리뷰만 삭제 가능");
@@ -124,7 +123,6 @@ public class ReviewService {
 
 		// 식당 Id 외래키 넘겨서 안전하게 비관적 락으로 평점/개수 갱신
 		updateRestaurantRatingWithLock(review.getRestaurant().getId());
-
 
 	}
 

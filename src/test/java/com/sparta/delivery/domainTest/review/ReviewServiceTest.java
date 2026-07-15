@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.sparta.delivery.domain.order.entity.Order;
+import com.sparta.delivery.domain.order.repository.OrderRepository;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
@@ -31,7 +32,6 @@ import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
-import com.sparta.delivery.domain.review.repository.TempOrderRepository;
 import com.sparta.delivery.domain.review.service.ReviewService;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.common.Enums;
@@ -45,7 +45,7 @@ class ReviewServiceTest {
 	private ReviewRepository reviewRepository;
 
 	@Mock
-	private TempOrderRepository orderRepository;
+	private OrderRepository orderRepository;
 
 	@Mock
 	private RestaurantRepository restaurantRepository;
@@ -152,7 +152,7 @@ class ReviewServiceTest {
 		Restaurant restaurant = createFakeRestaurant(restaurantId);
 
 		List<Review> reviews = new ArrayList<>();
-		for (int i=0; i<4; i++){
+		for (int i = 0; i < 4; i++) {
 			UUID oredrId = UUID.randomUUID();
 			Order order = createFakeOrder(oredrId, customer, restaurant);
 			Review review = Review.create(order, 3, "so so");
@@ -165,7 +165,6 @@ class ReviewServiceTest {
 
 		Pageable pageable = PageRequest.of(0, 10,
 			Sort.by(Sort.Direction.DESC, "createdAt"));
-
 
 		Page<Review> page = new PageImpl<>(reviews, pageable, reviews.size());
 
@@ -219,13 +218,14 @@ class ReviewServiceTest {
 			Review.create(order2, 3, "so so"),
 			Review.create(order3, 3, "not bad"),
 			Review.create(order4, 1, "bad")
-			);
+		);
 		Page<Review> page = new PageImpl<>(reviews, pageable, reviews.size());
 		// 여기까지가 객체 생성 및 세팅단계
 		// 아래가 서비스에서 다루는 영역
 		given(restaurantRepository.existsById(restaurantId)).willReturn(true);
-		given(reviewRepository.searchRestaurantReviews(eq(restaurantId), any(ReviewSearchCondition.class), eq(pageable)))
-		.willReturn(page);
+		given(
+			reviewRepository.searchRestaurantReviews(eq(restaurantId), any(ReviewSearchCondition.class), eq(pageable)))
+			.willReturn(page);
 
 		// when
 		Page<ReviewResponseDto> result = reviewService.getRestaurantReviews(restaurantId, condition, pageable);
@@ -234,9 +234,9 @@ class ReviewServiceTest {
 		assertThat(result).isNotNull();
 		assertThat(result.getContent()).hasSize(4);
 		assertThat(result.getContent().get(1))
-		.returns(1 , ReviewResponseDto::getRating);
+			.returns(1, ReviewResponseDto::getRating);
 		assertThat(result.getContent().get(2))
-		.returns(1, ReviewResponseDto::getContent);
+			.returns(1, ReviewResponseDto::getContent);
 
 	}
 
