@@ -8,6 +8,9 @@ import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,8 +39,12 @@ public class UserController {
                                                      @RequestParam("sortBy") String sortBy,
                                                      @RequestParam("isAsc") boolean isAsc,
                                                      @RequestParam(value = "keyword", required = false) String keyword) {
+        // 페이징 처리
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(page - 1, size, sortBy, isAsc, keyword));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers(keyword, pageable));
     }
 
     // 사용자 상세 조회 - 본인이거나 관리자
