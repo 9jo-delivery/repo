@@ -11,11 +11,8 @@ import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,16 +65,6 @@ public class MenuOptionGroupService {
             throw new ResourceNotFoundException("존재하지 않는 메뉴입니다.");
         }
 
-        // 기본 정렬값이 없을 경우 생성일자 기준 내림차순 정렬
-        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
-
-        int size = pageable.getPageSize();
-        if (size != 10 && size != 30 && size != 50) {
-            size = 10;
-        }
-
-        pageable = PageRequest.of(pageable.getPageNumber(), size, sort);
-
         Page<MenuOptionGroup> optionGroups = menuOptionGroupRepository.findAllByMenuId(menuId, pageable);
         return optionGroups.map(MenuOptionGroupSearchResponse::from);
     }
@@ -105,13 +92,13 @@ public class MenuOptionGroupService {
             throw new AccessDeniedException("본인 가게의 옵션 그룹만 수정할 수 있습니다.");
         }
 
-        // NPE 방어를 위함
+        // NPE(NullPointerException) 방어를 위함
         int finalMinSelect = (request.minSelect() != null) ? request.minSelect() : optionGroup.getMinSelect();
         int finalMaxSelect = (request.maxSelect() != null) ? request.maxSelect() : optionGroup.getMaxSelect();
 
         // 최소 선택 개수가 최대 선택 개수보다 크면 안된다는 비즈니스 검증
         if(finalMinSelect > finalMaxSelect) {
-            throw new IllegalStateException("최소 선택 개수는 최대 선택 개수보다 클 수 없습니다");
+            throw new IllegalStateException("최소 선택 개수는 최대 선택 개수보다 클 수 없습니다.");
         }
 
         optionGroup.update(
