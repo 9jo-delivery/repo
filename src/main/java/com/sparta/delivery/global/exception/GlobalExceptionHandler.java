@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -82,6 +83,18 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 				.status(HttpStatus.CONFLICT) // 409
 				.body(new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage()));
+	}
+
+	// 409 Conflict (동시 수정 발생 - 낙관적 락 충돌)
+	@ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+	public ResponseEntity<ErrorResponse> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex) {
+		log.warn("Optimistic Lock Conflict: ", ex);
+		return ResponseEntity
+				.status(HttpStatus.CONFLICT) // 409
+				.body(new ErrorResponse(
+						HttpStatus.CONFLICT.value(),
+						"다른 사용자가 그 사이에 정보를 수정했습니다. 데이터를 새로고침한 후 다시 시도해 주세요."
+				));
 	}
 
 	@ExceptionHandler(Exception.class) // 위에서 걸러지지 않은 모든 예외 처리
