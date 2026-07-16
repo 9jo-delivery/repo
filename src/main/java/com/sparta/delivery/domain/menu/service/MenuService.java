@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.menu.service;
 
+import com.sparta.delivery.domain.ai.service.aiToClient.AiTotalService;
 import com.sparta.delivery.domain.menu.dto.MenuCreateRequest;
 import com.sparta.delivery.domain.menu.dto.MenuCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuSearchResponse;
@@ -8,6 +9,7 @@ import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;
 import com.sparta.delivery.domain.restaurant.repository.RestaurantRepository;
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.global.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ public class MenuService {
 
     private final MenuRepository menuRepository;
     private final RestaurantRepository restaurantRepository;
+    private final AiTotalService aiTotalService;
 
     // 메뉴 등록
     @Transactional
@@ -39,22 +42,30 @@ public class MenuService {
             throw new AccessDeniedException("본인 가게의 메뉴만 등록할 수 있습니다.");
         }
 
-        // aiGenerateDescription=true일때
-        String finalDescription = request.description();
-//        if (request.aiGenerateDescription != null && request.aiGenerateDescription) {
-//            finalDescription = geminiService.generate(request.aiPrompt());
-//        }
-
         // request에서 데이터를 꺼내고, 가게 객체를 엮어서 Menu 엔티티를 빌드
         Menu menu = Menu.builder()
                 .restaurant(restaurant)
                 .name(request.name())
-                .description(finalDescription)
+                .description(request.description())
                 .price(request.price())
                 .build();
 
         //DB 저장 후 만들어진 메뉴 ID 반환
         Menu savedMenu = menuRepository.save(menu);
+
+        // AI 생성 설명을 원했다면 (aiGenerateDescription=true일때)
+        // NullPointerException 방어를 위해 Boolean.TRUE.equals() 적용
+        if (Boolean.TRUE.equals(request.aiGenerateDescription())) {
+            // 실제 사장님 객체 꺼내기
+            User owner = restaurant.getOwner();
+
+            // AI 설명 생성 요청 (저장된 savedMenu를 넘겨줍니다)
+            String finalDescription = aiTotalService.generateMenuDescript(owner, restaurant, savedMenu);
+
+            // 더티 체킹 (AI 설명으로 엔티티 업데이트)
+            savedMenu.updateDescriptions(finalDescription);
+        }
+
         return MenuCreateResponse.from(savedMenu);
     }
 
@@ -96,10 +107,9 @@ public class MenuService {
         }
 
         String finalDescription;
-        if (request.aiGenerateDescription() != null && request.aiGenerateDescription()) {
-            // TODO: geminiService 연동 시 주석 해제
-//            finalDescription = geminiService.generate(request.aiPrompt());
-            finalDescription = "AI가 생성한 메뉴 설명";
+        if (Boolean.TRUE.equals(request.aiGenerateDescription())) {
+            User owner = menu.getRestaurant().getOwner();
+            finalDescription = aiTotalService.generateMenuDescript(owner, menu.getRestaurant(), menu);
         } else {
             finalDescription = request.description();
         }
