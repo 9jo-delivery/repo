@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import jakarta.persistence.LockModeType;
 
-public interface RestaurantRepository extends JpaRepository<Restaurant, UUID> {
+public interface RestaurantRepository extends JpaRepository<Restaurant, UUID>, RestaurantCustomRepository {
 
     // for update 쿼리 날라감(데이터베이스 행 수준의 배타적 잠금)
     @Lock(LockModeType.PESSIMISTIC_WRITE)
