@@ -7,8 +7,10 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -20,9 +22,11 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
     // JWT 데이터
@@ -32,6 +36,8 @@ public class JwtUtil {
     public static final String BEARER_PREFIX = "Bearer ";
     public static final long ACCESS_TOKEN_TIME = 60 * 60 * 1000L;
     public static final long REFRESH_TOKEN_TIME = 14 * 24 * 60 * 60 * 1000L;
+
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -164,5 +170,30 @@ public class JwtUtil {
                 .map(cookie -> URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);
+    }
+
+    // Access Token 남은 유효시간만큼 Redis 블랙리스트에 등록
+    public void registerBlacklist(String accessToken, long remainTime) {
+        stringRedisTemplate.opsForValue().set(
+                "BL:" + accessToken,
+                "logout",
+                remainTime,
+                TimeUnit.MILLISECONDS
+        );
+        log.info("블랙리스트 등록 완료 (TTL: {}ms) - Token: {}", remainTime, accessToken);
+    }
+
+    // 해당 토큰이 Redis 블랙리스트(로그아웃 상태)에 존재하는지 검증
+    public boolean isBlacklisted(String accessToken) {
+        return stringRedisTemplate.opsForValue().get("BL:" + accessToken) != null;
+    }
+
+    // 라이언트 브라우저의 AccessToken / RefreshToken 쿠키를 완전히 제거
+    public void expireCookie(HttpServletResponse response, String cookieName) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 브라우저에게 해당 쿠키 즉시 소멸(삭제) 지시
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
     }
 }

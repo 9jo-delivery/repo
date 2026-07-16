@@ -55,6 +55,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            // Redis 블랙리스트 존재 여부 확인
+            if (jwtUtil.isBlacklisted(tokenValue)) {
+                log.error("Blacklisted Token Error");
+                // 기존 예외 처리 방식(HandlerExceptionResolver)을 통일성 있게 사용하여 예외 전달
+                handlerExceptionResolver.resolveException(request, response, null, new InsufficientAuthenticationException("이미 로그아웃 처리된 토큰입니다. 다시 로그인 해주세요."));
+                return;
+            }
+
             // 토큰에서 유저 정보 가져오기
             Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
 
