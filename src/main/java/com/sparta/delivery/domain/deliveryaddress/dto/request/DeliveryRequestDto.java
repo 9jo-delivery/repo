@@ -11,6 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DeliveryRequestDto {
 
+    @NotNull
+    private Long userId;
+
     @NotBlank(message = "주소는 필수입니다.")
     private String address;
 

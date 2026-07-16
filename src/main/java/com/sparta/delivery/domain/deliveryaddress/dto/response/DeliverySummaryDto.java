@@ -10,6 +10,7 @@ import java.util.UUID;
 @Builder
 public class DeliverySummaryDto {
     private UUID id;
+    private Long userId;
     private String address;
     private String detailAddress;
     private String zipcode;
@@ -19,6 +20,7 @@ public class DeliverySummaryDto {
     public static DeliverySummaryDto from(DeliveryAddress address){
         return DeliverySummaryDto.builder()
                 .id(address.getId())
+                .userId(address.getUser().getId())
                 .address(address.getAddress())
                 .detailAddress(address.getDetailAddress())
                 .zipcode(address.getZipCode())
