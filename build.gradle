@@ -39,7 +39,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 
     // Swagger UI를 위한 의존성 추가
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
