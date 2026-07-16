@@ -17,8 +17,6 @@ public record MenuCreateRequest(
         @Min(value = 0, message = "가격은 0원 이상이어야 합니다.")
         Integer price,
 
-        boolean aiGenerateDescription,
-
-        String aiPrompt
+        Boolean aiGenerateDescription
 ) {
 }

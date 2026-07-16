@@ -17,7 +17,6 @@ public record MenuUpdateRequest(
 
         Boolean isSoldOut,
 
-        // 선택 사항
         Boolean aiGenerateDescription
 ) {
 }

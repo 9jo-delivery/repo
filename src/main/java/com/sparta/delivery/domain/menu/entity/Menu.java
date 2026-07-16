@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("is_deleted = false") // WHERE is deleted_ai = false
+@SQLRestriction("is_deleted = false")
 public class Menu extends BaseEntity {
 
     @Id
@@ -54,4 +54,9 @@ public class Menu extends BaseEntity {
         this.isSoldOut = (isSoldOut != null) ? isSoldOut : this.isSoldOut;
     }
 
+    public void updateDescriptions(String finalDescription) {
+        if (finalDescription != null) {
+            this.description = finalDescription;
+        }
+    }
 }
