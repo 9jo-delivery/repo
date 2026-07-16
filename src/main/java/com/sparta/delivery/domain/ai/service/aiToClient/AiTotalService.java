@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AiTotalService {
+public class AiTotalService { //facade 패턴
 
 	private final AiService aiService;
 	private final RedisTemplate<String, String> redisTemplate;
@@ -50,7 +50,8 @@ public class AiTotalService {
 	private void acquireLock(String lockKey) {
 		Boolean isLocked = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCKED", 15, TimeUnit.SECONDS);
 		if (Boolean.FALSE.equals(isLocked)) {
-			throw new IllegalArgumentException("현재 메뉴에 대한 AI 설명 생성중");
+			// 409 conflict로 변경
+			throw new IllegalStateException("현재 메뉴에 대한 AI 설명 생성중");
 		}
 	}
 
