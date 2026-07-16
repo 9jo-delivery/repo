@@ -1,13 +1,19 @@
 package com.sparta.delivery.domain.region.controller;
 
-import com.sparta.delivery.domain.region.dto.RegionRequestDto;
-import com.sparta.delivery.domain.region.dto.RegionResponseDto;
-import com.sparta.delivery.domain.region.dto.RegionSearchDto;
-import com.sparta.delivery.domain.region.dto.RegionSummaryResponseDto;
+import com.sparta.delivery.domain.region.dto.request.RegionRequestDto;
+import com.sparta.delivery.domain.region.dto.request.RegionSearchDto;
+import com.sparta.delivery.domain.region.dto.request.RegionUpdateRequestDto;
+import com.sparta.delivery.domain.region.dto.response.RegionResponseDto;
+import com.sparta.delivery.domain.region.dto.response.RegionSummaryResponseDto;
 import com.sparta.delivery.domain.region.service.RegionService;
 import com.sparta.delivery.global.config.security.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,25 +29,38 @@ public class RegionController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
-    public RegionResponseDto createRegion(@RequestBody RegionRequestDto regionRequestDto) {
+    public ResponseEntity<RegionResponseDto> createRegion(@Valid @RequestBody RegionRequestDto regionRequestDto) {
 
-        return regionService.createRegion(regionRequestDto);
+        return ResponseEntity.ok(regionService.createRegion(regionRequestDto));
     }
 
     @GetMapping
-    public Page<RegionSummaryResponseDto> findAllRegions(RegionSearchDto regionSearchDto) {
-        return regionService.findAllRegions(regionSearchDto);
+    public ResponseEntity<Page<RegionSummaryResponseDto>> findAllRegions(
+            RegionSearchDto regionSearchDto,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        int size = pageable.getPageSize();
+        if(size != 10 && size != 30 && size != 50){
+            pageable = PageRequest.of(
+                    pageable.getPageNumber(),
+                    10,
+                    pageable.getSort()
+            );
+        }
+        return ResponseEntity.ok(regionService.findAllRegions(regionSearchDto, pageable));
     }
 
     @GetMapping("/{regionId}")
-    public RegionSummaryResponseDto findRegionById(@PathVariable UUID regionId){
-        return regionService.findRegionById(regionId);
+    public ResponseEntity<RegionSummaryResponseDto> findRegionById(@PathVariable UUID regionId){
+        return ResponseEntity.ok(regionService.findRegionById(regionId));
     }
 
     @PatchMapping("/{regionId}")
     @PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
-    public RegionSummaryResponseDto updateRegion(@PathVariable UUID regionId, @RequestBody RegionRequestDto regionRequestDto) {
-        return regionService.updateRegion(regionId, regionRequestDto);
+    public ResponseEntity<RegionSummaryResponseDto> updateRegion(
+            @PathVariable UUID regionId,
+            @RequestBody RegionUpdateRequestDto regionUpdateRequestDto) {
+        return ResponseEntity.ok(regionService.updateRegion(regionId, regionUpdateRequestDto));
     }
 
     @DeleteMapping("/{regionId}")

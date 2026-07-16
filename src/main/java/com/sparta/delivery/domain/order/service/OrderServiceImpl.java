@@ -176,7 +176,7 @@ public class OrderServiceImpl implements OrderService{
     //주문 상세 조회
     @Override
     public OrderDetailResponseDto getOrderDetail(Long customerId, UUID orderId) {
-        Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
+        Order order = orderRepository.findWithItemsByIdAndCustomer_Id(orderId, customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
         return OrderDetailResponseDto.from(order);
     }
@@ -185,7 +185,7 @@ public class OrderServiceImpl implements OrderService{
     @Override
     @Transactional
     public OrderResponseDto updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request) {
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdForUpdate(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
 
         applyStatus(order, request.getOrderStatus());
@@ -197,7 +197,7 @@ public class OrderServiceImpl implements OrderService{
     @Override
     @Transactional
     public OrderResponseDto cancelOrder(Long customerId, UUID orderId, CancelOrderRequestDto request) {
-        Order order = orderRepository.findByIdAndCustomer_Id(orderId, customerId)
+        Order order = orderRepository.findByIdAndCustomer_IdForUpdate(orderId, customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 주문입니다."));
 
         LocalDateTime deadline = order.getCreatedAt().plusMinutes(CANCELLABLE_MIN);

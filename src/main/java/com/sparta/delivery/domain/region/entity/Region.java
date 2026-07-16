@@ -14,8 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE p_regions SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
-@AllArgsConstructor
-@Builder
+
 public class Region extends BaseEntity {
 
 	@Id @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,8 +34,29 @@ public class Region extends BaseEntity {
 	@Column(nullable = false)
 	private boolean isServiceAvailable = false;
 
-	public void updateRegion(String name, boolean isServiceAvailable) {
+	@Builder
+	private Region(Region parentRegion, String name, Enums.RegionType regionType, boolean isServiceAvailable) {
+		this.parentRegion = parentRegion;
 		this.name = name;
+		this.regionType = regionType;
 		this.isServiceAvailable = isServiceAvailable;
+	}
+
+	public static Region create(Region parentRegion, String name, Enums.RegionType regionType, boolean isServiceAvailable) {
+		return Region.builder()
+				.parentRegion(parentRegion)
+				.name(name)
+				.regionType(regionType)
+				.isServiceAvailable(isServiceAvailable)
+				.build();
+	}
+
+	public void update(String name, Boolean isServiceAvailable) {
+		if(name != null){
+			this.name = name;
+		}
+		if(isServiceAvailable != null){
+			this.isServiceAvailable = isServiceAvailable;
+		}
 	}
 }
