@@ -3,7 +3,6 @@ package com.sparta.delivery.domain.menu.entity;
 import com.sparta.delivery.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.util.UUID;
@@ -14,7 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE p_menu_options SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class MenuOption extends BaseEntity {
 
@@ -31,11 +29,22 @@ public class MenuOption extends BaseEntity {
     private String name;
 
     @Column(name = "extra_price", nullable = false)
-    private Integer extraPrice = 0;
+    private int extraPrice = 0;
 
+    @Builder.Default
     @Column(name = "is_sold_out", nullable = false)
     private boolean isSoldOut = false;
 
     @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder = 0;
+    private int sortOrder = 0;
+
+    @Version
+    private Long version;
+
+    public void update(String name, Integer extraPrice, Boolean isSoldOut, Integer sortOrder) {
+        this.name = (name != null && !name.isEmpty()) ? name : this.name;
+        this.extraPrice = (extraPrice != null) ? extraPrice : this.extraPrice;
+        this.isSoldOut = (isSoldOut != null) ? isSoldOut : this.isSoldOut;
+        this.sortOrder = (sortOrder != null) ? sortOrder : this.sortOrder;
+    }
 }

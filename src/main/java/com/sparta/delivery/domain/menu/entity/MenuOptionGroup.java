@@ -3,7 +3,6 @@ package com.sparta.delivery.domain.menu.entity;
 import com.sparta.delivery.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.util.UUID;
@@ -14,7 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE p_menu_option_groups SET is_deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class MenuOptionGroup extends BaseEntity {
 
@@ -34,19 +32,22 @@ public class MenuOptionGroup extends BaseEntity {
     private boolean isRequired = false;
 
     @Column(name = "min_select", nullable = false)
-    private Integer minSelect = 0;
+    private int minSelect = 0;
 
     @Column(name = "max_select", nullable = false)
-    private Integer maxSelect = 1;
+    private int maxSelect = 1;
 
     @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder = 0;
+    private int sortOrder = 0;
 
-    public void update(String name, boolean isRequired, Integer minSelect, Integer maxSelect, Integer sortOrder) {
-        this.name = name;
-        this.isRequired = isRequired;
-        this.minSelect = minSelect;
-        this.maxSelect = maxSelect;
-        this.sortOrder = sortOrder;
+    @Version
+    private Long version;
+
+    public void update(String name, Boolean isRequired, Integer minSelect, Integer maxSelect, Integer sortOrder) {
+        this.name = (name != null && !name.isEmpty()) ? name : this.name;
+        this.isRequired = (isRequired != null) ? isRequired : this.isRequired;
+        this.minSelect = (minSelect != null) ? minSelect : this.minSelect;
+        this.maxSelect = (maxSelect != null) ? maxSelect : this.maxSelect;
+        this.sortOrder = (sortOrder != null) ? sortOrder : this.sortOrder;
     }
 }
