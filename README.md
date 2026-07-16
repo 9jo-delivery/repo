@@ -47,7 +47,8 @@
 
 > *프로젝트의 데이터베이스 테이블 구조 설계도입니다.*
 
-!image.png
+
+<img width="2266" height="2382" alt="Image" src="https://github.com/user-attachments/assets/aa2ea48a-5efd-4e40-b8c7-d5efecf8006a" />
 
 ---
 
