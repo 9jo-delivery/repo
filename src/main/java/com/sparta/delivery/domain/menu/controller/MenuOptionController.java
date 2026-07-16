@@ -5,6 +5,7 @@ import com.sparta.delivery.domain.menu.dto.MenuOptionCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuOptionSearchResponse;
 import com.sparta.delivery.domain.menu.dto.MenuOptionUpdateRequest;
 import com.sparta.delivery.domain.menu.service.MenuOptionService;
+import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,23 +15,29 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 public class MenuOptionController {
 
-    public final MenuOptionService menuOptionService;
-    private final Long userId = 1L; // 임시 유저 ID
+    private final MenuOptionService menuOptionService;
 
     @PostMapping("/api/option-groups/{groupId}/options")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<MenuOptionCreateResponse> createOption(@PathVariable UUID groupId, @Valid @RequestBody MenuOptionCreateRequest request) {
+    public ResponseEntity<MenuOptionCreateResponse> createOption(
+            @PathVariable UUID groupId,
+            @Valid @RequestBody MenuOptionCreateRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
 
         MenuOptionCreateResponse response = menuOptionService.createMenuOption(groupId, request, userId);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.created(URI.create("/api/options/" + response.optionId())).body(response);
     }
 
     @GetMapping("/api/option-groups/{groupId}/options")
@@ -53,7 +60,12 @@ public class MenuOptionController {
 
     @PatchMapping("/api/options/{optionId}")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<MenuOptionSearchResponse> updateOption(@PathVariable UUID optionId, @Valid @RequestBody MenuOptionUpdateRequest request) {
+    public ResponseEntity<MenuOptionSearchResponse> updateOption(
+            @PathVariable UUID optionId,
+            @Valid @RequestBody MenuOptionUpdateRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
 
         MenuOptionSearchResponse response = menuOptionService.updateOption(optionId, request, userId);
         return ResponseEntity.ok().body(response);
@@ -61,7 +73,11 @@ public class MenuOptionController {
 
     @DeleteMapping("/api/options/{optionId}")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Void> deleteOption(@PathVariable UUID optionId) {
+    public ResponseEntity<Void> deleteOption(
+            @PathVariable UUID optionId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
 
         menuOptionService.deleteOption(optionId, userId);
         return ResponseEntity.noContent().build();

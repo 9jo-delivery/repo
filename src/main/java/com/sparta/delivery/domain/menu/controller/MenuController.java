@@ -5,6 +5,7 @@ import com.sparta.delivery.domain.menu.dto.MenuCreateResponse;
 import com.sparta.delivery.domain.menu.dto.MenuSearchResponse;
 import com.sparta.delivery.domain.menu.dto.MenuUpdateRequest;
 import com.sparta.delivery.domain.menu.service.MenuService;
+import com.sparta.delivery.global.config.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -24,12 +26,16 @@ import java.util.UUID;
 public class MenuController {
 
     private final MenuService menuService;
-    private final Long userId = 1L; // 임시 유저 ID
 
     // 메뉴 등록
     @PostMapping("/api/restaurants/{restaurantId}/menus")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<MenuCreateResponse> createMenu(@PathVariable UUID restaurantId, @Valid @RequestBody MenuCreateRequest request) {
+    public ResponseEntity<MenuCreateResponse> createMenu(
+            @PathVariable UUID restaurantId,
+            @Valid @RequestBody MenuCreateRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
 
         MenuCreateResponse response = menuService.createMenu(restaurantId, request, userId);
         // 생성된 메뉴의 상세 조회 URI를 Location 헤더에 담아 201 Created 응답
@@ -59,7 +65,12 @@ public class MenuController {
     // 메뉴 수정
     @PatchMapping("/api/menus/{menuId}")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<MenuSearchResponse> updateMenu(@PathVariable UUID menuId, @Valid @RequestBody MenuUpdateRequest request) {
+    public ResponseEntity<MenuSearchResponse> updateMenu(
+            @PathVariable UUID menuId,
+            @Valid @RequestBody MenuUpdateRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
 
         MenuSearchResponse response = menuService.updateMenu(menuId, request, userId);
         return ResponseEntity.ok(response);
@@ -68,7 +79,11 @@ public class MenuController {
     // 메뉴 삭제
     @DeleteMapping("/api/menus/{menuId}")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Void> deleteMenu(@PathVariable UUID menuId) {
+    public ResponseEntity<Void> deleteMenu(
+            @PathVariable UUID menuId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
 
         menuService.deleteMenu(menuId, userId);
         return ResponseEntity.noContent().build();
