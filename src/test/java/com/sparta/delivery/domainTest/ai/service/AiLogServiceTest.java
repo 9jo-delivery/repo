@@ -24,7 +24,7 @@ import com.sparta.delivery.domain.ai.dto.AiLogDto.AiLogSummaryResponseDto;
 import com.sparta.delivery.domain.ai.dto.AiLogDto.AiSearchCondition;
 import com.sparta.delivery.domain.ai.entity.AiDescriptionLog;
 import com.sparta.delivery.domain.ai.repository.AiDescriptRepository;
-import com.sparta.delivery.domain.ai.service.AiDescriptionService;
+import com.sparta.delivery.domain.ai.service.descript.AiDescriptionService;
 import com.sparta.delivery.domain.menu.entity.Menu;
 import com.sparta.delivery.domain.menu.repository.MenuRepository;
 import com.sparta.delivery.domain.restaurant.entity.Restaurant;

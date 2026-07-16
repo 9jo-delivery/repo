@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.delivery.domain.ai.dto.AiLogDto.AiLogDetailResponseDto;
 import com.sparta.delivery.domain.ai.dto.AiLogDto.AiLogSummaryResponseDto;
 import com.sparta.delivery.domain.ai.dto.AiLogDto.AiSearchCondition;
-import com.sparta.delivery.domain.ai.service.AiDescriptionService;
+import com.sparta.delivery.domain.ai.service.descript.AiDescriptionService;
 
 import lombok.RequiredArgsConstructor;
 

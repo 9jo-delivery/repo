@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.review.repository;
 
 import static com.sparta.delivery.domain.review.entity.QReview.*;
+import static com.sparta.delivery.domain.user.entity.QUser.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.delivery.domain.review.dto.ReviewSearchCondition;
 import com.sparta.delivery.domain.review.entity.Review;
+import com.sparta.delivery.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,11 +27,12 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 	@Override
 	public Page<Review> searchRestaurantReviews(UUID restaurantId, ReviewSearchCondition condition, Pageable pageable) {
 		// 1. (실제 데이터) 조건에 맞는 리뷰 데이터 목록을 가져와서 reviews에 담음
-		List<Review> reviews = queryFactory
+		List<Review> realData = queryFactory
 			.selectFrom(review)
+			.leftJoin(review.customer, user).fetchJoin() // 진짜 데이터 받아오기 N+1 문제 해결식
 			.where(
 				review.restaurant.id.eq(restaurantId), // 기본 필수 조건: 이 식당의 리뷰여야 함
-				ratingEq(condition.getRating())        // 동적 조건: 별점 필터 조건
+				ratingEq(condition.getRating())			// 동적 조건: 별점 필터 조건
 			)
 			.offset(pageable.getOffset())  // 페이징: 어디서부터 시작할지 문제점: 1000번대부터 10개 1~1000 오프셋리밋 개선방안 있음 -> 개선방안 찾아보기
 			.limit(pageable.getPageSize()) // 페이징: 몇 개를 가져올지
@@ -48,7 +51,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 				ratingEq(condition.getRating())
 			);
 
-		return PageableExecutionUtils.getPage(reviews, pageable, countQuery::fetchOne);
+		return PageableExecutionUtils.getPage(realData, pageable, countQuery::fetchOne);
 	}
 
 	private BooleanExpression ratingEq(Integer rating) {

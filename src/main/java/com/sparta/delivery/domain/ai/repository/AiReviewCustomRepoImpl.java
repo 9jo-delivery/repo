@@ -5,6 +5,8 @@ package com.sparta.delivery.domain.ai.repository;
 // where(qAiDescriptionLog.menuId.eq(1)) 처럼 자바 객체 접근 방식으로 쓰면,
 // 오타가 났을 때 컴파일 에러를 띄워줘서 안전하게 코드 짤수있음
 import static com.sparta.delivery.domain.ai.entity.QAiDescriptionLog.aiDescriptionLog;
+import static com.sparta.delivery.domain.restaurant.entity.QRestaurant.*;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -33,6 +35,7 @@ public class AiReviewCustomRepoImpl implements AiReviewCustomRepo {
 
 		List<AiDescriptionLog> logs = queryFactory
 			.selectFrom(aiDescriptionLog)
+			.leftJoin(aiDescriptionLog.restaurant, restaurant).fetchJoin()
 			.where(
 				restaurantIdEq(condition.getRestaurantId()),
 				isSuccessEq(condition.getIsSuccess()),
@@ -84,10 +87,10 @@ public class AiReviewCustomRepoImpl implements AiReviewCustomRepo {
 			return aiDescriptionLog.createdAt.goe(startDate.atStartOfDay());
 		}
 		if (startDate == null) {
-			return aiDescriptionLog.createdAt.loe(endDate.atTime(LocalTime.MAX));
+			return aiDescriptionLog.createdAt.lt(endDate.plusDays(1).atStartOfDay());
 		}
 		// 조건이 전부 부합 할때 시작과 마지막 종료일의 중간값을 구함
-		return aiDescriptionLog.createdAt.between(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
+		return aiDescriptionLog.createdAt.between(startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
 	}
 
 }
